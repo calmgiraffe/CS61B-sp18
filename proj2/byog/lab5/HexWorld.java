@@ -12,8 +12,11 @@ import java.util.Random;
  * Draws a world consisting of hexagonal regions.
  */
 public class HexWorld {
-    private static final int WIDTH = 7;
-    private static final int HEIGHT = 6;
+    private static final int SIZE = 3;
+    private static final int WIDTH = 3*SIZE - 2;
+    private static final int HEIGHT = 2*SIZE;
+    private static final int WINDOW_WIDTH = 5*WIDTH - 4*(SIZE - 1);
+    private static final int WINDOW_HEIGHT = 5*HEIGHT;
     private static final long SEED = 287123;
     private static final Random RANDOM = new Random(SEED);
 
@@ -100,14 +103,15 @@ public class HexWorld {
     }
 
     public static void main(String args[]) {
+        //
         Position p = new Position(0, 0);
 
         // initialize the tile rendering engine with a window of size WIDTH x HEIGHT
         TERenderer ter = new TERenderer();
-        ter.initialize(WIDTH, HEIGHT);
+        ter.initialize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
         // initialize tiles
-        TETile[][] world = new TETile[WIDTH][HEIGHT];
+        TETile[][] world = new TETile[WINDOW_WIDTH][WINDOW_HEIGHT];
         TETile tile = chooseRandomTile();
         addHexagon(world, p, 3, tile);
 
