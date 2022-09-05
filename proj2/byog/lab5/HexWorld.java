@@ -25,7 +25,7 @@ public class HexWorld {
     private static final Random RANDOM = new Random(SEED);
 
     /*
-     * A simple private class to represent the x and y position of a hexagon. */
+     * A private class to represent the x and y position of the lower left corner of a hexagon. */
     private static class Position {
         private int x;
         private int y;
@@ -47,25 +47,28 @@ public class HexWorld {
             return y;
         }
 
+        /* Move p left and down to prepare it for the next column drawing */
         public void moveLeft() {
             x = x - (WIDTH - SIZE + 1);
             y = firstY - SIZE;
             firstY = y;
         }
 
+        /* Move p right and down to prepare it for the next column drawing */
         public void moveRight() {
             x = x + (WIDTH - SIZE + 1);
             y = firstY - SIZE;
             firstY = y;
         }
 
+        /* Move p up to prepare it for the next hexagon drawing */
         public void moveUp() {
             y = y + HEIGHT;
         }
     }
 
     /*
-     * Given the current row (y) and the size (s) of the hexagon, calculates the point within the rectangle
+     * Given the relative current row (y) and the size (s) of the hexagon, calculates the point within the rectangle
      * bounding the hexagon where the first tile of the row should be drawn. */
     private static int findStart(int y, int s) {
         if (y < s) {
@@ -76,7 +79,7 @@ public class HexWorld {
     }
 
     /*
-     * Given the current row (y) and the size (s) of the hexagon, calculates the point within the rectangle
+     * Given the relative current row (y) and the size (s) of the hexagon, calculates the point within the rectangle
      * bounding the hexagon where the drawing of the tiles within the row should be terminated */
     private static int findEnd(int y, int s) {
         if (y < s) {
@@ -127,9 +130,9 @@ public class HexWorld {
         Position p1 = new Position(0, 2*s);
         Position p2 = new Position(WINDOW_WIDTH - WIDTH, 2*s);
 
-        int stack = 3;
+        int columnHeight = 3;
         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < stack; j++) {
+            for (int j = 0; j < columnHeight; j++) {
 
                 TETile tile1 = chooseRandomTile();
                 TETile tile2 = chooseRandomTile();
@@ -141,7 +144,7 @@ public class HexWorld {
 
             p1.moveRight();
             p2.moveLeft();
-            stack += 1;
+            columnHeight += 1;
         }
     }
 
