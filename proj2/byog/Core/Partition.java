@@ -9,6 +9,10 @@ import java.util.Random;
  * Position p is the coordinate of the lower left corner */
 public class Partition {
 
+    /* Partition class variables */
+    static final int MIN_WIDTH = 8;
+    static final int MIN_HEIGHT = 8;
+
     /* Partition instance variables */
     private final Position p;
     private int width;
@@ -24,7 +28,7 @@ public class Partition {
     /* Makes another partition about a point about border,
      * which is approximately in the middle of current partition's width.
      * and adds to list. Then, updates the width of the current partition. */
-    public Partition divideHorizontally(int border) {
+    public Partition splitHorizontally(int border) {
         // Min width for partitioning is 6, because smallest possible room is 3x3
         if (width < 6) {
             return null;
@@ -39,7 +43,7 @@ public class Partition {
     }
 
     /* Same as above but about the current partition's height */
-    public Partition divideVertically(int border) {
+    public Partition splitVertically(int border) {
         if (height < 6) {
             return null;
         }
@@ -102,6 +106,12 @@ public class Partition {
                 map[x][y] = Tileset.FLOOR;
             }
         }
+    }
+
+
+    /* Examine the dimensions of the partition and determine the optimal direction to partition*/
+    public int getBorder(Random random) {
+        return random.nextInt(width - 7) + 4;
     }
 
     public void updateWidth(int newWidth) {

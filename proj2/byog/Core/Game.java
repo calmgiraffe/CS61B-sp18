@@ -7,8 +7,8 @@ import byog.TileEngine.Tileset;
 import java.util.Random;
 
 public class Game {
-    private static final int WIDTH = 60;
-    private static final int HEIGHT = 40;
+    private static final int WIDTH = 50;
+    private static final int HEIGHT = 30;
 
     private TERenderer ter = new TERenderer();
     private Map world;

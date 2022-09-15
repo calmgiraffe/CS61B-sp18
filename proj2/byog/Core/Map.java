@@ -39,25 +39,40 @@ public class Map {
     /* Iterate through the Partitions and apply either their divideHorizontally or divideVertically method,
      * depending on the value of choice. Add the result to a new List, then replace this.partitions */
     public void makePartition() {
+        int border;
         ArrayList<Partition> newList= new ArrayList<>();
 
         for (Partition p : partitions) {
             newList.add(p);
 
-            int choice = random.nextInt(2);
-            if (choice == 0 && p.width() >= 6) {
-                int border = random.nextInt(p.width() - 5) + 3;
-                newList.add(p.divideHorizontally(border));
+            // Split vertically
+            if (p.width() < Partition.MIN_WIDTH && p.height() >= Partition.MIN_HEIGHT) {
+                border = random.nextInt(p.height() - 7) + 4;
+                newList.add(p.splitVertically(border));
+            }
+            // Split horizontally
+            else if (p.width() >= Partition.MIN_WIDTH && p.height() < Partition.MIN_HEIGHT) {
+                border = random.nextInt(p.width() - 7) + 4;
+                newList.add(p.splitHorizontally(border));
+            }
+            // Do either
+            else if (p.width() >= Partition.MIN_WIDTH && p.height() >= Partition.MIN_HEIGHT) {
+                int choice = random.nextInt(2);
 
-            } else if (choice == 1 && p.height() >= 6) {
-                int border = random.nextInt(p.height() - 5) + 3;
-                newList.add(p.divideVertically(border));
+                if (choice == 0) {
+                    border = random.nextInt(p.width() - 7) + 4;
+                    newList.add(p.splitHorizontally(border));
+
+                } else {
+                    border = random.nextInt(p.height() - 7) + 4;
+                    newList.add(p.splitVertically(border));
+                }
             }
         }
         partitions = newList;
     }
 
-    
+    /* Randomly generates some rectangular rooms on the map. */
     public void makeRooms() {
         for (int i = 0; i < 3; i++) {
             this.makePartition();
