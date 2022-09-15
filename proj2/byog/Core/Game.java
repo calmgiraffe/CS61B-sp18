@@ -12,7 +12,6 @@ public class Game {
 
     private TERenderer ter = new TERenderer();
     private Map world;
-    private Random randGen;
 
     /** Method used for playing a fresh game. The game should start from the main menu. */
     public void playWithKeyboard() {
@@ -40,11 +39,9 @@ public class Game {
 
         // example: N3412S should generate a world with seed 3412
         if (mode == 'n') {
-            world = new Map(WIDTH, HEIGHT);
-            world.fillWithNothing();
-
             String seed = input.substring(1, input.length() - 1);
-            randGen = new Random(Long.parseLong(seed));
+            world = new Map(WIDTH, HEIGHT, seed);
+            world.fillWithNothing();
 
             Position p = new Position(3, 4);
             world.generateRoom(6, 8, p);
