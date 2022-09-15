@@ -44,7 +44,7 @@ public class Game {
             world.fillWithNothing();
 
             Position p = new Position(3, 4);
-            world.makeRoom();
+            world.makeRooms();
 
             ter.initialize(WIDTH, HEIGHT);
             ter.renderFrame(world.getMap());
