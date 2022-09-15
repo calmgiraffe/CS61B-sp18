@@ -44,7 +44,7 @@ public class Game {
             world.fillWithNothing();
 
             Position p = new Position(3, 4);
-            world.generateRoom(6, 8, p);
+            world.makeRoom();
 
             ter.initialize(WIDTH, HEIGHT);
             ter.renderFrame(world.getMap());
@@ -55,27 +55,6 @@ public class Game {
             // quit
         }
         return world.getMap();
-    }
-
-
-}
-
-/** Class to represent an (x,y) coordinate */
-class Position {
-    private final int x;
-    private final int y;
-
-    public Position(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    public int X() {
-        return x;
-    }
-
-    public int Y() {
-        return y;
     }
 }
 
