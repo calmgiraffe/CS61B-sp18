@@ -12,7 +12,7 @@ import java.util.Random;
 public class Map {
 
     /* Map instance variables */
-    private TETile[][] map;
+    private final TETile[][] map;
     private final int width;
     private final int height;
     private final Random random;
@@ -25,7 +25,6 @@ public class Map {
         this.height = height;
         this.random = new Random(Long.parseLong(seed));
         this.partitions.add(new Partition(new Position(0, 0), width, height));
-
         this.fillWithNothing();
     }
 
@@ -43,7 +42,6 @@ public class Map {
      * Add the result to a new List, then replace this.partitions */
     public void makePartitions() {
         boolean canSplit = true;
-
         while (canSplit) {
             ArrayList<Partition> newList = new ArrayList<>();
 
@@ -55,7 +53,6 @@ public class Map {
                     newList.add(newPartition);
                 }
             }
-
             if (newList.equals(partitions)) {
                 canSplit = false;
             }

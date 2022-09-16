@@ -47,6 +47,13 @@ public class Partition {
         return newPartition;
     }
 
+    /* Draws a room inside the partition whose area is between 4x4 and the exact dimensions of the partition area.
+    *  Because a room */
+    public void generateRoom2(TETile[][] map) {
+        int widthRange = width - 4;
+        int heightRange = height - 4;
+    }
+
     /* Draws a rectangular room of given width and height, and places its bottom corner at position.
      * Tileset.WALL is used as the wall tile, and the room is filled with Tileset.FLOOR */
     public void generateRoom(int width, int height, Position p, TETile[][] map) {
@@ -103,12 +110,12 @@ public class Partition {
     public Partition split(Random r) {
         // if MIN <= width <= MAX and height > MAX, split vertically
         if (width >= MIN && width <= MAX && height > MAX) {
-            int border = r.nextInt(height - 7) + 4;
+            int border = r.nextInt(height - (2*MIN - 1)) + MIN;
             return this.splitVertically(border);
         }
         // if MIN <= height <= MAX and width > MAX, split horizontally
         else if (height >= MIN && height <= MAX && width > MAX) {
-            int border = r.nextInt(width - 7) + 4;
+            int border = r.nextInt(width - (2*MIN - 1)) + MIN;
             return this.splitHorizontally(border);
         }
         // if width and height between MIN and MAX, do nothing
