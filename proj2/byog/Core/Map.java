@@ -43,17 +43,19 @@ public class Map {
      * Add the result to a new List, then replace this.partitions */
     public void makePartitions() {
         boolean canSplit = true;
+
         while (canSplit) {
             ArrayList<Partition> newList = new ArrayList<>();
 
             for (Partition p : partitions) {
-                Partition newPartition = p.split(random); // get new partition
+                newList.add(p); // add current partition
 
+                Partition newPartition = p.split(random); // get new partition
                 if (newPartition != null) {
                     newList.add(newPartition);
                 }
-                newList.add(p); // add current partition
             }
+
             if (newList.equals(partitions)) {
                 canSplit = false;
             }
