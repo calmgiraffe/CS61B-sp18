@@ -15,8 +15,8 @@ public class Map {
      private class Partition {
 
          /* Partition class and instance variables */
-         static final int MIN = 4;
-         static final int MAX = 12;
+         static final int MIN = 10;
+         static final int MAX = 20;
          private final Position p;
          private int width;
          private int height;
@@ -52,18 +52,25 @@ public class Map {
 
          /* Draws a room inside the partition whose area is between 4x4 and the exact dimensions of the partition area.
           *  Because a room */
-         public void generateRandomRoom() {
-             int widthRange = width - 4;
-             int heightRange = height - 4;
+         public Room generateRandomRoom() {
+             int lowerLeftX = random.nextInt(width - MIN + 1);
+             int lowerLeftY = random.nextInt(height - MIN + 1);
+             Position lowerP = new Position(p.X() + lowerLeftX, p.Y() + lowerLeftY);
+
+             int offsetX = random.nextInt(width - lowerLeftX - MIN + 1) + MIN - 1;
+             int offsetY = random.nextInt(height - lowerLeftY - MIN + 1) + MIN - 1;
+             Position upperP = new Position(lowerP.X() + offsetX, lowerP.Y() + offsetY);
+
+             return new Room(lowerP, upperP, Tileset.FLOWER);
          }
 
          /* Draws a rectangular room of width and height that fits exactly within the current partition.
           * Tileset.WALL is used as the wall tile, and the room is filled with Tileset.FLOOR */
-         public void generateRoom() {
-             int startX = p.X();
-             int startY = p.Y();
-             int endX = startX + width - 1;
-             int endY = startY + height - 1;
+         public void makeRoom(Room room) {
+             int startX = room.lowerLeft().X();
+             int startY = room.lowerLeft().Y();
+             int endX = room.upperRight().X();
+             int endY = room.upperRight().Y();
 
              // Draw top and bottom walls
              for (int x = startX; x <= endX; x++) {
@@ -114,12 +121,14 @@ public class Map {
          }
 
      }
+
     /* Map instance variables */
     private final TETile[][] map;
     private final int width;
     private final int height;
     private final Random random;
     private ArrayList<Partition> partitions = new ArrayList<>();
+    private ArrayList<Room> rooms = new ArrayList<>();
 
     /* Map constructor */
     public Map(int width, int height, String seed) {
@@ -168,7 +177,8 @@ public class Map {
         this.makePartitions();
 
         for (Partition p : partitions) {
-            p.generateRoom();
+            Room room = p.generateRandomRoom();
+            p.makeRoom(room);
         }
     }
 
