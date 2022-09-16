@@ -25,10 +25,12 @@ public class Map {
         this.height = height;
         this.random = new Random(Long.parseLong(seed));
         this.partitions.add(new Partition(new Position(0, 0), width, height));
+
+        this.fillWithNothing();
     }
 
     /* Fill the map with Tileset.NOTHING */
-    public void fillWithNothing() {
+    private void fillWithNothing() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 map[x][y] = Tileset.NOTHING;
@@ -36,47 +38,33 @@ public class Map {
         }
     }
 
-    /* Iterate through the Partitions and apply either their divideHorizontally or divideVertically method,
-     * depending on the value of choice. Add the result to a new List, then replace this.partitions */
-    public void makePartition() {
-        int border;
-        ArrayList<Partition> newList= new ArrayList<>();
+    /* Iterate through partitions and apply either their divideHorizontally or divideVertically method,
+     * depending on their dimensions or result of random generator.
+     * Add the result to a new List, then replace this.partitions */
+    public void makePartitions() {
+        boolean canSplit = true;
+        while (canSplit) {
+            ArrayList<Partition> newList = new ArrayList<>();
 
-        for (Partition p : partitions) {
-            newList.add(p);
+            for (Partition p : partitions) {
+                Partition newPartition = p.split(random); // get new partition
 
-            // Split vertically
-            if (p.width() < Partition.MIN_WIDTH && p.height() >= Partition.MIN_HEIGHT) {
-                border = random.nextInt(p.height() - 7) + 4;
-                newList.add(p.splitVertically(border));
-            }
-            // Split horizontally
-            else if (p.width() >= Partition.MIN_WIDTH && p.height() < Partition.MIN_HEIGHT) {
-                border = random.nextInt(p.width() - 7) + 4;
-                newList.add(p.splitHorizontally(border));
-            }
-            // Do either
-            else if (p.width() >= Partition.MIN_WIDTH && p.height() >= Partition.MIN_HEIGHT) {
-                int choice = random.nextInt(2);
-
-                if (choice == 0) {
-                    border = random.nextInt(p.width() - 7) + 4;
-                    newList.add(p.splitHorizontally(border));
-
-                } else {
-                    border = random.nextInt(p.height() - 7) + 4;
-                    newList.add(p.splitVertically(border));
+                if (newPartition != null) {
+                    newList.add(newPartition);
                 }
+                newList.add(p); // add current partition
             }
+            if (newList.equals(partitions)) {
+                canSplit = false;
+            }
+            partitions = newList;
         }
-        partitions = newList;
     }
 
     /* Randomly generates some rectangular rooms on the map. */
-    public void makeRooms() {
-        for (int i = 0; i < 3; i++) {
-            this.makePartition();
-        }
+    public void generateRooms() {
+        this.makePartitions();
+
         for (Partition p : partitions) {
             p.generateRoom(map);
         }

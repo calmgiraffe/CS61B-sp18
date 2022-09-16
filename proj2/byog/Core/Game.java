@@ -7,8 +7,8 @@ import byog.TileEngine.Tileset;
 import java.util.Random;
 
 public class Game {
-    private static final int WIDTH = 50;
-    private static final int HEIGHT = 30;
+    private static final int WIDTH = 48;
+    private static final int HEIGHT = 48;
 
     private TERenderer ter = new TERenderer();
     private Map world;
@@ -41,10 +41,7 @@ public class Game {
         if (mode == 'n') {
             String seed = input.substring(1, input.length() - 1);
             world = new Map(WIDTH, HEIGHT, seed);
-            world.fillWithNothing();
-
-            Position p = new Position(3, 4);
-            world.makeRooms();
+            world.generateRooms();
 
             ter.initialize(WIDTH, HEIGHT);
             ter.renderFrame(world.getMap());

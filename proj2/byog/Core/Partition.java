@@ -10,8 +10,8 @@ import java.util.Random;
 public class Partition {
 
     /* Partition class variables */
-    static final int MIN_WIDTH = 8;
-    static final int MIN_HEIGHT = 8;
+    static final int MIN = 4;
+    static final int MAX = 12;
 
     /* Partition instance variables */
     private final Position p;
@@ -29,11 +29,6 @@ public class Partition {
      * which is approximately in the middle of current partition's width.
      * and adds to list. Then, updates the width of the current partition. */
     public Partition splitHorizontally(int border) {
-        // Min width for partitioning is 6, because smallest possible room is 3x3
-        if (width < 6) {
-            return null;
-        }
-        // ex: if width 7, can return (0 + 3) or (1 + 3)
         Position newPos = new Position(p.X() + border, p.Y());
         Partition newPartition = new Partition(newPos, width - border, height);
 
@@ -44,10 +39,6 @@ public class Partition {
 
     /* Same as above but about the current partition's height */
     public Partition splitVertically(int border) {
-        if (height < 6) {
-            return null;
-        }
-        // ex: if width 7, can return (0 + 3) or (1 + 3)
         Position newPos = new Position(p.X(), p.Y() + border);
         Partition newPartition = new Partition(newPos, width, height - border);
 
@@ -108,10 +99,34 @@ public class Partition {
         }
     }
 
+    /* Pass in random object */
+    public Partition split(Random r) {
+        // if MIN <= width <= MAX and height > MAX, split vertically
+        if (width >= MIN && width <= MAX && height > MAX) {
+            int border = r.nextInt(height - 7) + 4;
+            return this.splitVertically(border);
+        }
+        // if MIN <= height <= MAX and width > MAX, split horizontally
+        else if (height >= MIN && height <= MAX && width > MAX) {
+            int border = r.nextInt(width - 7) + 4;
+            return this.splitHorizontally(border);
+        }
+        // if width and height between MIN and MAX, do nothing
+        else if (height >= MIN && height <= MAX && width >= MIN && width <= MAX) {
+            return null;
+        }
+        // Do either
+        else {
+            int choice = r.nextInt(2);
+            if (choice == 0) {
+                int border = r.nextInt(width - 7) + 4;
+                return this.splitHorizontally(border);
 
-    /* Examine the dimensions of the partition and determine the optimal direction to partition*/
-    public int getBorder(Random random) {
-        return random.nextInt(width - 7) + 4;
+            } else {
+                int border = r.nextInt(height - 7) + 4;
+                return this.splitVertically(border);
+            }
+        }
     }
 
     public void updateWidth(int newWidth) {
@@ -120,10 +135,6 @@ public class Partition {
 
     public void updateHeight(int newHeight) {
         height = newHeight;
-    }
-
-    public Position position() {
-        return p;
     }
 
     public int width() {
