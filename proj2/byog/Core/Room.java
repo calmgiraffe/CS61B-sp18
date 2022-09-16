@@ -22,4 +22,8 @@ public class Room {
     public Position upperRight() {
         return upperRight;
     }
+
+    public TETile floorType() {
+        return floorType;
+    }
 }
