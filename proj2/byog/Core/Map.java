@@ -66,8 +66,11 @@ public class Map {
         this.generatePartitions();
 
         for (Partition p : partitions) {
-            Room room = p.generateRandomRoom();
-            p.drawRoom(room);
+            p.generateRandomRoom();
+            int choice = random.nextInt(3);
+            if (choice < 3) { // only draw a random selection of 75% of rooms
+                p.drawRoom();
+            }
         }
     }
 

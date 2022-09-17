@@ -8,7 +8,7 @@ import java.util.Random;
 
 public class Game {
     private static final int WIDTH = 60;
-    private static final int HEIGHT = 48;
+    private static final int HEIGHT = 40;
 
     private TERenderer ter = new TERenderer();
     private Map world;

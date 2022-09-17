@@ -101,7 +101,7 @@ public class Partition {
      * Generates a rectangular Room inside the partition whose area is between MIN x MIN and the exact dimensions
      * of the partition area. A Room is an abstract object consisting of two Positions representing the bottom left
      * and top right corner, a floor type, etc */
-    public Room generateRandomRoom() {
+    public void generateRandomRoom() {
         int lowerLeftX = random.nextInt(width - MIN);
         int lowerLeftY = random.nextInt(height - MIN);
         Position lowerP = new Position(p.X() + lowerLeftX, p.Y() + lowerLeftY);
@@ -110,15 +110,12 @@ public class Partition {
         int upperRightY = random.nextInt(MIN - 1, height - lowerLeftY - 1);
         Position upperP = new Position(lowerP.X() + upperRightX, lowerP.Y() + upperRightY);
 
-        Room room = new Room(lowerP, upperP, chooseRandomFloorType());
-        this.room = room;
-        return room;
+        this.room = new Room(lowerP, upperP, chooseRandomFloorType());
     }
 
     /**
-     * Draws a rectangular room of width and height that fits exactly within the current partition.
-     * Tileset.WALL is used as the wall tile, and the room is filled with Tileset.FLOOR */
-    public void drawRoom(Room room) {
+     * Draws the room of that is associated with this particular Partition onto the map. */
+    public void drawRoom() {
         int startX = room.lowerLeft().X();
         int startY = room.lowerLeft().Y();
         int endX = room.upperRight().X();
