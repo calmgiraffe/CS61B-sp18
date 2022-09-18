@@ -42,20 +42,18 @@ public class Map {
      * depending on their dimensions or result of random generator.
      * Add the result to a new List, then replace partitions */
     public void generatePartitions() {
-        boolean canSplit = true;
-        while (canSplit) {
+        while (true) {
             ArrayList<Partition> newList = new ArrayList<>();
-
             for (Partition p : partitions) {
                 newList.add(p); // add current partition
-
                 Partition newPartition = Partition.split(p); // get new partition
+
                 if (newPartition != null) {
                     newList.add(newPartition);
                 }
             }
             if (newList.equals(partitions)) { // if old list same as new, no further partitions can be made
-                canSplit = false;
+                break;
             }
             partitions = newList;
         }
