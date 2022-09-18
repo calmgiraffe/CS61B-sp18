@@ -23,7 +23,7 @@ public class Map {
         this.width = width;
         this.height = height;
         this.random = new RandomExtra(Long.parseLong(seed));
-        this.partitions.add(new Partition(new Position(0, 0), width, height, random, map));
+        this.partitions.add(new Partition(new Position(0, 0), width, height, map, random));
         this.fillWithNothing(); // Initially fill map with Tileset.NOTHING
     }
 
@@ -40,7 +40,7 @@ public class Map {
     /**
      * Iterate through partitions and apply either their divideHorizontally or divideVertically method,
      * depending on their dimensions or result of random generator.
-     * Add the result to a new List, then replace this.partitions */
+     * Add the result to a new List, then replace partitions */
     public void generatePartitions() {
         boolean canSplit = true;
         while (canSplit) {
@@ -49,7 +49,7 @@ public class Map {
             for (Partition p : partitions) {
                 newList.add(p); // add current partition
 
-                Partition newPartition = p.split(); // get new partition
+                Partition newPartition = Partition.split(p); // get new partition
                 if (newPartition != null) {
                     newList.add(newPartition);
                 }

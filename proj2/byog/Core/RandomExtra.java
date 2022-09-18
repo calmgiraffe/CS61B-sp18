@@ -15,7 +15,6 @@ public class RandomExtra extends Random {
         return r.nextInt(upper - lower + 1) + lower;
     }
 
-
     /**
      * Returns a random positive integer between 0 (inclusive) and upper (inclusive) */
     @Override

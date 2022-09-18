@@ -14,33 +14,33 @@ public class Partition {
     static final int MIN = 8;
     static final int MAX = 20;
 
-    private final Position p;
+    private final Position position;
     private int width;
     private int height;
-    private final RandomExtra random;
     private final TETile[][] map;
+    private final RandomExtra random;
     private Room room;
 
     /**
      * Partition constructor */
-    Partition(Position p, int width, int height, RandomExtra random, TETile[][] map) {
-        this.p = p;
+    Partition(Position p, int width, int height, TETile[][] map, RandomExtra r) {
+        this.position = p;
         this.width = width;
         this.height = height;
-        this.random = random;
         this.map = map;
+        this.random = r;
     }
 
     /**
      * Makes another partition at a point about border, which is approximately in
      * the middle of the current partition's width so that both partitions are within bounds.
      * Then, updates the width of the current partition and currents the new partition. */
-    public Partition splitHorizontally(int border) {
-        Position newPos = new Position(p.X() + border, p.Y());
-        Partition newPartition = new Partition(newPos, width - border, height, random, map);
+    private static Partition splitHorizontally(Partition p, int border) {
+        Position newPos = new Position(p.position.x + border, p.position.y);
+        Partition newPartition = new Partition(newPos, p.width - border, p.height, p.map, p.random);
 
         // Update the existing partition and return new Partition
-        width = border;
+        p.width = border;
         return newPartition;
     }
 
@@ -48,12 +48,12 @@ public class Partition {
      * Makes another partition at a point about border, which is approximately in
      * the middle of the current partition's height so that both partitions are within bounds.
      * Then, updates the height of the current partition and currents the new partition. */
-    public Partition splitVertically(int border) {
-        Position newPos = new Position(p.X(), p.Y() + border);
-        Partition newPartition = new Partition(newPos, width, height - border, random, map);
+    private static Partition splitVertically(Partition p, int border) {
+        Position newPos = new Position(p.position.x, p.position.y + border);
+        Partition newPartition = new Partition(newPos, p.width, p.height - border, p.map, p.random);
 
         // Update the existing partition and return new Partition
-        height = border;
+        p.height = border;
         return newPartition;
     }
 
@@ -61,27 +61,27 @@ public class Partition {
      * Examines the dimensions of the partition, and either splits it horizontally or vertically, depending
      * on whether a dimension is greater than MAX. If both dimensions are greater than MAX, either vertical
      * or horizontal splitting is chosen randomly. */
-    public Partition split() {
-        if (widthWithinBounds() && !heightWithinBounds()) {
-            int border = random.nextInt(MIN, height - MIN);
-            return this.splitVertically(border);
+    public static Partition split(Partition p) {
+        if (p.widthWithinBounds() && !p.heightWithinBounds()) {
+            int border = p.random.nextInt(MIN, p.height - MIN);
+            return splitVertically(p, border);
 
-        } else if (!widthWithinBounds() && heightWithinBounds()) {
-            int border = random.nextInt(MIN, width - MIN);
-            return this.splitHorizontally(border);
+        } else if (!p.widthWithinBounds() && p.heightWithinBounds()) {
+            int border = p.random.nextInt(MIN, p.width - MIN);
+            return splitHorizontally(p, border);
 
-        } else if (widthWithinBounds() && heightWithinBounds()) {
+        } else if (p.widthWithinBounds() && p.heightWithinBounds()) {
             return null;
 
         } else {
-            int choice = random.nextInt(2);
+            int choice = p.random.nextInt(2);
             if (choice == 0) {
-                int border = random.nextInt(MIN, width - MIN);
-                return this.splitHorizontally(border);
+                int border = p.random.nextInt(MIN, p.width - MIN);
+                return splitHorizontally(p, border);
 
             } else {
-                int border = random.nextInt(MIN, height - MIN);
-                return this.splitVertically(border);
+                int border = p.random.nextInt(MIN, p.height - MIN);
+                return splitVertically(p, border);
             }
         }
     }
@@ -104,37 +104,37 @@ public class Partition {
     public void generateRandomRoom() {
         int lowerLeftX = random.nextInt(width - MIN);
         int lowerLeftY = random.nextInt(height - MIN);
-        Position lowerP = new Position(p.X() + lowerLeftX, p.Y() + lowerLeftY);
+        Position lowerLeft = new Position(this.position.x + lowerLeftX, this.position.y + lowerLeftY);
 
         int upperRightX = random.nextInt(MIN - 1, width - lowerLeftX - 1);
         int upperRightY = random.nextInt(MIN - 1, height - lowerLeftY - 1);
-        Position upperP = new Position(lowerP.X() + upperRightX, lowerP.Y() + upperRightY);
+        Position upperRight = new Position(lowerLeft.x + upperRightX, lowerLeft.y + upperRightY);
 
-        this.room = new Room(lowerP, upperP, chooseRandomFloorType());
+        this.room = new Room(lowerLeft, upperRight, this.chooseRandomFloorType());
     }
 
     /**
      * Draws the room of that is associated with this particular Partition onto the map. */
     public void drawRoom() {
-        int startX = room.lowerLeft().X();
-        int startY = room.lowerLeft().Y();
-        int endX = room.upperRight().X();
-        int endY = room.upperRight().Y();
+        int startX = room.lowerLeft.x;
+        int startY = room.lowerLeft.y;
+        int endX = room.upperRight.x;
+        int endY = room.upperRight.y;
 
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
-            map[x][startY] = Tileset.WALL;
-            map[x][endY] = Tileset.WALL;
+            map[x][startY] = Room.wallType;
+            map[x][endY] = Room.wallType;
         }
         // Draw left and right walls
         for (int y = startY; y <= endY; y++) {
-            map[startX][y] = Tileset.WALL;
-            map[endX][y] = Tileset.WALL;
+            map[startX][y] = Room.wallType;
+            map[endX][y] = Room.wallType;
         }
         // Draw interior
         for (int x = startX + 1; x <= endX - 1; x++) {
             for (int y = startY + 1; y <= endY - 1; y++) {
-                map[x][y] = room.floorType();
+                map[x][y] = room.floorType;
             }
         }
     }
