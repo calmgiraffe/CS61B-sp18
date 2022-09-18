@@ -2,9 +2,6 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
-import byog.TileEngine.Tileset;
-
-import java.util.Random;
 
 public class Game {
     private static final int WIDTH = 60;
@@ -39,7 +36,7 @@ public class Game {
 
         // example: N3412S should generate a world with seed 3412
         if (mode == 'n') {
-            String seed = input.substring(1, input.length() - 1);
+            String seed = input.substring(1);
             world = new Map(WIDTH, HEIGHT, seed);
             world.generateRooms();
 

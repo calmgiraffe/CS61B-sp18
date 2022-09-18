@@ -10,9 +10,9 @@ public class Partition {
 
     /* Partition class and instance variables */
     // All partitions side lengths should be between MIN and MAX.
-    // MAX = 2*MIN - 1, because if MAX = 2*MIN, it can be split into 2 partitions of MIN
+    // MAX should be at least 2*MIN - 1, because a split on 2*MIN gives 2 partitions of MIN
     static final int MIN = 8;
-    static final int MAX = 2*MIN - 1;
+    static final int MAX = 20;
 
     private final Position p;
     private int width;
