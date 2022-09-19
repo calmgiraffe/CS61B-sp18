@@ -3,7 +3,6 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * Map object to represent the underlying data type (TETIle[][]),
@@ -65,7 +64,7 @@ public class Map {
         this.generatePartitions();
 
         int count = 0;
-        int exclude = random.nextInt(3);
+        int exclude = random.nextIntInclusive(3);
         for (Partition p : partitions) {
             if (count % 4 != exclude) {
                 p.generateRandomRoom();

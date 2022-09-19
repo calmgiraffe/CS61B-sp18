@@ -63,24 +63,24 @@ public class Partition {
      * or horizontal splitting is chosen randomly. */
     public static Partition split(Partition p) {
         if (p.widthWithinBounds() && !p.heightWithinBounds()) {
-            int border = p.random.nextInt(MIN, p.height - MIN);
+            int border = p.random.nextIntInclusive(MIN, p.height - MIN);
             return splitVertically(p, border);
 
         } else if (!p.widthWithinBounds() && p.heightWithinBounds()) {
-            int border = p.random.nextInt(MIN, p.width - MIN);
+            int border = p.random.nextIntInclusive(MIN, p.width - MIN);
             return splitHorizontally(p, border);
 
         } else if (p.widthWithinBounds() && p.heightWithinBounds()) {
             return null;
 
         } else {
-            int choice = p.random.nextInt(2);
+            int choice = p.random.nextIntInclusive(1);
             if (choice == 0) {
-                int border = p.random.nextInt(MIN, p.width - MIN);
+                int border = p.random.nextIntInclusive(MIN, p.width - MIN);
                 return splitHorizontally(p, border);
 
             } else {
-                int border = p.random.nextInt(MIN, p.height - MIN);
+                int border = p.random.nextIntInclusive(MIN, p.height - MIN);
                 return splitVertically(p, border);
             }
         }
@@ -89,7 +89,7 @@ public class Partition {
     /**
      * Randomly returns either the FLOOR or GRASS Tileset. */
     private TETile chooseRandomFloorType() {
-        int choice = random.nextInt(1);
+        int choice = random.nextIntInclusive(1);
         if (choice == 0) {
             return Tileset.FLOOR;
         } else {
@@ -102,12 +102,12 @@ public class Partition {
      * of the partition area. A Room is an abstract object consisting of two Positions representing the bottom left
      * and top right corner, a floor type, etc */
     public void generateRandomRoom() {
-        int lowerLeftX = random.nextInt(width - MIN);
-        int lowerLeftY = random.nextInt(height - MIN);
+        int lowerLeftX = random.nextIntInclusive(width - MIN);
+        int lowerLeftY = random.nextIntInclusive(height - MIN);
         Position lowerLeft = new Position(this.position.x + lowerLeftX, this.position.y + lowerLeftY);
 
-        int upperRightX = random.nextInt(MIN - 1, width - lowerLeftX - 1);
-        int upperRightY = random.nextInt(MIN - 1, height - lowerLeftY - 1);
+        int upperRightX = random.nextIntInclusive(MIN - 1, width - lowerLeftX - 1);
+        int upperRightY = random.nextIntInclusive(MIN - 1, height - lowerLeftY - 1);
         Position upperRight = new Position(lowerLeft.x + upperRightX, lowerLeft.y + upperRightY);
 
         this.room = new Room(lowerLeft, upperRight, this.chooseRandomFloorType());
