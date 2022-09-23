@@ -15,11 +15,13 @@ public class Partition {
     static final int MIN = 8;
     static final int MAX = 20;
 
-    private final Position position;
-    private int width;
-    private int height;
+    protected Position position;
+    private final int width;
+    private final int height;
     private final TETile[][] map;
     private Room room;
+    protected Partition partitionA;
+    protected Partition partitionB;
 
     /**
      * Partition constructor */
@@ -36,11 +38,7 @@ public class Partition {
      * Then, updates the width of the current partition and currents the new partition. */
     private static Partition splitHorizontally(Partition p, int border) {
         Position newPos = new Position(p.position.x + border, p.position.y);
-        Partition newPartition = new Partition(newPos, p.width - border, p.height, p.map);
-
-        // Update the existing partition and return new Partition
-        p.width = border;
-        return newPartition;
+        return new Partition(newPos, p.width - border, p.height, p.map);
     }
 
     /**
@@ -49,39 +47,41 @@ public class Partition {
      * Then, updates the height of the current partition and currents the new partition. */
     private static Partition splitVertically(Partition p, int border) {
         Position newPos = new Position(p.position.x, p.position.y + border);
-        Partition newPartition = new Partition(newPos, p.width, p.height - border, p.map);
-
-        // Update the existing partition and return new Partition
-        p.height = border;
-        return newPartition;
+        return new Partition(newPos, p.width, p.height - border, p.map);
     }
 
     /**
      * Examines the dimensions of the partition, and either splits it horizontally or vertically, depending
      * on whether a dimension is greater than MAX. If both dimensions are greater than MAX, either vertical
      * or horizontal splitting is chosen randomly. */
-    public static Partition split(Partition p) {
-        if (p.widthWithinBounds() && !p.heightWithinBounds()) {
-            int border = Game.random.nextIntInclusive(MIN, p.height - MIN);
-            return splitVertically(p, border);
+    public static void split(Partition p) {
+        if (p.width > MAX || p.height > MAX) {
 
-        } else if (!p.widthWithinBounds() && p.heightWithinBounds()) {
-            int border = Game.random.nextIntInclusive(MIN, p.width - MIN);
-            return splitHorizontally(p, border);
+            if (p.width <= MAX) {
+                int border = Game.random.nextIntInclusive(MIN, p.height - MIN);
+                p.partitionA = splitVertically(p, border);
+                p.partitionB = new Partition(p.position, p.width, border, p.map);
 
-        } else if (p.widthWithinBounds() && p.heightWithinBounds()) {
-            return null;
-
-        } else {
-            int choice = Game.random.nextIntInclusive(1);
-            if (choice == 0) {
+            } else if (p.height <= MAX) {
                 int border = Game.random.nextIntInclusive(MIN, p.width - MIN);
-                return splitHorizontally(p, border);
+                p.partitionA = splitHorizontally(p, border);
+                p.partitionB = new Partition(p.position, border, p.height, p.map);
 
             } else {
-                int border = Game.random.nextIntInclusive(MIN, p.height - MIN);
-                return splitVertically(p, border);
+                int choice = Game.random.nextIntInclusive(1);
+                if (choice == 0) {
+                    int border = Game.random.nextIntInclusive(MIN, p.height - MIN);
+                    p.partitionA = splitVertically(p, border);
+                    p.partitionB = new Partition(p.position, p.width, border, p.map);
+
+                } else {
+                    int border = Game.random.nextIntInclusive(MIN, p.width - MIN);
+                    p.partitionA = splitHorizontally(p, border);
+                    p.partitionB = new Partition(p.position, border, p.height, p.map);
+                }
             }
+            Partition.split(p.partitionA);
+            Partition.split(p.partitionB);
         }
     }
 
@@ -140,13 +140,13 @@ public class Partition {
 
     /**
      * Returns whether width is between MIN (inclusive) and MAX (inclusive) */
-    private boolean widthWithinBounds() {
+    public boolean widthWithinBounds() {
         return width >= MIN && width <= MAX;
     }
 
     /**
      * Returns whether height is between MIN (inclusive) and MAX (inclusive) */
-    private boolean heightWithinBounds() {
+    public boolean heightWithinBounds() {
         return height >= MIN && height <= MAX;
     }
 }
