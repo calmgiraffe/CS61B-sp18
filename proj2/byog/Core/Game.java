@@ -42,14 +42,14 @@ public class Game {
             world.generateRooms();
 
             ter.initialize(WIDTH, HEIGHT);
-            ter.renderFrame(world.getMap());
+            ter.renderFrame(Map.map);
 
         } else if (mode == 'l') {
             // load
         } else if (mode == 'q') {
             // quit
         }
-        return world.getMap();
+        return Map.map;
     }
 }
 

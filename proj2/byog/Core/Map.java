@@ -28,7 +28,7 @@ public class Map {
     }
 
     /**
-     * Fill the map with Tileset.NOTHING */
+     * Fill the map with NOTHING Tileset. */
     private void fillWithNothing() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -63,10 +63,4 @@ public class Map {
             count += 1;
         }
     }
-
-     /**
-      * Returns the underlying TETile[][] object (its pointer) */
-     public TETile[][] getMap() {
-         return map;
-     }
 }
