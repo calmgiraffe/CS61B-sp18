@@ -15,7 +15,7 @@ public class Map {
     private final int width;
     private final int height;
     private final Partition p;
-    private final ArrayList<Partition> partitions = new ArrayList<>();
+    private final ArrayList<Partition> leafs = new ArrayList<>();
 
     /**
      * Map constructor */
@@ -38,16 +38,10 @@ public class Map {
     }
 
     /**
-     * Iterate through partitions and apply either their divideHorizontally or divideVertically method,
-     * depending on their dimensions or result of random generator.
-     * Add the result to a new List, then replace partitions */
-    public void generatePartitions() {
-        Partition.split(p);
-    }
-
+     * Adds leafs to the list leafs, a list of partitions that are leafs */
     private void addLeafs(Partition p) {
         if (p.partitionA == null && p.partitionB == null) {
-            partitions.add(p);
+            leafs.add(p);
         } else {
             addLeafs(p.partitionA);
             addLeafs(p.partitionB);
@@ -57,21 +51,16 @@ public class Map {
     /**
      * Randomly generates some rectangular rooms on the map. */
     public void generateRooms() {
-        // make binary tree of partitions
-        generatePartitions();
-
-        // traverse partition tree and add leafs to array
-        addLeafs(this.p);
+        Partition.split(p); // make binary tree of partitions
+        addLeafs(this.p); // traverse partition tree and add leafs to array
 
         int count = 0;
         int exclude = Game.random.nextIntInclusive(3); // exclude 1/4 of the rooms
-        for (Partition p : partitions) {
+        for (Partition p : leafs) {
             if (count % 4 != exclude) {
                 p.generateRandomRoom();
                 p.drawRoom();
             }
-
-
             count += 1;
         }
     }

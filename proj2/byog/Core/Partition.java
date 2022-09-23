@@ -51,9 +51,10 @@ public class Partition {
     }
 
     /**
-     * Examines the dimensions of the partition, and either splits it horizontally or vertically, depending
-     * on whether a dimension is greater than MAX. If both dimensions are greater than MAX, either vertical
-     * or horizontal splitting is chosen randomly. */
+     * Examine partition and apply either their divideHorizontally or divideVertically method,
+     * depending on their dimensions. If both dimensions are greater than MAX, either vertical
+     * or horizontal splitting is chosen randomly. If new partitions are made, they are set as the branches
+     * of the current partition. Finally, the method traverses the newly created branches. */
     public static void split(Partition p) {
         if (p.width > MAX || p.height > MAX) {
 
