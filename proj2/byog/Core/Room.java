@@ -4,7 +4,8 @@ import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
 public class Room {
-    protected final static TETile wallType = Tileset.WALL;
+
+    protected static final TETile wallType = Tileset.WALL;
     protected Position lowerLeft;
     protected Position upperRight;
     protected TETile floorType;
@@ -14,4 +15,5 @@ public class Room {
         this.upperRight = upperRight;
         this.floorType = floorType;
     }
+
 }

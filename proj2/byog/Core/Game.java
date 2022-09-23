@@ -6,8 +6,9 @@ import byog.TileEngine.TETile;
 public class Game {
     private static final int WIDTH = 60;
     private static final int HEIGHT = 40;
+    protected static RandomExtra random;
 
-    private TERenderer ter = new TERenderer();
+    private final TERenderer ter = new TERenderer();
     private Map world;
 
     /** Method used for playing a fresh game. The game should start from the main menu. */
@@ -37,7 +38,9 @@ public class Game {
         // example: N3412S should generate a world with seed 3412
         if (mode == 'n') {
             String seed = input.substring(1);
-            world = new Map(WIDTH, HEIGHT, seed);
+            Game.random = new RandomExtra(Long.parseLong(seed));
+
+            world = new Map(WIDTH, HEIGHT);
             world.generateRooms();
 
             ter.initialize(WIDTH, HEIGHT);

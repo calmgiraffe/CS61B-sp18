@@ -9,20 +9,20 @@ import java.util.ArrayList;
  * and other invariants like its width, height, numRooms, etc */
 public class Map {
 
-    /* Map instance variables */
+    /**
+     * Map instance variables */
     private final TETile[][] map;
     private final int width;
     private final int height;
-    private final RandomExtra random;
     private ArrayList<Partition> partitions = new ArrayList<>();
 
-    /** Map constructor */
-    public Map(int width, int height, String seed) {
+    /**
+     * Map constructor */
+    public Map(int width, int height) {
         this.map = new TETile[width][height];
         this.width = width;
         this.height = height;
-        this.random = new RandomExtra(Long.parseLong(seed));
-        this.partitions.add(new Partition(new Position(0, 0), width, height, map, random));
+        this.partitions.add(new Partition(new Position(0, 0), width, height, map));
         this.fillWithNothing(); // Initially fill map with Tileset.NOTHING
     }
 
@@ -64,7 +64,7 @@ public class Map {
         this.generatePartitions();
 
         int count = 0;
-        int exclude = random.nextIntInclusive(3);
+        int exclude = Game.random.nextIntInclusive(3);
         for (Partition p : partitions) {
             if (count % 4 != exclude) {
                 p.generateRandomRoom();

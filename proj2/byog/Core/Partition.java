@@ -8,7 +8,8 @@ import byog.TileEngine.Tileset;
  * Position p is the coordinate of the lower left corner */
 public class Partition {
 
-    /* Partition class and instance variables */
+    /**
+     * Partition class and instance variables */
     // All partitions side lengths should be between MIN and MAX.
     // MAX should be at least 2*MIN - 1, because a split on 2*MIN gives 2 partitions of MIN
     static final int MIN = 8;
@@ -18,17 +19,15 @@ public class Partition {
     private int width;
     private int height;
     private final TETile[][] map;
-    private final RandomExtra random;
     private Room room;
 
     /**
      * Partition constructor */
-    Partition(Position p, int width, int height, TETile[][] map, RandomExtra r) {
+    Partition(Position p, int width, int height, TETile[][] map) {
         this.position = p;
         this.width = width;
         this.height = height;
         this.map = map;
-        this.random = r;
     }
 
     /**
@@ -37,7 +36,7 @@ public class Partition {
      * Then, updates the width of the current partition and currents the new partition. */
     private static Partition splitHorizontally(Partition p, int border) {
         Position newPos = new Position(p.position.x + border, p.position.y);
-        Partition newPartition = new Partition(newPos, p.width - border, p.height, p.map, p.random);
+        Partition newPartition = new Partition(newPos, p.width - border, p.height, p.map);
 
         // Update the existing partition and return new Partition
         p.width = border;
@@ -50,7 +49,7 @@ public class Partition {
      * Then, updates the height of the current partition and currents the new partition. */
     private static Partition splitVertically(Partition p, int border) {
         Position newPos = new Position(p.position.x, p.position.y + border);
-        Partition newPartition = new Partition(newPos, p.width, p.height - border, p.map, p.random);
+        Partition newPartition = new Partition(newPos, p.width, p.height - border, p.map);
 
         // Update the existing partition and return new Partition
         p.height = border;
@@ -63,24 +62,24 @@ public class Partition {
      * or horizontal splitting is chosen randomly. */
     public static Partition split(Partition p) {
         if (p.widthWithinBounds() && !p.heightWithinBounds()) {
-            int border = p.random.nextIntInclusive(MIN, p.height - MIN);
+            int border = Game.random.nextIntInclusive(MIN, p.height - MIN);
             return splitVertically(p, border);
 
         } else if (!p.widthWithinBounds() && p.heightWithinBounds()) {
-            int border = p.random.nextIntInclusive(MIN, p.width - MIN);
+            int border = Game.random.nextIntInclusive(MIN, p.width - MIN);
             return splitHorizontally(p, border);
 
         } else if (p.widthWithinBounds() && p.heightWithinBounds()) {
             return null;
 
         } else {
-            int choice = p.random.nextIntInclusive(1);
+            int choice = Game.random.nextIntInclusive(1);
             if (choice == 0) {
-                int border = p.random.nextIntInclusive(MIN, p.width - MIN);
+                int border = Game.random.nextIntInclusive(MIN, p.width - MIN);
                 return splitHorizontally(p, border);
 
             } else {
-                int border = p.random.nextIntInclusive(MIN, p.height - MIN);
+                int border = Game.random.nextIntInclusive(MIN, p.height - MIN);
                 return splitVertically(p, border);
             }
         }
@@ -89,7 +88,7 @@ public class Partition {
     /**
      * Randomly returns either the FLOOR or GRASS Tileset. */
     private TETile chooseRandomFloorType() {
-        int choice = random.nextIntInclusive(1);
+        int choice = Game.random.nextIntInclusive(1);
         if (choice == 0) {
             return Tileset.FLOOR;
         } else {
@@ -102,12 +101,12 @@ public class Partition {
      * of the partition area. A Room is an abstract object consisting of two Positions representing the bottom left
      * and top right corner, a floor type, etc */
     public void generateRandomRoom() {
-        int lowerLeftX = random.nextIntInclusive(width - MIN);
-        int lowerLeftY = random.nextIntInclusive(height - MIN);
+        int lowerLeftX = Game.random.nextIntInclusive(width - MIN);
+        int lowerLeftY = Game.random.nextIntInclusive(height - MIN);
         Position lowerLeft = new Position(this.position.x + lowerLeftX, this.position.y + lowerLeftY);
 
-        int upperRightX = random.nextIntInclusive(MIN - 1, width - lowerLeftX - 1);
-        int upperRightY = random.nextIntInclusive(MIN - 1, height - lowerLeftY - 1);
+        int upperRightX = Game.random.nextIntInclusive(MIN - 1, width - lowerLeftX - 1);
+        int upperRightY = Game.random.nextIntInclusive(MIN - 1, height - lowerLeftY - 1);
         Position upperRight = new Position(lowerLeft.x + upperRightX, lowerLeft.y + upperRightY);
 
         this.room = new Room(lowerLeft, upperRight, this.chooseRandomFloorType());
