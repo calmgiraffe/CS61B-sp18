@@ -11,19 +11,19 @@ public class Map {
 
     /**
      * Map instance variables */
-    private final TETile[][] map;
+    protected static TETile[][] map;
     private final int width;
     private final int height;
     private final Partition p;
-    private final ArrayList<Partition> leafs = new ArrayList<>();
+    private final ArrayList<Room> rooms = new ArrayList<>();
 
     /**
      * Map constructor */
     public Map(int width, int height) {
-        this.map = new TETile[width][height];
+        Map.map = new TETile[width][height];
         this.width = width;
         this.height = height;
-        this.p = new Partition(new Position(0, 0), width, height, this.map);
+        this.p = new Partition(new Position(0, 0), width, height);
         this.fillWithNothing(); // Initially fill map with Tileset.NOTHING
     }
 
@@ -39,12 +39,12 @@ public class Map {
 
     /**
      * Adds leafs to the list leafs, a list of partitions that are leafs */
-    private void addLeafs(Partition p) {
+    private void addRooms(Partition p) {
         if (p.partitionA == null && p.partitionB == null) {
-            leafs.add(p);
+            rooms.add(p.room);
         } else {
-            addLeafs(p.partitionA);
-            addLeafs(p.partitionB);
+            addRooms(p.partitionA);
+            addRooms(p.partitionB);
         }
     }
 
@@ -52,14 +52,13 @@ public class Map {
      * Randomly generates some rectangular rooms on the map. */
     public void generateRooms() {
         Partition.split(p); // make binary tree of partitions
-        addLeafs(this.p); // traverse partition tree and add leafs to array
+        addRooms(this.p); // traverse partition tree and add leafs to array
 
         int count = 0;
         int exclude = Game.random.nextIntInclusive(3); // exclude 1/4 of the rooms
-        for (Partition p : leafs) {
-            if (count % 4 != exclude) {
-                p.generateRandomRoom();
-                p.drawRoom();
+        for (Room r : rooms) {
+            if (count % 4 != -1) {
+                r.drawRoom();
             }
             count += 1;
         }

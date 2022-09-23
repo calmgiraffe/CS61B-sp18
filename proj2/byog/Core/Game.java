@@ -4,10 +4,9 @@ import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 
 public class Game {
-    private static final int WIDTH = 60;
-    private static final int HEIGHT = 40;
+    private static final int WIDTH = 40;
+    private static final int HEIGHT = 30;
     protected static RandomExtra random;
-
     private final TERenderer ter = new TERenderer();
     private Map world;
 
@@ -31,7 +30,6 @@ public class Game {
         // Fill out this method to run the game using the input passed in,
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
-
         input = input.toLowerCase();
         char mode = input.charAt(0);
 

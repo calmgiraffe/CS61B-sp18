@@ -1,8 +1,5 @@
 package byog.Core;
 
-import byog.TileEngine.TETile;
-import byog.TileEngine.Tileset;
-
 /**
  * Inner class to represent an imaginary rectangular partition of the map.
  * Position p is the coordinate of the lower left corner */
@@ -13,23 +10,21 @@ public class Partition {
     // All partitions side lengths should be between MIN and MAX.
     // MAX should be at least 2*MIN - 1, because a split on 2*MIN gives 2 partitions of MIN
     static final int MIN = 8;
-    static final int MAX = 20;
+    static final int MAX = 16;
 
-    protected Position position;
+    private final Position position;
     private final int width;
     private final int height;
-    private final TETile[][] map;
-    private Room room;
+    protected Room room;
     protected Partition partitionA;
     protected Partition partitionB;
 
     /**
      * Partition constructor */
-    Partition(Position p, int width, int height, TETile[][] map) {
+    Partition(Position p, int width, int height) {
         this.position = p;
         this.width = width;
         this.height = height;
-        this.map = map;
     }
 
     /**
@@ -38,7 +33,7 @@ public class Partition {
      * Then, updates the width of the current partition and currents the new partition. */
     private static Partition splitHorizontally(Partition p, int border) {
         Position newPos = new Position(p.position.x + border, p.position.y);
-        return new Partition(newPos, p.width - border, p.height, p.map);
+        return new Partition(newPos, p.width - border, p.height);
     }
 
     /**
@@ -47,7 +42,7 @@ public class Partition {
      * Then, updates the height of the current partition and currents the new partition. */
     private static Partition splitVertically(Partition p, int border) {
         Position newPos = new Position(p.position.x, p.position.y + border);
-        return new Partition(newPos, p.width, p.height - border, p.map);
+        return new Partition(newPos, p.width, p.height - border);
     }
 
     /**
@@ -61,40 +56,30 @@ public class Partition {
             if (p.width <= MAX) {
                 int border = Game.random.nextIntInclusive(MIN, p.height - MIN);
                 p.partitionA = splitVertically(p, border);
-                p.partitionB = new Partition(p.position, p.width, border, p.map);
+                p.partitionB = new Partition(p.position, p.width, border);
 
             } else if (p.height <= MAX) {
                 int border = Game.random.nextIntInclusive(MIN, p.width - MIN);
                 p.partitionA = splitHorizontally(p, border);
-                p.partitionB = new Partition(p.position, border, p.height, p.map);
+                p.partitionB = new Partition(p.position, border, p.height);
 
             } else {
                 int choice = Game.random.nextIntInclusive(1);
                 if (choice == 0) {
                     int border = Game.random.nextIntInclusive(MIN, p.height - MIN);
                     p.partitionA = splitVertically(p, border);
-                    p.partitionB = new Partition(p.position, p.width, border, p.map);
+                    p.partitionB = new Partition(p.position, p.width, border);
 
                 } else {
                     int border = Game.random.nextIntInclusive(MIN, p.width - MIN);
                     p.partitionA = splitHorizontally(p, border);
-                    p.partitionB = new Partition(p.position, border, p.height, p.map);
+                    p.partitionB = new Partition(p.position, border, p.height);
                 }
             }
             Partition.split(p.partitionA);
             Partition.split(p.partitionB);
         }
-    }
-
-    /**
-     * Randomly returns either the FLOOR or GRASS Tileset. */
-    private TETile chooseRandomFloorType() {
-        int choice = Game.random.nextIntInclusive(1);
-        if (choice == 0) {
-            return Tileset.FLOOR;
-        } else {
-            return Tileset.GRASS;
-        }
+        p.generateRandomRoom(); // generate room if leaf
     }
 
     /**
@@ -110,44 +95,6 @@ public class Partition {
         int upperRightY = Game.random.nextIntInclusive(MIN - 1, height - lowerLeftY - 1);
         Position upperRight = new Position(lowerLeft.x + upperRightX, lowerLeft.y + upperRightY);
 
-        this.room = new Room(lowerLeft, upperRight, this.chooseRandomFloorType());
-    }
-
-    /**
-     * Draws the room of that is associated with this particular Partition onto the map. */
-    public void drawRoom() {
-        int startX = room.lowerLeft.x;
-        int startY = room.lowerLeft.y;
-        int endX = room.upperRight.x;
-        int endY = room.upperRight.y;
-
-        // Draw top and bottom walls
-        for (int x = startX; x <= endX; x++) {
-            map[x][startY] = Room.wallType;
-            map[x][endY] = Room.wallType;
-        }
-        // Draw left and right walls
-        for (int y = startY; y <= endY; y++) {
-            map[startX][y] = Room.wallType;
-            map[endX][y] = Room.wallType;
-        }
-        // Draw interior
-        for (int x = startX + 1; x <= endX - 1; x++) {
-            for (int y = startY + 1; y <= endY - 1; y++) {
-                map[x][y] = room.floorType;
-            }
-        }
-    }
-
-    /**
-     * Returns whether width is between MIN (inclusive) and MAX (inclusive) */
-    public boolean widthWithinBounds() {
-        return width >= MIN && width <= MAX;
-    }
-
-    /**
-     * Returns whether height is between MIN (inclusive) and MAX (inclusive) */
-    public boolean heightWithinBounds() {
-        return height >= MIN && height <= MAX;
+        this.room = new Room(lowerLeft, upperRight);
     }
 }
