@@ -55,9 +55,9 @@ public class Map {
         addRooms(this.p); // traverse partition tree and add leafs to array
 
         int count = 0;
-        int exclude = Game.random.nextIntInclusive(3); // exclude 1/4 of the rooms
+        int exclude = Game.random.nextIntInclusive(2); // exclude 1/4 of the rooms
         for (Room r : rooms) {
-            if (count % 4 != -1) {
+            if (count % 3 != -1) {
                 r.drawRoom();
             }
             count += 1;
