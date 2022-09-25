@@ -13,6 +13,7 @@ public class Partition {
     static final int MAX = 16;
 
     private final Position position;
+    private final Position centre;
     private final int width;
     private final int height;
     protected Room room;
@@ -25,6 +26,7 @@ public class Partition {
         this.position = p;
         this.width = width;
         this.height = height;
+        this.centre = new Position(position.x + width/2, position.y + height/2);
     }
 
     /**
@@ -80,6 +82,7 @@ public class Partition {
             Partition.split(p.partitionB);
         }
         p.generateRandomRoom(); // generate room if leaf
+        // make new PQ 
     }
 
     /**

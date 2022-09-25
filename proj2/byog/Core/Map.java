@@ -6,11 +6,13 @@ import java.util.ArrayList;
 
 /**
  * Map object to represent the underlying data type (TETIle[][]),
- * and other invariants like its width, height, numRooms, etc */
+ * and other invariants like its width, height, numRooms, etc
+ */
 public class Map {
 
     /**
-     * Map instance variables */
+     * Map instance variables
+     */
     protected static TETile[][] map;
     private final int width;
     private final int height;
@@ -18,7 +20,8 @@ public class Map {
     private final ArrayList<Room> rooms = new ArrayList<>();
 
     /**
-     * Map constructor */
+     * Map constructor
+     */
     public Map(int width, int height) {
         Map.map = new TETile[width][height];
         this.width = width;
@@ -28,7 +31,8 @@ public class Map {
     }
 
     /**
-     * Fill the map with NOTHING Tileset. */
+     * Fill the map with NOTHING Tileset.
+     */
     private void fillWithNothing() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -38,7 +42,8 @@ public class Map {
     }
 
     /**
-     * Adds leafs to the list leafs, a list of partitions that are leafs */
+     * Adds leafs to the list leafs, a list of partitions that are leafs
+     */
     private void addRooms(Partition p) {
         if (p.partitionA == null && p.partitionB == null) {
             rooms.add(p.room);
@@ -49,7 +54,8 @@ public class Map {
     }
 
     /**
-     * Randomly generates some rectangular rooms on the map. */
+     * Randomly generates some rectangular rooms on the map.
+     */
     public void generateRooms() {
         Partition.split(p); // make binary tree of partitions
         addRooms(this.p); // traverse partition tree and add leafs to array
