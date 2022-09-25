@@ -13,7 +13,8 @@ public class Room {
     private final TETile floorType;
 
     /**
-     * Constructor */
+     * Constructor
+     */
     public Room(Position lowerLeft, Position upperRight) {
         this.lowerLeft = lowerLeft;
         this.upperRight = upperRight;
@@ -22,7 +23,21 @@ public class Room {
     }
 
     /**
-     * Draws the room of that is associated with this particular Partition onto the map. */
+     * Given two rooms, draws a floor path between them. The method first selects a position that is
+     * up, right, down, or left of a center, making sure that whichever position is chosen decreases
+     * the distance between the two centers. When the method gets to the next center, the loop stops.
+     */
+    public static void drawPath(Room a, Room b) {
+        Position cursor = new Position(a.centre.x, a.centre.y);
+        while (!(cursor.x == b.centre.x && cursor.y == b.centre.y)) {
+            //pick one of four directions
+        }
+
+    }
+
+    /**
+     * Draws the room of that is associated with this particular Partition onto the map.
+     */
     public void drawRoom() {
         int startX = lowerLeft.x;
         int startY = lowerLeft.y;
@@ -48,7 +63,8 @@ public class Room {
     }
 
     /**
-     * Randomly returns either the FLOOR or GRASS Tileset. */
+     * Randomly returns either the FLOOR or GRASS Tileset.
+     */
     private TETile chooseRandomFloorType() {
         int choice = Game.random.nextIntInclusive(1);
         if (choice == 0) {

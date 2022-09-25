@@ -45,11 +45,11 @@ public class Map {
      * Adds leafs to the list leafs, a list of partitions that are leafs
      */
     private void addRooms(Partition p) {
-        if (p.partitionA == null && p.partitionB == null) {
+        if (p.left == null && p.right == null) {
             rooms.add(p.room);
         } else {
-            addRooms(p.partitionA);
-            addRooms(p.partitionB);
+            addRooms(p.left);
+            addRooms(p.right);
         }
     }
 
@@ -60,13 +60,8 @@ public class Map {
         Partition.split(p); // make binary tree of partitions
         addRooms(this.p); // traverse partition tree and add leafs to array
 
-        int count = 0;
-        int exclude = Game.random.nextIntInclusive(2); // exclude 1/4 of the rooms
         for (Room r : rooms) {
-            if (count % 3 != -1) {
-                r.drawRoom();
-            }
-            count += 1;
+            r.drawRoom();
         }
     }
 }
