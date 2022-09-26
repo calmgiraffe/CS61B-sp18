@@ -1,5 +1,6 @@
 package byog.Core;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -14,7 +15,7 @@ public class Partition {
      * All partitions side lengths should be between MIN and MAX.
      * MAX should be at least 2*MIN - 1, because a split on 2*MIN gives 2 partitions of MIN
      */
-    static final int MIN = 8;
+    static final int MIN = 6;
     static final int MAX = 20;
 
     private final Position position;
@@ -22,10 +23,10 @@ public class Partition {
     private final int width;
     private final int height;
     private double distanceToParent;
-    protected Room room;
-    protected Partition left;
-    protected Partition right;
-    protected PriorityQueue<Partition> pQueue;
+    private Room room;
+    private Partition left;
+    private Partition right;
+    private PriorityQueue<Partition> pQueue;
 
     /**
      * Partition constructor
@@ -40,7 +41,6 @@ public class Partition {
     /**
      * Makes another partition at a point about border, which is approximately in
      * the middle of the current partition's width so that both partitions are within bounds.
-     * Then, updates the width of the current partition and currents the new partition.
      */
     private static Partition splitHorizontally(Partition p, int border) {
         Position newPos = new Position(p.position.x() + border, p.position.y());
@@ -50,7 +50,6 @@ public class Partition {
     /**
      * Makes another partition at a point about border, which is approximately in
      * the middle of the current partition's height so that both partitions are within bounds.
-     * Then, updates the height of the current partition and currents the new partition.
      */
     private static Partition splitVertically(Partition p, int border) {
         Position newPos = new Position(p.position.x(), p.position.y() + border);
@@ -63,7 +62,7 @@ public class Partition {
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as the branches
      * of the current partition. Finally, the method traverses the newly created branches.
      */
-    public static void split(Partition p) {
+    public static void splitAndConnect(Partition p) {
         if (p.width > MAX || p.height > MAX) {
 
             if (p.width <= MAX) {
@@ -89,39 +88,57 @@ public class Partition {
                     p.right = new Partition(p.position, border, p.height);
                 }
             }
-            Partition.split(p.left);
-            Partition.split(p.right);
+            splitAndConnect(p.left);
+            splitAndConnect(p.right);
+            connect(p);
 
-            // Make new pQueue
-            p.pQueue = new PriorityQueue<>(getDistanceComparator());
-
-            // At parent node, recalculate distance from parent node's centre to its leaf nodes' centres
-            // Left branch: iterate through left PQ and recalculate distance to center
-            for (Partition par: p.left.pQueue) {
-                par.distanceToParent = Position.calculateDistance(par.centre, p.centre);
-                p.pQueue.add(par);
-            }
-            // Right branch: iterate through right PQ and recalculate distance to center
-            for (Partition par: p.right.pQueue) {
-                par.distanceToParent = Position.calculateDistance(par.centre, p.centre);
-                p.pQueue.add(par);
-            }
-            // Left branch: select partition that is closest to the center
-            // Right branch: select partition that is closest to the cente
-            Partition minLeft = p.left.pQueue.peek();
-            Partition minRight = p.right.pQueue.peek();
-
-            // Todo: Draw a path between the two rooms of the partitions
-            Room.drawPath(minLeft.room, minRight.room);
-
-        } else {
-            // generate room if leaf
+        } else { // if leaf
+            // generate room
             p.generateRandomRoom();
 
             // make new PQ, add partition to it
             p.pQueue = new PriorityQueue<>(getDistanceComparator());
             p.distanceToParent = 0;
             p.pQueue.add(p);
+        }
+    }
+
+    /**
+     * Select two partitions, one from the left and right branch respectively, as stored in the left and right
+     * pQueues, then draws a path between their centres, thereby connecting them and ensuring a complete graph.
+     */
+    public static void connect(Partition p) {
+        // Make new pQueue
+        p.pQueue = new PriorityQueue<>(getDistanceComparator());
+
+        // At parent node, recalculate distance from parent Partition.centre to its leaf nodes' Partition.centre
+        // Left branch: iterate through left PQ and recalculate distance to center
+        for (Partition par: p.left.pQueue) {
+            par.distanceToParent = Position.calculateDistance(par.centre, p.centre);
+            p.pQueue.add(par);
+        }
+        // Right branch: iterate through right PQ and recalculate distance to center
+        for (Partition par: p.right.pQueue) {
+            par.distanceToParent = Position.calculateDistance(par.centre, p.centre);
+            p.pQueue.add(par);
+        }
+        // Left branch: select partition that is closest to the center
+        // Right branch: select partition that is closest to the cente
+        Partition minLeft = p.left.pQueue.peek();
+        Partition minRight = p.right.pQueue.peek();
+
+        Room.drawPath(minLeft.room, minRight.room);
+    }
+
+    /**
+     * Given an ArrayList and a Partition tree p, traverses the tree and adds all leafs to the array.
+     */
+    public static void addRooms(ArrayList<Room> rooms, Partition p) {
+        if (p.left() == null && p.right() == null) {
+            rooms.add(p.room());
+        } else {
+            addRooms(rooms, p.left());
+            addRooms(rooms, p.right());
         }
     }
 
@@ -157,5 +174,49 @@ public class Partition {
 
     public static Comparator<Partition> getDistanceComparator() {
         return new DistanceComparator();
+    }
+
+    private static class InverseDistanceComparator implements Comparator<Partition> {
+        public int compare(Partition a, Partition b) {
+            if (a.distanceToParent - b.distanceToParent > 0) {
+                return -1;
+            } else if (a.distanceToParent == b.distanceToParent) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+    }
+
+    public static Comparator<Partition> getInverseDistanceComparator() {
+        return new InverseDistanceComparator();
+    }
+
+    /**
+     * Returns the room associated with this Partition.
+     */
+    public Room room() {
+        return this.room;
+    }
+
+    /**
+     * Returns the left Partition associated with this Partition.
+     */
+    public Partition left() {
+        return this.left;
+    }
+
+    /**
+     * Returns the right Paritition associated with this Partition.
+     */
+    public Partition right() {
+        return this.right;
+    }
+
+    /**
+     * Returns the pQueue associated with this Partition.
+     */
+    public PriorityQueue<Partition> pQueue() {
+        return this.pQueue;
     }
 }

@@ -1,10 +1,9 @@
 package byog.Core;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-/* Class to represent an (x,y) coordinate.
- * a Position must be between 0 and width-1, 0 and height-1 */
+/**
+ * Class to represent an (x,y) coordinate.
+ * a Position must be between 0 and width-1, 0 and height-1
+ */
 public class Position {
 
     /**

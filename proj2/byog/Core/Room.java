@@ -108,6 +108,7 @@ public class Room {
         int endX = upperRight.x();
         int endY = upperRight.y();
 
+
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
             map[x][startY] = Room.wallType;
@@ -118,6 +119,7 @@ public class Room {
             map[startX][y] = Room.wallType;
             map[endX][y] = Room.wallType;
         }
+
         // Draw interior
         for (int x = startX + 1; x <= endX - 1; x++) {
             for (int y = startY + 1; y <= endY - 1; y++) {
@@ -130,11 +132,11 @@ public class Room {
      * Randomly returns either the FLOOR or GRASS Tileset.
      */
     private TETile chooseRandomFloorType() {
-        int choice = Game.random.nextIntInclusive(1);
+        int choice = Game.random.nextIntInclusive(0);
         if (choice == 0) {
-            return Tileset.FLOOR;
-        } else {
             return Tileset.GRASS;
+        } else {
+            return Tileset.FLOOR;
         }
     }
 }
