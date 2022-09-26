@@ -7,11 +7,15 @@ import static org.junit.Assert.*;
  * a Position must be between 0 and width-1, 0 and height-1 */
 public class Position {
 
-    /* Position instance variables */
-    protected int x;
-    protected int y;
+    /**
+     * Position instance variables
+     */
+    private int x;
+    private int y;
 
-    /* Position constructor */
+    /**
+     * Position constructor
+     */
     Position(int x, int y) {
         this.x = x;
         this.y = y;
@@ -51,6 +55,42 @@ public class Position {
     public void moveLeft() {
         x -= 1;
     }
+
+    /**
+     * Returns the position's x value.
+     */
+    public int x() {
+        return x;
+    }
+
+    /**
+     * Returns the position's y value.
+     */
+    public int y() {
+        return y;
+    }
+
+    /**
+     * Returns true if positions are at same spot.
+     */
+    public boolean equals(Position p) {
+        return (x == p.x && y == p.y);
+    }
+
+    /**
+     * Returns true if positions horizontally aligned.
+     */
+    public boolean horizontallyAligned(Position p) {
+        return (y == p.y);
+    }
+
+    /**
+     * Returns true if positions vertically aligned.
+     */
+    public boolean verticallyAligned(Position p) {
+        return (x == p.x);
+    }
+
 }
 
 

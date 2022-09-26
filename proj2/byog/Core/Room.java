@@ -18,7 +18,7 @@ public class Room {
     public Room(Position lowerLeft, Position upperRight) {
         this.lowerLeft = lowerLeft;
         this.upperRight = upperRight;
-        this.centre = new Position((lowerLeft.x + upperRight.x) / 2, (lowerLeft.y + upperRight.y) / 2);
+        this.centre = new Position((lowerLeft.x() + upperRight.x()) / 2, (lowerLeft.y() + upperRight.y()) / 2);
         this.floorType = chooseRandomFloorType();
     }
 
@@ -26,80 +26,87 @@ public class Room {
      * Draws a FLOOR tile at Position p on the map.
      */
     private static void drawFloor(Position p) {
-        map[p.x][p.y] = Tileset.FLOOR;
+        map[p.x()][p.y()] = Tileset.FLOOR;
     }
 
     /**
      * Draws a FLOOR tile at cursor, then increments the cursor in a direction towards the target.
      */
-    private static void moveCursor(Room a, Room b, int[] choices) {
-        Position cursor = new Position(a.centre.x, a.centre.y);
+    private static void moveCursor(Position start, Position target, int[] choices) {
+        boolean aligned = (choices[0] == choices[1]);
 
-        while (!(cursor.x == b.centre.x && cursor.y == b.centre.y)) {
-
-            Room.drawFloor(cursor); // draw floor at cursor
-
+        while (!(start.equals(target))) {
+            Room.drawFloor(start); // draw floor at cursor
             int index = Game.random.nextIntInclusive(1); // choose index 0 or 1
 
             if (choices[index] == 0) {
-                cursor.moveUp();
+                start.moveUp();
             } else if (choices[index] == 1) {
-                cursor.moveRight();
+                start.moveRight();
             } else if (choices[index] == 2) {
-                cursor.moveDown();
+                start.moveDown();
             } else {
-                cursor.moveLeft();
+                start.moveLeft();
             }
 
-            if (cursor.x == b.centre.x) {
-                choices[1] = choices[0];
-            } else if (cursor.y == b.centre.y) {
-                choices[0] = choices[1];
+            if (!aligned) {
+                if (start.verticallyAligned(target)) {
+                    choices[1] = choices[0];
+                    aligned = true;
+                } else if (start.horizontallyAligned(target)) {
+                    choices[0] = choices[1];
+                    aligned = true;
+                }
             }
         }
     }
 
     /**
-     * Given two rooms, draws a floor path between them. The method first selects a position that is
-     * up, right, down, or left of a center, making sure that whichever position is chosen decreases
-     * the distance between the two centers. When the method gets to the next center, the loop stops.
+     * Given two rooms, draws a floor path between them. The method first examines the centres of the two rooms,
+     * and depending on their orientation, passes in different values to int[] choices. The first element of this
+     * array is up (0) or down (2), the second element is right (1) or left (3). If the two rooms are positioned so
+     * that their centers have the same x or y coordinate, both elements of the array are set as the same number.
      */
-    public static void drawPath(Room a, Room b) {
+    public static void drawPath(Room roomA, Room roomB) {
+        Position start = roomA.centre;
+        Position goal = roomB.centre;
+        int[] directions;
 
-        if (a.centre.x == b.centre.x) {
-            if (a.centre.y < b.centre.y) {
-                moveCursor(a, b, new int[]{0, 0}); // move up
+        if (start.verticallyAligned(goal)) {
+            if (start.y() < goal.y()) {
+                directions = new int[]{0, 0}; // move up
             } else {
-                moveCursor(a, b, new int[]{2, 2}); // move down
+                directions = new int[]{2, 2}; // move down
             }
-        } else if (a.centre.y == b.centre.y) {
-            if (a.centre.x < b.centre.x) {
-                moveCursor(a, b, new int[]{1, 1}); // move right
+        } else if (start.horizontallyAligned(goal)) {
+            if (start.x() < goal.x()) {
+                directions = new int[]{1, 1}; // move right
             } else {
-                moveCursor(a, b, new int[]{3, 3}); // move left
+                directions = new int[]{3, 3}; // move left
             }
-        } else if (a.centre.x < b.centre.x && a.centre.y < b.centre.y) {
-            moveCursor(a, b, new int[]{0, 1}); // choose randomly between right or up
+        } else if (start.x() < goal.x() && start.y() < goal.y()) {
+            directions = new int[]{0, 1}; // choose randomly between right or up
 
-        } else if (a.centre.x < b.centre.x) {
-            moveCursor(a, b, new int[]{2, 1}); // choose randomly between right or down
+        } else if (start.x() < goal.x()) {
+            directions = new int[]{2, 1}; // choose randomly between right or down
 
-        } else if (a.centre.y < b.centre.y) {
-            moveCursor(a, b, new int[]{0, 3}); // choose between left and up
+        } else if (start.y() < goal.y()) {
+            directions = new int[]{0, 3}; // choose between left and up
 
         } else {
-            moveCursor(a, b, new int[]{2, 3}); // choose between left and down
+            directions = new int[]{2, 3}; // choose between left and down
         }
+        moveCursor(start, goal, directions);
     }
 
     /**
      * Draws the room of that is associated with this particular Partition onto the map.
      */
     public void drawRoom() {
-        int startX = lowerLeft.x;
-        int startY = lowerLeft.y;
-        int endX = upperRight.x;
-        int endY = upperRight.y;
+        int startX = lowerLeft.x();
+        int startY = lowerLeft.y();
+        int endX = upperRight.x();
+        int endY = upperRight.y();
 
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {

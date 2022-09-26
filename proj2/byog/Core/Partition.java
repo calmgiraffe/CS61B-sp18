@@ -34,7 +34,7 @@ public class Partition {
         this.position = p;
         this.width = width;
         this.height = height;
-        this.centre = new Position(position.x + width/2, position.y + height/2);
+        this.centre = new Position(position.x() + width/2, position.y() + height/2);
     }
 
     /**
@@ -43,7 +43,7 @@ public class Partition {
      * Then, updates the width of the current partition and currents the new partition.
      */
     private static Partition splitHorizontally(Partition p, int border) {
-        Position newPos = new Position(p.position.x + border, p.position.y);
+        Position newPos = new Position(p.position.x() + border, p.position.y());
         return new Partition(newPos, p.width - border, p.height);
     }
 
@@ -53,7 +53,7 @@ public class Partition {
      * Then, updates the height of the current partition and currents the new partition.
      */
     private static Partition splitVertically(Partition p, int border) {
-        Position newPos = new Position(p.position.x, p.position.y + border);
+        Position newPos = new Position(p.position.x(), p.position.y() + border);
         return new Partition(newPos, p.width, p.height - border);
     }
 
@@ -133,11 +133,11 @@ public class Partition {
     public void generateRandomRoom() {
         int lowerLeftX = Game.random.nextIntInclusive(width - MIN);
         int lowerLeftY = Game.random.nextIntInclusive(height - MIN);
-        Position lowerLeft = new Position(this.position.x + lowerLeftX, this.position.y + lowerLeftY);
+        Position lowerLeft = new Position(this.position.x() + lowerLeftX, this.position.y() + lowerLeftY);
 
         int upperRightX = Game.random.nextIntInclusive(MIN - 1, width - lowerLeftX - 1);
         int upperRightY = Game.random.nextIntInclusive(MIN - 1, height - lowerLeftY - 1);
-        Position upperRight = new Position(lowerLeft.x + upperRightX, lowerLeft.y + upperRightY);
+        Position upperRight = new Position(lowerLeft.x() + upperRightX, lowerLeft.y() + upperRightY);
 
         this.room = new Room(lowerLeft, upperRight);
     }
