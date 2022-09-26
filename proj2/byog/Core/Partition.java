@@ -15,7 +15,7 @@ public class Partition {
      * MAX should be at least 2*MIN - 1, because a split on 2*MIN gives 2 partitions of MIN
      */
     static final int MIN = 8;
-    static final int MAX = 16;
+    static final int MAX = 20;
 
     private final Position position;
     private final Position centre;

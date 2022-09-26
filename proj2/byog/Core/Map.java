@@ -59,9 +59,14 @@ public class Map {
     public void generateRooms() {
         Partition.split(p); // make binary tree of partitions
         addRooms(this.p); // traverse partition tree and add leafs to array
-
+        int count = 0;
+        int exclude = Game.random.nextIntInclusive(3);
         for (Room r : rooms) {
-            r.drawRoom();
+            if (count % 4 != -1) {
+                r.drawRoom();
+
+            }
+            count += 1;
         }
     }
 }
