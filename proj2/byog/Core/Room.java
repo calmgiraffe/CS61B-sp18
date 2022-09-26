@@ -107,8 +107,7 @@ public class Room {
         int startY = lowerLeft.y();
         int endX = upperRight.x();
         int endY = upperRight.y();
-
-
+        
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
             map[x][startY] = Room.wallType;

@@ -15,7 +15,7 @@ public class Partition {
      * All partitions side lengths should be between MIN and MAX.
      * MAX should be at least 2*MIN - 1, because a split on 2*MIN gives 2 partitions of MIN
      */
-    static final int MIN = 6;
+    static final int MIN = 7;
     static final int MAX = 20;
 
     private final Position position;

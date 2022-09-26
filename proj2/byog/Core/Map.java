@@ -48,24 +48,27 @@ public class Map {
      */
     public void generateRooms() {
         Partition.splitAndConnect(partition); // make binary tree of partitions and draw hallways, making a connected graph
-        // Partition.addRooms(rooms, partition); // traverse partition tree and add leafs to rooms array
-        addToPartitionsMaxHeap(partition.pQueue());
+        Partition.addRooms(rooms, partition); // traverse partition tree and add leafs to rooms array
+        //addToPartitionsMaxHeap(partition.pQueue());
 
-        int count = 0;
-        int exclude = Game.random.nextIntInclusive(3);
-        for (Partition p : partition.pQueue()) {
-            if (count % 4 != -1) {
-                p.room().drawRoom();
-
-            }
-            count += 1;
+        for (Room r : rooms) {
+            r.drawRoom();
         }
 
-        for (int i = 0; i < 0; i++) {
-            Partition p1 = partitionsMaxHeap.poll();
-            Partition p2 = partitionsMaxHeap.poll();
+        PriorityQueue<Partition> pq = partition.pQueue();
+        int size = pq.size();
+
+        /*
+        for (int i = 0; i < 3*size / 4; i++) {
+            pq.poll();
+        }
+        for (int i = 0; i < size / 8; i++) {
+            Partition p1 = pq.poll();
+            Partition p2 = pq.poll();
             Room.drawPath(p1.room(), p2.room());
         }
+        */
+
     }
 
     public void addToPartitionsMaxHeap(PriorityQueue<Partition> pq) {
