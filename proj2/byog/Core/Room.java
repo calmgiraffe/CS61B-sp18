@@ -23,43 +23,32 @@ public class Room {
     }
 
     /**
-     * Draws the three wall tiles that must be placed when added a new floor tile to a hallway.
-     * The overall method works by adding a 'room' of area 1 on a preexisting room.
-     */
-    private static void drawHallwayWall(TETile[][] map, int x, int y, int direction) {
-        for (int i = 0; i < 3; i++) {
-            if (Map.getTile(map, x + i, y) != Tileset.FLOOR && (direction == 0 || direction == 2)) {
-                Map.placeTile(map, x + i, y, Tileset.WALL);
-            } else if (Map.getTile(map, x, y + i) != Tileset.FLOOR && (direction == 1 || direction == 3)) {
-                Map.placeTile(map, x, y + i, Tileset.WALL);
-            }
-        }
-    }
-
-    /**
      * Draws the three wall tiles and floor tile that must be placed when added a new floor tile to a hallway.
      * The overall method works by adding a 'room' of area 1 on a preexisting room.
      */
-    private static void drawHallway(Position p, int direction) {
-        int x;
-        int y;
+    private static void drawHallway(Position p, int way) {
+        int x = p.x();
+        int y = p.y();
 
-        if (direction == 0) { // up
-            x = p.x() - 1;
-            y = p.y() + 1;
-            drawHallwayWall(map, x, y, direction);
-        } else if (direction == 1) { // right
-            x = p.x() + 1;
-            y = p.y() - 1;
-            drawHallwayWall(map, x, y, direction);
-        } else if (direction == 2) { // down
-            x = p.x() - 1;
-            y = p.y() - 1;
-            drawHallwayWall(map, x, y, direction);
-        } else if (direction == 3) { // left
-            x = p.x() - 1;
-            y = p.y() - 1;
-            drawHallwayWall(map, x, y, direction);
+        if (way == 0) { // up
+            x -= 1;
+            y += 1;
+        } else if (way == 1) { // right
+            x += 1;
+            y -= 1;
+        } else { // down or left
+            x -= 1;
+            y -= 1;
+        }
+        // Draws the three wall tiles that must be placed when added a new floor tile to a hallway.
+        // The overall method works by adding a 'room' of area 1 on a preexisting room.
+        for (int i = 0; i < 3; i++) {
+            if (Map.peek(map, x + i, y) != Tileset.FLOOR && way % 2 == 0) { // 0 or 2
+                Map.placeTile(map, x + i, y, Tileset.WALL);
+
+            } else if (Map.peek(map, x, y + i) != Tileset.FLOOR && way % 2 == 1) { // 1 or 3
+                Map.placeTile(map, x, y + i, Tileset.WALL);
+            }
         }
         Map.placeTile(map, p, Tileset.FLOOR);
     }
@@ -72,20 +61,20 @@ public class Room {
 
         while (!(cursor.equals(target))) {
             // Choose one of two directions to move in, corresponding to the index of choices
-            int direction = choices[Game.random.nextIntInclusive(1)];
+            int choice = choices[Game.random.nextIntInclusive(1)];
 
             // Example: if up (0), move cursor up one space.
             // Then, draw a floor at this space, and draw 3 wall tiles above this space.
-            if (direction == 0) {
+            if (choice == 0) {
                 cursor.moveUp();
-            } else if (direction == 1) {
+            } else if (choice == 1) {
                 cursor.moveRight();
-            } else if (direction == 2) {
+            } else if (choice == 2) {
                 cursor.moveDown();
-            } else if (direction == 3) {
+            } else if (choice == 3) {
                 cursor.moveLeft();
             }
-            drawHallway(cursor, direction);
+            drawHallway(cursor, choice);
 
             if (notAligned && cursor.verticallyAligned(target)) {
                 choices[1] = choices[0];
@@ -104,6 +93,7 @@ public class Room {
      * that their centers have the same x or y coordinate, both elements of the array are set as the same number.
      */
     public static void drawPath(Room roomA, Room roomB) {
+        // Todo: change to A*
         Position start = roomA.centre;
         Position goal = roomB.centre;
         int[] directions;
@@ -146,19 +136,19 @@ public class Room {
 
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
-            if (Map.getTile(map, x, startY) == Tileset.NOTHING) {
+            if (Map.peek(map, x, startY) == Tileset.NOTHING) {
                 Map.placeTile(map, x, startY, Room.wallType);
             }
-            if (Map.getTile(map, x, endY) == Tileset.NOTHING) {
+            if (Map.peek(map, x, endY) == Tileset.NOTHING) {
                 Map.placeTile(map, x, endY, Room.wallType);
             }
         }
         // Draw left and right walls
         for (int y = startY; y <= endY; y++) {
-            if (Map.getTile(map, startX, y) == Tileset.NOTHING) {
+            if (Map.peek(map, startX, y) == Tileset.NOTHING) {
                 Map.placeTile(map, startX, y, Room.wallType);
             }
-            if (Map.getTile(map, endX, y) == Tileset.NOTHING) {
+            if (Map.peek(map, endX, y) == Tileset.NOTHING) {
                 Map.placeTile(map, endX, y, Room.wallType);
             }
         }
@@ -173,7 +163,7 @@ public class Room {
     public void drawIrregular(TETile[][] map, int count, Position p) {
         // base case: count = 0
         if (count <= 0) {
-            if (Map.getTile(map, p) == Tileset.NOTHING) {
+            if (Map.peek(map, p) == Tileset.NOTHING) {
                 Map.placeTile(map, p, Tileset.WALL);
             }
         } else {

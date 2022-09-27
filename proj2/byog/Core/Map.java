@@ -99,7 +99,7 @@ public class Map {
         }
     }
 
-    public static TETile getTile(TETile[][] map, int x, int y) {
+    public static TETile peek(TETile[][] map, int x, int y) {
         if ((0 <= x && x < map.length) && (0 <= y && y < map[0].length)) {
             return map[x][y];
         } else {
@@ -108,7 +108,7 @@ public class Map {
         }
     }
 
-    public static TETile getTile(TETile[][] map, Position p) {
+    public static TETile peek(TETile[][] map, Position p) {
         if ((0 <= p.x() && p.x() < map.length) && (0 <= p.y() && p.y() < map[0].length)) {
             return map[p.x()][p.y()];
         } else {
