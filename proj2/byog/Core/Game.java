@@ -8,7 +8,6 @@ public class Game {
     private static final int HEIGHT = 40;
     protected static RandomExtra random;
     private final TERenderer ter = new TERenderer();
-    private Map world;
 
     /** Method used for playing a fresh game. The game should start from the main menu. */
     public void playWithKeyboard() {
@@ -39,18 +38,18 @@ public class Game {
             String seed = input.substring(1);
             Game.random = new RandomExtra(Long.parseLong(seed));
 
-            world = new Map(WIDTH, HEIGHT);
+            Map world = new Map(WIDTH, HEIGHT);
             world.generateRooms();
 
             ter.initialize(WIDTH, HEIGHT);
-            ter.renderFrame(Map.map);
+            ter.renderFrame(Map.getMap());
 
         } else if (mode == 'l') {
             // load
         } else if (mode == 'q') {
             // quit
         }
-        return Map.map;
+        return Map.getMap();
     }
 }
 

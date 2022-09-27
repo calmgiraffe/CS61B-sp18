@@ -13,7 +13,7 @@ public class Map {
     /**
      * Map instance variables
      */
-    protected static TETile[][] map;
+    private static TETile[][] map;
     private final int width;
     private final int height;
     private final Partition partition;
@@ -23,7 +23,7 @@ public class Map {
      * Map constructor
      */
     public Map(int width, int height) {
-        Map.map = new TETile[width][height];
+        map = new TETile[width][height];
         this.width = width;
         this.height = height;
         this.partition = new Partition(new Position(0, 0), width, height);
@@ -50,11 +50,70 @@ public class Map {
 
         for (Room r : rooms) {
             r.drawRoom();
+
             int choice = Game.random.nextIntInclusive(1, 100); // representing 100%
-            if (choice > 0) {
-                r.makeIrregular();
+            if (choice < 50) {
+                int xLower = r.getLowerLeft().x();
+                int xUpper = r.getUpperRight().x();
+                int yLower = r.getLowerLeft().y();
+                int yUpper = r.getUpperRight().y();
+
+                // Pick random location in the room and draw an irregular room there
+                int x = Game.random.nextIntInclusive(xLower, xUpper);
+                int y = Game.random.nextIntInclusive(yLower, yUpper);
+                int size = Game.random.nextIntInclusive(5, 10);
+                r.drawIrregular(map, size, new Position(x, y));
             }
         }
+    }
 
+    /**
+     * Returns the TETile[][] object associated with this class.
+     */
+    public static TETile[][] getMap() {
+        return map;
+    }
+
+    /**
+     * Draws the specified tile at position p. If p out of range, prints a message indicating
+     * the type of tile and location a placement was attempted. Use this method so you don't get IndexErrors.
+     *
+     */
+    public static void placeTile(TETile[][] map, Position p, TETile tile) {
+        if ((0 <= p.x() && p.x() < map.length) && (0 <= p.y() && p.y() < map[0].length)) {
+            map[p.x()][p.y()] = tile;
+        } else {
+            System.out.println("Unable to place " + tile.toString() + " at (" + p.x() + ", " + p.y() + ")");
+        }
+    }
+
+    /**
+     * Draws the specified tile at the specified x & y. If x or y out of range, prints a message indicating
+     * the type of tile and location a placement was attempted. Use this method so you don't get IndexErrors.
+     */
+    public static void placeTile(TETile[][] map, int x, int y, TETile tile) {
+        if ((0 <= x && x < map.length) && (0 <= y && y < map[0].length)) {
+            map[x][y] = tile;
+        } else {
+            System.out.println("Unable to place " + tile.toString() + " at (" + x + ", " + y + ")");
+        }
+    }
+
+    public static TETile getTile(TETile[][] map, int x, int y) {
+        if ((0 <= x && x < map.length) && (0 <= y && y < map[0].length)) {
+            return map[x][y];
+        } else {
+            return null;
+            // throw new ArrayIndexOutOfBoundsException("Unable to get tile at (" + x + ", " + y + ")");
+        }
+    }
+
+    public static TETile getTile(TETile[][] map, Position p) {
+        if ((0 <= p.x() && p.x() < map.length) && (0 <= p.y() && p.y() < map[0].length)) {
+            return map[p.x()][p.y()];
+        } else {
+            return null;
+            // throw new ArrayIndexOutOfBoundsException("Unable to get tile at (" + p.x() + ", " + p.y() + ")");
+        }
     }
 }

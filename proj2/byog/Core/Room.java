@@ -6,7 +6,7 @@ import byog.TileEngine.Tileset;
 public class Room {
 
     private static final TETile wallType = Tileset.WALL;
-    private static final TETile[][] map = Map.map;
+    private static final TETile[][] map = Map.getMap();
     private final Position lowerLeft;
     private final Position upperRight;
     private final Position centre;
@@ -23,40 +23,76 @@ public class Room {
     }
 
     /**
-     * Draws a FLOOR tile at Position p on the map.
+     * Draws the three wall tiles that must be placed when added a new floor tile to a hallway.
+     * The overall method works by adding a 'room' of area 1 on a preexisting room.
      */
-    private static void drawFloor(Position p) {
-        map[p.x()][p.y()] = Tileset.FLOOR;
+    private static void drawHallwayWall(TETile[][] map, int x, int y, int direction) {
+        for (int i = 0; i < 3; i++) {
+            if (Map.getTile(map, x + i, y) != Tileset.FLOOR && (direction == 0 || direction == 2)) {
+                Map.placeTile(map, x + i, y, Tileset.WALL);
+            } else if (Map.getTile(map, x, y + i) != Tileset.FLOOR && (direction == 1 || direction == 3)) {
+                Map.placeTile(map, x, y + i, Tileset.WALL);
+            }
+        }
+    }
+
+    /**
+     * Draws the three wall tiles and floor tile that must be placed when added a new floor tile to a hallway.
+     * The overall method works by adding a 'room' of area 1 on a preexisting room.
+     */
+    private static void drawHallway(Position p, int direction) {
+        int x;
+        int y;
+
+        if (direction == 0) { // up
+            x = p.x() - 1;
+            y = p.y() + 1;
+            drawHallwayWall(map, x, y, direction);
+        } else if (direction == 1) { // right
+            x = p.x() + 1;
+            y = p.y() - 1;
+            drawHallwayWall(map, x, y, direction);
+        } else if (direction == 2) { // down
+            x = p.x() - 1;
+            y = p.y() - 1;
+            drawHallwayWall(map, x, y, direction);
+        } else if (direction == 3) { // left
+            x = p.x() - 1;
+            y = p.y() - 1;
+            drawHallwayWall(map, x, y, direction);
+        }
+        Map.placeTile(map, p, Tileset.FLOOR);
     }
 
     /**
      * Draws a FLOOR tile at cursor, then increments the cursor in a direction towards the target.
      */
     private static void moveCursor(Position cursor, Position target, int[] choices) {
-        boolean aligned = (choices[0] == choices[1]);
+        boolean notAligned = (choices[0] != choices[1]);
 
         while (!(cursor.equals(target))) {
-            Room.drawFloor(cursor); // draw floor at cursor
-            int index = Game.random.nextIntInclusive(1); // choose index 0 or 1
+            // Choose one of two directions to move in, corresponding to the index of choices
+            int direction = choices[Game.random.nextIntInclusive(1)];
 
-            if (choices[index] == 0) {
+            // Example: if up (0), move cursor up one space.
+            // Then, draw a floor at this space, and draw 3 wall tiles above this space.
+            if (direction == 0) {
                 cursor.moveUp();
-            } else if (choices[index] == 1) {
+            } else if (direction == 1) {
                 cursor.moveRight();
-            } else if (choices[index] == 2) {
+            } else if (direction == 2) {
                 cursor.moveDown();
-            } else {
+            } else if (direction == 3) {
                 cursor.moveLeft();
             }
+            drawHallway(cursor, direction);
 
-            if (!aligned) {
-                if (cursor.verticallyAligned(target)) {
-                    choices[1] = choices[0];
-                    aligned = true;
-                } else if (cursor.horizontallyAligned(target)) {
-                    choices[0] = choices[1];
-                    aligned = true;
-                }
+            if (notAligned && cursor.verticallyAligned(target)) {
+                choices[1] = choices[0];
+                notAligned = false;
+            } else if (notAligned && cursor.horizontallyAligned(target)) {
+                choices[0] = choices[1];
+                notAligned = false;
             }
         }
     }
@@ -85,10 +121,10 @@ public class Room {
                 directions = new int[]{3, 3}; // move left
             }
         } else if (start.x() < goal.x() && start.y() < goal.y()) {
-            directions = new int[]{0, 1}; // choose randomly between right or up
+            directions = new int[]{0, 1}; // choose between right or up
 
         } else if (start.x() < goal.x()) {
-            directions = new int[]{2, 1}; // choose randomly between right or down
+            directions = new int[]{2, 1}; // choose between right or down
 
         } else if (start.y() < goal.y()) {
             directions = new int[]{0, 3}; // choose between left and up
@@ -110,33 +146,58 @@ public class Room {
 
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
-            if (map[x][startY] == Tileset.NOTHING) {
-                map[x][startY] = Room.wallType;
+            if (Map.getTile(map, x, startY) == Tileset.NOTHING) {
+                Map.placeTile(map, x, startY, Room.wallType);
             }
-            if (map[x][endY] == Tileset.NOTHING) {
-                map[x][endY] = Room.wallType;
+            if (Map.getTile(map, x, endY) == Tileset.NOTHING) {
+                Map.placeTile(map, x, endY, Room.wallType);
             }
         }
         // Draw left and right walls
         for (int y = startY; y <= endY; y++) {
-            if (map[startX][y] == Tileset.NOTHING) {
-                map[startX][y] = Room.wallType;
+            if (Map.getTile(map, startX, y) == Tileset.NOTHING) {
+                Map.placeTile(map, startX, y, Room.wallType);
             }
-            if (map[endX][y] == Tileset.NOTHING) {
-                map[endX][y] = Room.wallType;
+            if (Map.getTile(map, endX, y) == Tileset.NOTHING) {
+                Map.placeTile(map, endX, y, Room.wallType);
             }
         }
         // Draw interior
         for (int x = startX + 1; x <= endX - 1; x++) {
             for (int y = startY + 1; y <= endY - 1; y++) {
-                map[x][y] = floorType;
+                Map.placeTile(map, x, y, floorType);
             }
         }
     }
 
-    public void makeIrregular() {
-        // pick a side: top, left, bottom, or right
-        // pick two positions between tile 1 and (side length - 1), replace tile with floor
+    public void drawIrregular(TETile[][] map, int count, Position p) {
+        // base case: count = 0
+        if (count <= 0) {
+            if (Map.getTile(map, p) == Tileset.NOTHING) {
+                Map.placeTile(map, p, Tileset.WALL);
+            }
+        } else {
+            if (p.onMapEdge()) {
+                Map.placeTile(map, p, Tileset.WALL);
+            } else {
+                Map.placeTile(map, p, Tileset.FLOOR);
+            }
+
+            Position pUp = new Position(p.x(), p.y() + 1);
+            Position pRight = new Position(p.x() + 1, p.y());
+            Position pDown = new Position(p.x(), p.y() - 1);
+            Position pLeft = new Position(p.x() - 1, p.y());
+
+            int n0 = Game.random.nextIntInclusive(1, 3);
+            int n1 = Game.random.nextIntInclusive(1, 3);
+            int n2 = Game.random.nextIntInclusive(1, 3);
+            int n3 = Game.random.nextIntInclusive(1, 3);
+
+            drawIrregular(map, count - n0, pUp);
+            drawIrregular(map, count - n1, pRight);
+            drawIrregular(map, count - n2, pDown);
+            drawIrregular(map, count - n3, pLeft);
+        }
     }
 
     /**
@@ -149,5 +210,13 @@ public class Room {
         } else {
             return Tileset.FLOOR;
         }
+    }
+
+    public Position getLowerLeft() {
+        return lowerLeft;
+    }
+
+    public Position getUpperRight() {
+        return upperRight;
     }
 }

@@ -16,7 +16,7 @@ public class Partition {
      * MAX should be at least 2*MIN - 1, because a split on 2*MIN gives 2 partitions of MIN
      */
     static final int MIN = 7;
-    static final int MAX = 20;
+    static final int MAX = 17;
 
     private final Position position;
     private final Position centre;
@@ -159,6 +159,10 @@ public class Partition {
         this.room = new Room(lowerLeft, upperRight);
     }
 
+    /**
+     * Comparator based on the difference between the two partitions distanceToParent.
+     * Returns 1, 0, or -1 because distanceToParent is a double.
+     */
     private static class DistanceComparator implements Comparator<Partition> {
         public int compare(Partition a, Partition b) {
             if (a.distanceToParent - b.distanceToParent > 0) {
@@ -171,6 +175,9 @@ public class Partition {
         }
     }
 
+    /**
+     * Returns new instance of DistanceComparator.
+     */
     public static Comparator<Partition> getDistanceComparator() {
         return new DistanceComparator();
     }
