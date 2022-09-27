@@ -94,8 +94,8 @@ public class Room {
      */
     public static void drawPath(Room roomA, Room roomB) {
         // Todo: change to A*
-        Position start = roomA.centre;
-        Position goal = roomB.centre;
+        Position start = Position.randomPositionWithinRadius(roomA.centre);
+        Position goal = Position.randomPositionWithinRadius(roomB.centre);
         int[] directions;
 
         if (start.verticallyAligned(goal)) {

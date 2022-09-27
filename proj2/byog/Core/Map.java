@@ -49,7 +49,7 @@ public class Map {
         Partition.addRooms(rooms, partition); // traverse partition tree and add leafs to rooms array
 
         for (Room r : rooms) {
-            r.drawRoom();
+            r.drawRoom(); // Todo: add ability to only draw some rooms
 
             int choice = Game.random.nextIntInclusive(1, 100); // representing 100%
             if (choice < 50) {
