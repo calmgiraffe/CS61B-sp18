@@ -3,7 +3,6 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import java.util.ArrayList;
-import java.util.PriorityQueue;
 
 /**
  * Map object to represent the underlying data type (TETIle[][]),
@@ -19,7 +18,6 @@ public class Map {
     private final int height;
     private final Partition partition;
     private final ArrayList<Room> rooms = new ArrayList<>();
-    private PriorityQueue<Partition> partitionsMaxHeap;
 
     /**
      * Map constructor
@@ -49,30 +47,14 @@ public class Map {
     public void generateRooms() {
         Partition.splitAndConnect(partition); // make binary tree of partitions and draw hallways, making a connected graph
         Partition.addRooms(rooms, partition); // traverse partition tree and add leafs to rooms array
-        //addToPartitionsMaxHeap(partition.pQueue());
 
         for (Room r : rooms) {
             r.drawRoom();
+            int choice = Game.random.nextIntInclusive(1, 100); // representing 100%
+            if (choice > 0) {
+                r.makeIrregular();
+            }
         }
 
-        PriorityQueue<Partition> pq = partition.pQueue();
-        int size = pq.size();
-
-        /*
-        for (int i = 0; i < 3*size / 4; i++) {
-            pq.poll();
-        }
-        for (int i = 0; i < size / 8; i++) {
-            Partition p1 = pq.poll();
-            Partition p2 = pq.poll();
-            Room.drawPath(p1.room(), p2.room());
-        }
-        */
-
-    }
-
-    public void addToPartitionsMaxHeap(PriorityQueue<Partition> pq) {
-        partitionsMaxHeap = new PriorityQueue<>(Partition.getInverseDistanceComparator());
-        partitionsMaxHeap.addAll(pq);
     }
 }

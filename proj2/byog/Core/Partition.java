@@ -122,8 +122,8 @@ public class Partition {
             par.distanceToParent = Position.calculateDistance(par.centre, p.centre);
             p.pQueue.add(par);
         }
-        // Left branch: select partition that is closest to the center
-        // Right branch: select partition that is closest to the cente
+        // Left branch: select partition that is closest to the centre
+        // Right branch: select partition that is closest to the centre
         Partition minLeft = p.left.pQueue.peek();
         Partition minRight = p.right.pQueue.peek();
 
@@ -159,7 +159,6 @@ public class Partition {
         this.room = new Room(lowerLeft, upperRight);
     }
 
-
     private static class DistanceComparator implements Comparator<Partition> {
         public int compare(Partition a, Partition b) {
             if (a.distanceToParent - b.distanceToParent > 0) {
@@ -174,22 +173,6 @@ public class Partition {
 
     public static Comparator<Partition> getDistanceComparator() {
         return new DistanceComparator();
-    }
-
-    private static class InverseDistanceComparator implements Comparator<Partition> {
-        public int compare(Partition a, Partition b) {
-            if (a.distanceToParent - b.distanceToParent > 0) {
-                return -1;
-            } else if (a.distanceToParent == b.distanceToParent) {
-                return 0;
-            } else {
-                return 1;
-            }
-        }
-    }
-
-    public static Comparator<Partition> getInverseDistanceComparator() {
-        return new InverseDistanceComparator();
     }
 
     /**

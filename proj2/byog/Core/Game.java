@@ -5,7 +5,7 @@ import byog.TileEngine.TETile;
 
 public class Game {
     private static final int WIDTH = 60;
-    private static final int HEIGHT = 60;
+    private static final int HEIGHT = 40;
     protected static RandomExtra random;
     private final TERenderer ter = new TERenderer();
     private Map world;

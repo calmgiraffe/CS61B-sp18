@@ -32,28 +32,28 @@ public class Room {
     /**
      * Draws a FLOOR tile at cursor, then increments the cursor in a direction towards the target.
      */
-    private static void moveCursor(Position start, Position target, int[] choices) {
+    private static void moveCursor(Position cursor, Position target, int[] choices) {
         boolean aligned = (choices[0] == choices[1]);
 
-        while (!(start.equals(target))) {
-            Room.drawFloor(start); // draw floor at cursor
+        while (!(cursor.equals(target))) {
+            Room.drawFloor(cursor); // draw floor at cursor
             int index = Game.random.nextIntInclusive(1); // choose index 0 or 1
 
             if (choices[index] == 0) {
-                start.moveUp();
+                cursor.moveUp();
             } else if (choices[index] == 1) {
-                start.moveRight();
+                cursor.moveRight();
             } else if (choices[index] == 2) {
-                start.moveDown();
+                cursor.moveDown();
             } else {
-                start.moveLeft();
+                cursor.moveLeft();
             }
 
             if (!aligned) {
-                if (start.verticallyAligned(target)) {
+                if (cursor.verticallyAligned(target)) {
                     choices[1] = choices[0];
                     aligned = true;
-                } else if (start.horizontallyAligned(target)) {
+                } else if (cursor.horizontallyAligned(target)) {
                     choices[0] = choices[1];
                     aligned = true;
                 }
@@ -107,18 +107,25 @@ public class Room {
         int startY = lowerLeft.y();
         int endX = upperRight.x();
         int endY = upperRight.y();
-        
+
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
-            map[x][startY] = Room.wallType;
-            map[x][endY] = Room.wallType;
+            if (map[x][startY] == Tileset.NOTHING) {
+                map[x][startY] = Room.wallType;
+            }
+            if (map[x][endY] == Tileset.NOTHING) {
+                map[x][endY] = Room.wallType;
+            }
         }
         // Draw left and right walls
         for (int y = startY; y <= endY; y++) {
-            map[startX][y] = Room.wallType;
-            map[endX][y] = Room.wallType;
+            if (map[startX][y] == Tileset.NOTHING) {
+                map[startX][y] = Room.wallType;
+            }
+            if (map[endX][y] == Tileset.NOTHING) {
+                map[endX][y] = Room.wallType;
+            }
         }
-
         // Draw interior
         for (int x = startX + 1; x <= endX - 1; x++) {
             for (int y = startY + 1; y <= endY - 1; y++) {
@@ -127,11 +134,16 @@ public class Room {
         }
     }
 
+    public void makeIrregular() {
+        // pick a side: top, left, bottom, or right
+        // pick two positions between tile 1 and (side length - 1), replace tile with floor
+    }
+
     /**
      * Randomly returns either the FLOOR or GRASS Tileset.
      */
     private TETile chooseRandomFloorType() {
-        int choice = Game.random.nextIntInclusive(0);
+        int choice = Game.random.nextIntInclusive(1, 1);
         if (choice == 0) {
             return Tileset.GRASS;
         } else {
