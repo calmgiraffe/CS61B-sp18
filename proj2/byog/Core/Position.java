@@ -11,7 +11,6 @@ public class Position {
     /**
      * Position instance variables
      */
-    private static final TETile[][] map = Map.getMap();
     private int x;
     private int y;
 
@@ -96,7 +95,7 @@ public class Position {
     /**
      * Returns true if the position is on the map edge, false otherwise.
      */
-    public boolean onMapEdge() {
+    public boolean onMapEdge(TETile[][] map) {
         return x == 0 || x == map.length - 1 || y == 0 || y == map[0].length - 1;
     }
 

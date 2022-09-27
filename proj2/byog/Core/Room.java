@@ -160,19 +160,23 @@ public class Room {
         }
     }
 
-    public void drawIrregular(TETile[][] map, int count, Position p) {
-        // base case: count = 0
+    /**
+     * From a position, recursively draws an irregular room by making new positions at the top, right, bottom,
+     * and left of said position, then applying the recursive method on those four new positions.
+     * Depending on the location and the count, either a FLOOR or WALL tile is drawn.
+     */
+    public void drawIrregular(int count, Position p) {
+        // Base case: count is 0 and able to place a tile on NOTHING
         if (count <= 0) {
             if (Map.peek(map, p) == Tileset.NOTHING) {
                 Map.placeTile(map, p, Tileset.WALL);
             }
         } else {
-            if (p.onMapEdge()) {
+            if (p.onMapEdge(map)) {
                 Map.placeTile(map, p, Tileset.WALL);
             } else {
                 Map.placeTile(map, p, Tileset.FLOOR);
             }
-
             Position pUp = new Position(p.x(), p.y() + 1);
             Position pRight = new Position(p.x() + 1, p.y());
             Position pDown = new Position(p.x(), p.y() - 1);
@@ -183,10 +187,10 @@ public class Room {
             int n2 = Game.random.nextIntInclusive(1, 3);
             int n3 = Game.random.nextIntInclusive(1, 3);
 
-            drawIrregular(map, count - n0, pUp);
-            drawIrregular(map, count - n1, pRight);
-            drawIrregular(map, count - n2, pDown);
-            drawIrregular(map, count - n3, pLeft);
+            drawIrregular(count - n0, pUp);
+            drawIrregular(count - n1, pRight);
+            drawIrregular(count - n2, pDown);
+            drawIrregular(count - n3, pLeft);
         }
     }
 
@@ -202,11 +206,17 @@ public class Room {
         }
     }
 
-    public Position getLowerLeft() {
+    /**
+     * Returns the lowerLeft Position.
+     */
+    public Position lowerLeft() {
         return lowerLeft;
     }
 
-    public Position getUpperRight() {
+    /**
+     * Returns the upperRight Position.
+     */
+    public Position upperRight() {
         return upperRight;
     }
 }

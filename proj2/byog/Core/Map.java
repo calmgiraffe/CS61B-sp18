@@ -53,16 +53,16 @@ public class Map {
 
             int choice = Game.random.nextIntInclusive(1, 100); // representing 100%
             if (choice < 50) {
-                int xLower = r.getLowerLeft().x();
-                int xUpper = r.getUpperRight().x();
-                int yLower = r.getLowerLeft().y();
-                int yUpper = r.getUpperRight().y();
+                int xLower = r.lowerLeft().x();
+                int xUpper = r.upperRight().x();
+                int yLower = r.lowerLeft().y();
+                int yUpper = r.upperRight().y();
 
                 // Pick random location in the room and draw an irregular room there
                 int x = Game.random.nextIntInclusive(xLower, xUpper);
                 int y = Game.random.nextIntInclusive(yLower, yUpper);
                 int size = Game.random.nextIntInclusive(5, 10);
-                r.drawIrregular(map, size, new Position(x, y));
+                r.drawIrregular(size, new Position(x, y));
             }
         }
     }
@@ -99,6 +99,10 @@ public class Map {
         }
     }
 
+    /**
+     * Returns the tile at specified x and y coordinates on the map, but does not remove the tile.
+     * If out of bounds, returns null.
+     */
     public static TETile peek(TETile[][] map, int x, int y) {
         if ((0 <= x && x < map.length) && (0 <= y && y < map[0].length)) {
             return map[x][y];
@@ -108,6 +112,10 @@ public class Map {
         }
     }
 
+    /**
+     * Returns the tile at specified Position on the map, but does not remove the tile.
+     * If out of bounds, returns null.
+     */
     public static TETile peek(TETile[][] map, Position p) {
         if ((0 <= p.x() && p.x() < map.length) && (0 <= p.y() && p.y() < map[0].length)) {
             return map[p.x()][p.y()];
