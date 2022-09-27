@@ -62,39 +62,39 @@ public class Partition {
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as the branches
      * of the current partition. Finally, the method traverses the newly created branches.
      */
-    public static void splitAndConnect(Partition p) {
+    public static void splitAndConnect(Partition p, RandomExtra r) {
         if (p.width > MAX || p.height > MAX) {
 
             if (p.width <= MAX) {
-                int border = Game.random.nextIntInclusive(MIN, p.height - MIN);
+                int border = r.nextIntInclusive(MIN, p.height - MIN);
                 p.left = splitVertically(p, border);
                 p.right = new Partition(p.position, p.width, border);
 
             } else if (p.height <= MAX) {
-                int border = Game.random.nextIntInclusive(MIN, p.width - MIN);
+                int border = r.nextIntInclusive(MIN, p.width - MIN);
                 p.left = splitHorizontally(p, border);
                 p.right = new Partition(p.position, border, p.height);
 
             } else {
-                int choice = Game.random.nextIntInclusive(1);
+                int choice = r.nextIntInclusive(1);
                 if (choice == 0) {
-                    int border = Game.random.nextIntInclusive(MIN, p.height - MIN);
+                    int border = r.nextIntInclusive(MIN, p.height - MIN);
                     p.left = splitVertically(p, border);
                     p.right = new Partition(p.position, p.width, border);
 
                 } else {
-                    int border = Game.random.nextIntInclusive(MIN, p.width - MIN);
+                    int border = r.nextIntInclusive(MIN, p.width - MIN);
                     p.left = splitHorizontally(p, border);
                     p.right = new Partition(p.position, border, p.height);
                 }
             }
-            splitAndConnect(p.left);
-            splitAndConnect(p.right);
-            connect(p);
+            splitAndConnect(p.left, r);
+            splitAndConnect(p.right, r);
+            connectLeftAndRight(p, r);
 
         } else { // if leaf
             // generate room
-            p.generateRandomRoom();
+            p.generateRandomRoom(r);
 
             // make new PQ, add partition to it
             p.pQueue = new PriorityQueue<>(getDistanceComparator());
@@ -107,7 +107,7 @@ public class Partition {
      * Select two partitions, one from the left and right branch respectively, as stored in the left and right
      * pQueues, then draws a path between their centres, thereby connecting them and ensuring a complete graph.
      */
-    public static void connect(Partition p) {
+    public static void connectLeftAndRight(Partition p, RandomExtra r) {
         // Make new pQueue
         p.pQueue = new PriorityQueue<>(getDistanceComparator());
 
@@ -127,7 +127,7 @@ public class Partition {
         Partition minLeft = p.left.pQueue.peek();
         Partition minRight = p.right.pQueue.peek();
 
-        Room.drawPath(minLeft.room, minRight.room);
+        Room.drawPath(minLeft.room, minRight.room, r);
     }
 
     /**
@@ -147,16 +147,16 @@ public class Partition {
      * of the partition area. A Room is an abstract object consisting of two Positions representing the bottom left
      * and top right corner, a floor type, etc
      */
-    public void generateRandomRoom() {
-        int lowerLeftX = Game.random.nextIntInclusive(width - MIN);
-        int lowerLeftY = Game.random.nextIntInclusive(height - MIN);
+    public void generateRandomRoom(RandomExtra r) {
+        int lowerLeftX = r.nextIntInclusive(width - MIN);
+        int lowerLeftY = r.nextIntInclusive(height - MIN);
         Position lowerLeft = new Position(this.position.x() + lowerLeftX, this.position.y() + lowerLeftY);
 
-        int upperRightX = Game.random.nextIntInclusive(MIN - 1, width - lowerLeftX - 1);
-        int upperRightY = Game.random.nextIntInclusive(MIN - 1, height - lowerLeftY - 1);
+        int upperRightX = r.nextIntInclusive(MIN - 1, width - lowerLeftX - 1);
+        int upperRightY = r.nextIntInclusive(MIN - 1, height - lowerLeftY - 1);
         Position upperRight = new Position(lowerLeft.x() + upperRightX, lowerLeft.y() + upperRightY);
 
-        this.room = new Room(lowerLeft, upperRight);
+        this.room = new Room(lowerLeft, upperRight, r);
     }
 
     /**

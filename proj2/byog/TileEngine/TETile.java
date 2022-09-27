@@ -75,7 +75,7 @@ public class TETile {
      * Draws the tile to the screen at location x, y. If a valid filepath is provided,
      * we draw the image located at that filepath to the screen. Otherwise, we fall
      * back to the character and color representation for the tile.
-     *
+     * <p>
      * Note that the image provided must be of the right size (16x16). It will not be
      * automatically resized or truncated.
      * @param x x coordinate

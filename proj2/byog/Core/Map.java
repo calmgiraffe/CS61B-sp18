@@ -13,6 +13,7 @@ public class Map {
     /**
      * Map instance variables
      */
+    private final RandomExtra random;
     private static TETile[][] map;
     private final int width;
     private final int height;
@@ -22,12 +23,13 @@ public class Map {
     /**
      * Map constructor
      */
-    public Map(int width, int height) {
+    public Map(int width, int height, long seed) {
+        this.random = new RandomExtra(seed);
         map = new TETile[width][height];
         this.width = width;
         this.height = height;
         this.partition = new Partition(new Position(0, 0), width, height);
-        this.fillWithNothing(); // Initially fill map with Tileset.NOTHING
+        fillWithNothing();
     }
 
     /**
@@ -44,14 +46,14 @@ public class Map {
     /**
      * Randomly generates some rectangular rooms on the map.
      */
-    public void generateRooms() {
-        Partition.splitAndConnect(partition); // make binary tree of partitions and draw hallways, making a connected graph
+    public void generateWorld() {
+        Partition.splitAndConnect(partition, random); // make binary tree of partitions and draw hallways, making a connected graph
         Partition.addRooms(rooms, partition); // traverse partition tree and add leafs to rooms array
 
         for (Room r : rooms) {
             r.drawRoom(); // Todo: add ability to only draw some rooms
 
-            int choice = Game.random.nextIntInclusive(1, 100); // representing 100%
+            int choice = random.nextIntInclusive(1, 100); // representing 100%
             if (choice < 50) {
                 int xLower = r.lowerLeft().x();
                 int xUpper = r.upperRight().x();
@@ -59,10 +61,10 @@ public class Map {
                 int yUpper = r.upperRight().y();
 
                 // Pick random location in the room and draw an irregular room there
-                int x = Game.random.nextIntInclusive(xLower, xUpper);
-                int y = Game.random.nextIntInclusive(yLower, yUpper);
-                int size = Game.random.nextIntInclusive(5, 10);
-                r.drawIrregular(size, new Position(x, y));
+                int x = random.nextIntInclusive(xLower, xUpper);
+                int y = random.nextIntInclusive(yLower, yUpper);
+                int size = random.nextIntInclusive(5, 10);
+                r.drawIrregular(size, new Position(x, y), random);
             }
         }
     }

@@ -15,11 +15,11 @@ public class Room {
     /**
      * Constructor
      */
-    public Room(Position lowerLeft, Position upperRight) {
+    public Room(Position lowerLeft, Position upperRight, RandomExtra r) {
         this.lowerLeft = lowerLeft;
         this.upperRight = upperRight;
         this.centre = new Position((lowerLeft.x() + upperRight.x()) / 2, (lowerLeft.y() + upperRight.y()) / 2);
-        this.floorType = chooseRandomFloorType();
+        this.floorType = chooseRandomFloorType(r);
     }
 
     /**
@@ -56,12 +56,12 @@ public class Room {
     /**
      * Draws a FLOOR tile at cursor, then increments the cursor in a direction towards the target.
      */
-    private static void moveCursor(Position cursor, Position target, int[] choices) {
+    private static void moveCursor(Position cursor, Position target, int[] choices, RandomExtra r) {
         boolean notAligned = (choices[0] != choices[1]);
 
         while (!(cursor.equals(target))) {
             // Choose one of two directions to move in, corresponding to the index of choices
-            int choice = choices[Game.random.nextIntInclusive(1)];
+            int choice = choices[r.nextIntInclusive(1)];
 
             // Example: if up (0), move cursor up one space.
             // Then, draw a floor at this space, and draw 3 wall tiles above this space.
@@ -92,10 +92,10 @@ public class Room {
      * array is up (0) or down (2), the second element is right (1) or left (3). If the two rooms are positioned so
      * that their centers have the same x or y coordinate, both elements of the array are set as the same number.
      */
-    public static void drawPath(Room roomA, Room roomB) {
+    public static void drawPath(Room roomA, Room roomB, RandomExtra r) {
         // Todo: change to A*
-        Position start = Position.randomPositionWithinRadius(roomA.centre);
-        Position goal = Position.randomPositionWithinRadius(roomB.centre);
+        Position start = Position.randomPositionWithinRadius(roomA.centre, r);
+        Position goal = Position.randomPositionWithinRadius(roomB.centre, r);
         int[] directions;
 
         if (start.verticallyAligned(goal)) {
@@ -122,7 +122,7 @@ public class Room {
         } else {
             directions = new int[]{2, 3}; // choose between left and down
         }
-        moveCursor(start, goal, directions);
+        moveCursor(start, goal, directions, r);
     }
 
     /**
@@ -165,7 +165,7 @@ public class Room {
      * and left of said position, then applying the recursive method on those four new positions.
      * Depending on the location and the count, either a FLOOR or WALL tile is drawn.
      */
-    public void drawIrregular(int count, Position p) {
+    public void drawIrregular(int count, Position p, RandomExtra r) {
         // Base case: count is 0 and able to place a tile on NOTHING
         if (count <= 0) {
             if (Map.peek(map, p) == Tileset.NOTHING) {
@@ -182,23 +182,23 @@ public class Room {
             Position pDown = new Position(p.x(), p.y() - 1);
             Position pLeft = new Position(p.x() - 1, p.y());
 
-            int n0 = Game.random.nextIntInclusive(1, 3);
-            int n1 = Game.random.nextIntInclusive(1, 3);
-            int n2 = Game.random.nextIntInclusive(1, 3);
-            int n3 = Game.random.nextIntInclusive(1, 3);
+            int n0 = r.nextIntInclusive(1, 3);
+            int n1 = r.nextIntInclusive(1, 3);
+            int n2 = r.nextIntInclusive(1, 3);
+            int n3 = r.nextIntInclusive(1, 3);
 
-            drawIrregular(count - n0, pUp);
-            drawIrregular(count - n1, pRight);
-            drawIrregular(count - n2, pDown);
-            drawIrregular(count - n3, pLeft);
+            drawIrregular(count - n0, pUp, r);
+            drawIrregular(count - n1, pRight, r);
+            drawIrregular(count - n2, pDown, r);
+            drawIrregular(count - n3, pLeft, r);
         }
     }
 
     /**
      * Randomly returns either the FLOOR or GRASS Tileset.
      */
-    private TETile chooseRandomFloorType() {
-        int choice = Game.random.nextIntInclusive(1, 1);
+    private TETile chooseRandomFloorType(RandomExtra r) {
+        int choice = r.nextIntInclusive(1, 1);
         if (choice == 0) {
             return Tileset.GRASS;
         } else {

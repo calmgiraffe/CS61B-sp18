@@ -32,14 +32,14 @@ public class Position {
     /**
      * Given a Position p, returns a new position within a 5x5 box radius surrounding the original Position.
      */
-    public static Position randomPositionWithinRadius(Position p) {
+    public static Position randomPositionWithinRadius(Position p, RandomExtra r) {
         int lowerX = p.x() - 2;
         int upperX = p.x() + 2;
         int lowerY = p.y() - 2;
         int upperY = p.y() + 2;
 
-        int x = Game.random.nextIntInclusive(lowerX, upperX);
-        int y = Game.random.nextIntInclusive(lowerY, upperY);
+        int x = r.nextIntInclusive(lowerX, upperX);
+        int y = r.nextIntInclusive(lowerY, upperY);
         return new Position(x, y);
     }
 
