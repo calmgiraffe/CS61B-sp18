@@ -1,6 +1,9 @@
 package byog.TileEngine;
 
+import byog.Core.RandomExtra;
+
 import java.awt.Color;
+import java.util.Random;
 
 /**
  * Contains constant tile objects, to avoid having to remake the same tiles in different parts of
@@ -33,6 +36,30 @@ public class Tileset {
     public static final TETile SAND = new TETile('▒', Color.yellow, Color.black, "sand");
     public static final TETile MOUNTAIN = new TETile('▲', Color.gray, Color.black, "mountain");
     public static final TETile TREE = new TETile('♠', Color.green, Color.black, "tree");
-}
+
+
+    // Better looking flowers
+    public static final TETile FLOWERMAGENTA = new TETile('❀', Color.magenta, Color.black, "flower");
+    public static final TETile FLOWERORANGE = new TETile('❀', Color.ORANGE, Color.black, "flower");
+    public static final TETile FLOWERRED = new TETile('❀', Color.red, Color.black, "flower");
+    public static final TETile FLOWERPINK = new TETile('❀', Color.pink, Color.black, "flower");
+    public static final TETile FLOWERCYAN = new TETile('❀', Color.cyan, Color.black, "flower");
+
+
+    public static TETile randomColorFlower(Random r) {
+        int choice = r.nextInt(3);
+        if (choice == 0) {
+            return FLOWERORANGE;
+        } else if (choice == 1) {
+            return FLOWERRED;
+        } else {
+            return FLOWERPINK;
+        }
+    }
+
+    public static TETile colorVariantWall(Random r) {
+        return TETile.colorVariant(WALL, 30, 30, 30, r);
+    }
+    }
 
 

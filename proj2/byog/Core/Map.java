@@ -51,20 +51,15 @@ public class Map {
         Partition.addRooms(rooms, partition); // traverse partition tree and add leafs to rooms array
 
         for (Room r : rooms) {
-            r.drawRoom(map); // Todo: add ability to only draw some rooms
+            r.drawRoom(map, random); // Todo: add ability to only draw some rooms
 
-            int choice = random.nextIntInclusive(1, 100); // representing 100%
-            if (choice < 50) {
-                int xLower = r.lowerLeft().x();
-                int xUpper = r.upperRight().x();
-                int yLower = r.lowerLeft().y();
-                int yUpper = r.upperRight().y();
-
-                // Pick random location in the room and draw an irregular room there
-                int x = random.nextIntInclusive(xLower, xUpper);
-                int y = random.nextIntInclusive(yLower, yUpper);
-                int size = random.nextIntInclusive(5, 10);
-                r.drawIrregular(size, new Position(x, y), random, map);
+            if (random.nextIntInclusive(1, 100) < 50) {
+                int size = random.nextIntInclusive(5, 9);
+                r.drawIrregular(size, r.randomPositionInRoom(random, 0), random, map);
+            }
+            if (random.nextIntInclusive(1, 100) < 50) {
+                int size = random.nextIntInclusive(5, 7);
+                r.drawIrregularGrass(size, r.randomPositionInRoom(random, 1), random, map);
             }
         }
     }
@@ -72,7 +67,6 @@ public class Map {
     /**
      * Draws the specified tile at position p. If p out of range, prints a message indicating
      * the type of tile and location a placement was attempted. Use this method so you don't get IndexErrors.
-     *
      */
     public static void placeTile(TETile[][] map, Position p, TETile tile) {
         if ((0 <= p.x() && p.x() < map.length) && (0 <= p.y() && p.y() < map[0].length)) {

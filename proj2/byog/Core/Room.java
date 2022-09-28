@@ -5,7 +5,6 @@ import byog.TileEngine.Tileset;
 
 public class Room {
 
-    private static final TETile wallType = Tileset.WALL;
     private final Position lowerLeft;
     private final Position upperRight;
     private final Position centre;
@@ -25,7 +24,7 @@ public class Room {
      * Draws the three wall tiles and floor tile that must be placed when added a new floor tile to a hallway.
      * The overall method works by adding a 'room' of area 1 on a preexisting room.
      */
-    private static void drawHallway(Position p, int way, TETile[][] map) {
+    private static void drawHallway(Position p, int way, TETile[][] map, RandomExtra r) {
         int x = p.x();
         int y = p.y();
 
@@ -43,10 +42,10 @@ public class Room {
         // The overall method works by adding a 'room' of area 1 on a preexisting room.
         for (int i = 0; i < 3; i++) {
             if (Map.peek(map, x + i, y) != Tileset.FLOOR && way % 2 == 0) { // 0 or 2
-                Map.placeTile(map, x + i, y, Tileset.WALL);
+                Map.placeTile(map, x + i, y, Tileset.colorVariantWall(r));
 
             } else if (Map.peek(map, x, y + i) != Tileset.FLOOR && way % 2 == 1) { // 1 or 3
-                Map.placeTile(map, x, y + i, Tileset.WALL);
+                Map.placeTile(map, x, y + i, Tileset.colorVariantWall(r));
             }
         }
         Map.placeTile(map, p, Tileset.FLOOR);
@@ -110,7 +109,7 @@ public class Room {
             } else if (choice == 3) {
                 start.moveLeft();
             }
-            drawHallway(start, choice, map);
+            drawHallway(start, choice, map, r);
 
             // If inline with goal, edit choices so subsequent tiles all go in same direct line
             if (notAligned && start.verticallyAligned(goal)) {
@@ -126,7 +125,7 @@ public class Room {
     /**
      * Draws the rectangular room that is associated with this particular Partition onto the provided map.
      */
-    public void drawRoom(TETile[][] map) {
+    public void drawRoom(TETile[][] map, RandomExtra r) {
         int startX = lowerLeft.x();
         int startY = lowerLeft.y();
         int endX = upperRight.x();
@@ -135,19 +134,19 @@ public class Room {
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
             if (Map.peek(map, x, startY) == Tileset.NOTHING) {
-                Map.placeTile(map, x, startY, Room.wallType);
+                Map.placeTile(map, x, startY, Tileset.colorVariantWall(r));
             }
             if (Map.peek(map, x, endY) == Tileset.NOTHING) {
-                Map.placeTile(map, x, endY, Room.wallType);
+                Map.placeTile(map, x, endY, Tileset.colorVariantWall(r));
             }
         }
         // Draw left and right walls
         for (int y = startY; y <= endY; y++) {
             if (Map.peek(map, startX, y) == Tileset.NOTHING) {
-                Map.placeTile(map, startX, y, Room.wallType);
+                Map.placeTile(map, startX, y, Tileset.colorVariantWall(r));
             }
             if (Map.peek(map, endX, y) == Tileset.NOTHING) {
-                Map.placeTile(map, endX, y, Room.wallType);
+                Map.placeTile(map, endX, y, Tileset.colorVariantWall(r));
             }
         }
         // Draw interior
@@ -167,11 +166,11 @@ public class Room {
         // Base case: count is 0 and able to place a tile on NOTHING
         if (count <= 0) {
             if (Map.peek(map, p) == Tileset.NOTHING) {
-                Map.placeTile(map, p, Tileset.WALL);
+                Map.placeTile(map, p, Tileset.colorVariantWall(r));
             }
         } else {
             if (p.onMapEdge(map)) {
-                Map.placeTile(map, p, Tileset.WALL);
+                Map.placeTile(map, p, Tileset.colorVariantWall(r));
             } else {
                 Map.placeTile(map, p, Tileset.FLOOR);
             }
@@ -192,29 +191,60 @@ public class Room {
         }
     }
 
-    /**
-     * Randomly returns either the FLOOR or GRASS Tileset.
-     */
-    private TETile chooseRandomFloorType(RandomExtra r) {
-        int choice = r.nextIntInclusive(1, 1);
-        if (choice == 0) {
-            return Tileset.GRASS;
-        } else {
-            return Tileset.FLOOR;
+    public void drawIrregularGrass(int count, Position p, RandomExtra r, TETile[][] map) {
+        // Base case: count is 0 and able to place a tile on NOTHING
+        if (Map.peek(map, p) == Tileset.FLOOR && count > 0) {
+            int floorChoice = r.nextIntInclusive(0, 100);
+            if (floorChoice <= 10) {
+                Map.placeTile(map, p, Tileset.randomColorFlower(r));
+            } else {
+                Map.placeTile(map, p, Tileset.GRASS);
+            }
+
+            Position pUp = new Position(p.x(), p.y() + 1);
+            Position pRight = new Position(p.x() + 1, p.y());
+            Position pDown = new Position(p.x(), p.y() - 1);
+            Position pLeft = new Position(p.x() - 1, p.y());
+
+            int n0 = r.nextIntInclusive(1, 2);
+            int n1 = r.nextIntInclusive(1, 2);
+            int n2 = r.nextIntInclusive(1, 2);
+            int n3 = r.nextIntInclusive(1, 2);
+
+            drawIrregularGrass(count - n0, pUp, r, map);
+            drawIrregularGrass(count - n1, pRight, r, map);
+            drawIrregularGrass(count - n2, pDown, r, map);
+            drawIrregularGrass(count - n3, pLeft, r, map);
         }
     }
 
     /**
-     * Returns the lowerLeft Position.
+     * Pick random location within the room.
      */
-    public Position lowerLeft() {
-        return lowerLeft;
+    public Position randomPositionInRoom(RandomExtra r, int buffer) {
+        int xLower = lowerLeft.x() + buffer;
+        int xUpper = upperRight.x() - buffer;
+        int yLower = lowerLeft.y() + buffer;
+        int yUpper = upperRight.y() - buffer;
+
+        return new Position(r.nextIntInclusive(xLower, xUpper), r.nextIntInclusive(yLower, yUpper));
     }
 
     /**
-     * Returns the upperRight Position.
+     * Randomly returns either the FLOOR or GRASS Tileset.
      */
-    public Position upperRight() {
-        return upperRight;
+    private TETile chooseRandomFloorType(RandomExtra r) {
+        int choice = r.nextIntInclusive(0, 0);
+        if (choice == 0) {
+            return Tileset.FLOOR;
+        } else if (choice == 1) {
+            return Tileset.GRASS;
+        } else if (choice == 2) {
+            return Tileset.FLOWER;
+        } else if (choice == 3) {
+            return Tileset.WATER;
+        } else {
+            return Tileset.NOTHING;
+        }
     }
 }
