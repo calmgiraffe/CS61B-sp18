@@ -18,7 +18,9 @@ public class Partition {
      * MAX should be at least 2*MIN - 1, because a split on 2*MIN gives 2 partitions of MIN
      */
     static final int MIN = 7;
-    static final int MAX = 16;
+    static final int MAX = 18;
+    static final int MINROOM = 7;
+    static final int MAXROOM = 12;
 
     private final Position position;
     private final Position centre;
@@ -153,11 +155,16 @@ public class Partition {
         int lowerLeftX = r.nextIntInclusive(width - MIN);
         int lowerLeftY = r.nextIntInclusive(height - MIN);
         Position lowerLeft = new Position(this.position.x() + lowerLeftX, this.position.y() + lowerLeftY);
+        
+        int lowerX = lowerLeft.x() + MINROOM - 1;
+        int upperX = Math.min(lowerLeft.x() + MAXROOM - 1, position.x() + width - 1);
+        int lowerY = lowerLeft.y() + MINROOM - 1;
+        int upperY = Math.min(lowerLeft.y() + MAXROOM - 1, position.y() + height - 1);
 
-        int upperRightX = r.nextIntInclusive(MIN - 1, width - lowerLeftX - 1);
-        int upperRightY = r.nextIntInclusive(MIN - 1, height - lowerLeftY - 1);
-        Position upperRight = new Position(lowerLeft.x() + upperRightX, lowerLeft.y() + upperRightY);
+        int upperRightX = r.nextIntInclusive(lowerX, upperX);
+        int upperRightY = r.nextIntInclusive(lowerY, upperY);
 
+        Position upperRight = new Position(upperRightX, upperRightY);
         this.room = new Room(lowerLeft, upperRight, r);
     }
 

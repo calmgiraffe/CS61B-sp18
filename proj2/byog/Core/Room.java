@@ -191,11 +191,13 @@ public class Room {
         }
     }
 
+    /**
+     * Same as above but with grass and flowers.
+     */
     public void drawIrregularGrass(int count, Position p, RandomExtra r, TETile[][] map) {
-        // Base case: count is 0 and able to place a tile on NOTHING
         if (Map.peek(map, p) == Tileset.FLOOR && count > 0) {
-            int floorChoice = r.nextIntInclusive(0, 100);
-            if (floorChoice <= 10) {
+
+            if (r.nextIntInclusive(0, 100) <= 10) {
                 Map.placeTile(map, p, Tileset.randomColorFlower(r));
             } else {
                 Map.placeTile(map, p, Tileset.GRASS);

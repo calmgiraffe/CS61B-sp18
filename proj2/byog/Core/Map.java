@@ -54,10 +54,10 @@ public class Map {
             r.drawRoom(map, random); // Todo: add ability to only draw some rooms
 
             if (random.nextIntInclusive(1, 100) < 50) {
-                int size = random.nextIntInclusive(5, 9);
+                int size = random.nextIntInclusive(5, 8);
                 r.drawIrregular(size, r.randomPositionInRoom(random, 0), random, map);
             }
-            if (random.nextIntInclusive(1, 100) < 50) {
+            if (random.nextIntInclusive(1, 100) < 60) {
                 int size = random.nextIntInclusive(5, 7);
                 r.drawIrregularGrass(size, r.randomPositionInRoom(random, 1), random, map);
             }
