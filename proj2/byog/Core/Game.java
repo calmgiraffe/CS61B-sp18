@@ -44,11 +44,10 @@ public class Game {
                 ter.renderFrame(map.getMap());
             }
         } else if (mode == 'l') {
-            // load
+            return null;
         } else if (mode == 'q') {
-            // quit
+            return null;
         }
         return map.getMap();
     }
 }
-

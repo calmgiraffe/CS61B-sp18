@@ -30,7 +30,8 @@ public class Position {
     }
 
     /**
-     * Given a Position p, returns a new position within a 5x5 box radius surrounding the original Position.
+     * Given a Position p, returns a new position within a 5x5 box radius
+     * surrounding the original Position.
      */
     public static Position randomPositionWithinRadius(Position p, RandomExtra r) {
         int lowerX = p.x() - 2;
@@ -114,6 +115,3 @@ public class Position {
     }
 
 }
-
-
-
