@@ -1,7 +1,5 @@
 package byog.TileEngine;
 
-import byog.Core.RandomExtra;
-
 import java.awt.Color;
 import java.util.Random;
 
@@ -39,7 +37,8 @@ public class Tileset {
 
 
     // Better looking flowers
-    public static final TETile FLOWERMAGENTA = new TETile('❀', Color.magenta, Color.black, "flower");
+    public static final TETile FLOWERMAGENTA = new TETile('❀', Color.magenta, Color.black,
+            "flower");
     public static final TETile FLOWERORANGE = new TETile('❀', Color.ORANGE, Color.black, "flower");
     public static final TETile FLOWERRED = new TETile('❀', Color.red, Color.black, "flower");
     public static final TETile FLOWERPINK = new TETile('❀', Color.pink, Color.black, "flower");
@@ -60,6 +59,4 @@ public class Tileset {
     public static TETile colorVariantWall(Random r) {
         return TETile.colorVariant(WALL, 30, 30, 30, r);
     }
-    }
-
-
+}

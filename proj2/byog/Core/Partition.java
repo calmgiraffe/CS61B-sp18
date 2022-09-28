@@ -39,7 +39,7 @@ public class Partition {
         this.position = p;
         this.width = width;
         this.height = height;
-        this.centre = new Position(position.x() + width/2, position.y() + height/2);
+        this.centre = new Position(position.x() + width / 2, position.y() + height / 2);
     }
 
     /**
@@ -63,8 +63,8 @@ public class Partition {
     /**
      * Examine partition and apply either their divideHorizontally or divideVertically method,
      * depending on their dimensions. If both dimensions are greater than MAX, either vertical
-     * or horizontal splitting is chosen randomly. If new partitions are made, they are set as the branches
-     * of the current partition. Finally, the method traverses the newly created branches.
+     * or horizontal splitting is chosen randomly. If new partitions are made, they are set as
+     * the branches of the current partition. Finally, method traverses the newly created branches.
      */
     public static void splitAndConnect(Partition p, RandomExtra r, TETile[][] map) {
         if (p.width > MAX || p.height > MAX) {
@@ -108,14 +108,15 @@ public class Partition {
     }
 
     /**
-     * Select two partitions, one from the left and right branch respectively, as stored in the left and right
-     * pQueues, then draws a path between their centres, thereby connecting them and ensuring a complete graph.
+     * Select two partitions, one from the left and right branch respectively,
+     * as stored in the left and rightt pQueues, then draws a path between their centres,
+     * thereby connecting them and ensuring a complete graph.
      */
     public static void connectLeftAndRight(Partition p, RandomExtra r, TETile[][] map) {
         // Make new pQueue
         p.pQueue = new PriorityQueue<>(getDistanceComparator());
 
-        // At parent node, recalculate distance from parent Partition.centre to its leaf nodes' Partition.centre
+        // At parent node, recalculate distance from parentcentre to its leaf nodes' centre
         // Left branch: iterate through left PQ and recalculate distance to center
         for (Partition par: p.left.pQueue) {
             par.distanceToParent = Position.calculateDistance(par.centre, p.centre);
@@ -135,7 +136,7 @@ public class Partition {
     }
 
     /**
-     * Given an ArrayList and a Partition tree p, traverses the tree and adds all leafs to the array.
+     * Given an ArrayList and a Partition tree p, traverses tree and adds all leafs to the array.
      */
     public static void addRooms(ArrayList<Room> rooms, Partition p) {
         if (p.left() == null && p.right() == null) {
@@ -147,14 +148,14 @@ public class Partition {
     }
 
     /**
-     * Generates a rectangular Room inside the partition whose area is between MIN x MIN and the exact dimensions
-     * of the partition area. A Room is an abstract object consisting of two Positions representing the bottom left
-     * and top right corner, a floor type, etc
+     * Generates a rectangular Room inside the partition whose area is between MIN x MIN and the
+     * exact dimensions of the partition area. A Room is an abstract object consisting of two
+     * Positions representing the bottom left and top right corner, a floor type, etc
      */
     public void generateRandomRoom(RandomExtra r) {
         int lowerLeftX = r.nextIntInclusive(width - MIN);
         int lowerLeftY = r.nextIntInclusive(height - MIN);
-        Position lowerLeft = new Position(this.position.x() + lowerLeftX, this.position.y() + lowerLeftY);
+        Position lowerLeft = new Position(position.x() + lowerLeftX, position.y() + lowerLeftY);
 
         int lowerX = lowerLeft.x() + MINROOM - 1;
         int upperX = Math.min(lowerLeft.x() + MAXROOM - 1, position.x() + width - 1);
@@ -210,12 +211,5 @@ public class Partition {
      */
     public Partition right() {
         return this.right;
-    }
-
-    /**
-     * Returns the pQueue associated with this Partition.
-     */
-    public PriorityQueue<Partition> pQueue() {
-        return this.pQueue;
     }
 }

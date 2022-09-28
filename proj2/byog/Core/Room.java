@@ -16,13 +16,15 @@ public class Room {
     public Room(Position lowerLeft, Position upperRight, RandomExtra r) {
         this.lowerLeft = lowerLeft;
         this.upperRight = upperRight;
-        this.centre = new Position((lowerLeft.x() + upperRight.x()) / 2, (lowerLeft.y() + upperRight.y()) / 2);
+        this.centre = new Position(
+                (lowerLeft.x() + upperRight.x()) / 2,
+                (lowerLeft.y() + upperRight.y()) / 2);
         this.floorType = chooseRandomFloorType(r);
     }
 
     /**
-     * Draws the three wall tiles and floor tile that must be placed when added a new floor tile to a hallway.
-     * The overall method works by adding a 'room' of area 1 on a preexisting room.
+     * Draws the three wall tiles and floor tile that must be placed when added a new floor tile
+     * to a hallway. The overall method works by adding a 'room' of area 1 on a preexisting room.
      */
     private static void drawHallway(Position p, int way, TETile[][] map, RandomExtra r) {
         int x = p.x();
@@ -53,9 +55,10 @@ public class Room {
 
     /**
      * The method examines the centres of the two rooms, and depending on their orientation,
-     * passes in different values to int[] choices. The first element of this array is up (0) or down (2),
-     * the second element is right (1) or left (3). If the two rooms are positioned so that their centers have the
-     * same x or y coordinate, both elements of the array are set as the same number.
+     * passes in different values to int[] choices. The first element of this array is up (0)
+     * or down (2), the second element is right (1) or left (3). If the two rooms are positioned so
+     * that their centers have the same x or y coordinate, both elements of the array are set as
+     * the same number.
      */
     private static int[] getDirections(Position start, Position goal) {
         if (start.verticallyAligned(goal)) {
@@ -85,7 +88,7 @@ public class Room {
     }
 
     /**
-     * Given two rooms, draws a path (one with hallways bounding floor path) between them on the provided map.
+     * Given two rooms, draws a path (one with hallways bounding floor path) between them on map.
      */
     public static void drawPath(Room roomA, Room roomB, RandomExtra r, TETile[][] map) {
         // Todo: change to A*
@@ -123,7 +126,7 @@ public class Room {
     }
 
     /**
-     * Draws the rectangular room that is associated with this particular Partition onto the provided map.
+     * Draws the rectangular room that is associated with this particular Partition onto map.
      */
     public void drawRoom(TETile[][] map, RandomExtra r) {
         int startX = lowerLeft.x();
@@ -158,7 +161,7 @@ public class Room {
     }
 
     /**
-     * From a position, recursively draws an irregular room by making new positions at the top, right, bottom,
+     * From a position, draws an irregular room by making new positions at the top, right, bottom,
      * and left of said position, then applying the recursive method on those four new positions.
      * Depending on the location and the count, either a FLOOR or WALL tile is drawn.
      */
@@ -229,7 +232,9 @@ public class Room {
         int yLower = lowerLeft.y() + buffer;
         int yUpper = upperRight.y() - buffer;
 
-        return new Position(r.nextIntInclusive(xLower, xUpper), r.nextIntInclusive(yLower, yUpper));
+        return new Position(
+                r.nextIntInclusive(xLower, xUpper),
+                r.nextIntInclusive(yLower, yUpper));
     }
 
     /**
