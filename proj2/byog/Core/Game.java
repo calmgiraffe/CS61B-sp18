@@ -35,13 +35,14 @@ public class Game {
 
         // example: N3412S should generate a world with seed 3412
         if (mode == 'n') {
-            String seed = input.substring(1);
-            map = new Map(WIDTH, HEIGHT, Long.parseLong(seed));
-            map.generateWorld();
+            if (input.charAt(input.length() - 1) == 's') {
+                String seed = input.substring(1, input.length() - 2);
+                map = new Map(WIDTH, HEIGHT, Long.parseLong(seed));
+                map.generateWorld();
 
-            ter.initialize(WIDTH, HEIGHT);
-            ter.renderFrame(map.getMap());
-
+                ter.initialize(WIDTH, HEIGHT);
+                ter.renderFrame(map.getMap());
+            }
         } else if (mode == 'l') {
             // load
         } else if (mode == 'q') {

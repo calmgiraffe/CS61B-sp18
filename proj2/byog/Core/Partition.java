@@ -155,7 +155,7 @@ public class Partition {
         int lowerLeftX = r.nextIntInclusive(width - MIN);
         int lowerLeftY = r.nextIntInclusive(height - MIN);
         Position lowerLeft = new Position(this.position.x() + lowerLeftX, this.position.y() + lowerLeftY);
-        
+
         int lowerX = lowerLeft.x() + MINROOM - 1;
         int upperX = Math.min(lowerLeft.x() + MAXROOM - 1, position.x() + width - 1);
         int lowerY = lowerLeft.y() + MINROOM - 1;
