@@ -7,6 +7,7 @@ public class Game {
     private static final int WIDTH = 60;
     private static final int HEIGHT = 40;
     private final TERenderer ter = new TERenderer();
+    private Map map;
 
     /** Method used for playing a fresh game. The game should start from the main menu. */
     public void playWithKeyboard() {
@@ -35,18 +36,18 @@ public class Game {
         // example: N3412S should generate a world with seed 3412
         if (mode == 'n') {
             String seed = input.substring(1);
-            Map world = new Map(WIDTH, HEIGHT, Long.parseLong(seed));
-            world.generateWorld();
+            map = new Map(WIDTH, HEIGHT, Long.parseLong(seed));
+            map.generateWorld();
 
             ter.initialize(WIDTH, HEIGHT);
-            ter.renderFrame(Map.getMap());
+            ter.renderFrame(map.getMap());
 
         } else if (mode == 'l') {
             // load
         } else if (mode == 'q') {
             // quit
         }
-        return Map.getMap();
+        return map.getMap();
     }
 }
 

@@ -1,5 +1,7 @@
 package byog.Core;
 
+import byog.TileEngine.TETile;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -62,7 +64,7 @@ public class Partition {
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as the branches
      * of the current partition. Finally, the method traverses the newly created branches.
      */
-    public static void splitAndConnect(Partition p, RandomExtra r) {
+    public static void splitAndConnect(Partition p, RandomExtra r, TETile[][] map) {
         if (p.width > MAX || p.height > MAX) {
 
             if (p.width <= MAX) {
@@ -88,9 +90,9 @@ public class Partition {
                     p.right = new Partition(p.position, border, p.height);
                 }
             }
-            splitAndConnect(p.left, r);
-            splitAndConnect(p.right, r);
-            connectLeftAndRight(p, r);
+            splitAndConnect(p.left, r, map);
+            splitAndConnect(p.right, r, map);
+            connectLeftAndRight(p, r, map);
 
         } else { // if leaf
             // generate room
@@ -107,7 +109,7 @@ public class Partition {
      * Select two partitions, one from the left and right branch respectively, as stored in the left and right
      * pQueues, then draws a path between their centres, thereby connecting them and ensuring a complete graph.
      */
-    public static void connectLeftAndRight(Partition p, RandomExtra r) {
+    public static void connectLeftAndRight(Partition p, RandomExtra r, TETile[][] map) {
         // Make new pQueue
         p.pQueue = new PriorityQueue<>(getDistanceComparator());
 
@@ -127,7 +129,7 @@ public class Partition {
         Partition minLeft = p.left.pQueue.peek();
         Partition minRight = p.right.pQueue.peek();
 
-        Room.drawPath(minLeft.room, minRight.room, r);
+        Room.drawPath(minLeft.room, minRight.room, r, map);
     }
 
     /**

@@ -14,7 +14,7 @@ public class Map {
      * Map instance variables
      */
     private final RandomExtra random;
-    private static TETile[][] map;
+    private final TETile[][] map;
     private final int width;
     private final int height;
     private final Partition partition;
@@ -25,7 +25,7 @@ public class Map {
      */
     public Map(int width, int height, long seed) {
         this.random = new RandomExtra(seed);
-        map = new TETile[width][height];
+        this.map = new TETile[width][height];
         this.width = width;
         this.height = height;
         this.partition = new Partition(new Position(0, 0), width, height);
@@ -47,11 +47,11 @@ public class Map {
      * Randomly generates some rectangular rooms on the map.
      */
     public void generateWorld() {
-        Partition.splitAndConnect(partition, random); // make binary tree of partitions and draw hallways, making a connected graph
+        Partition.splitAndConnect(partition, random, map); // make binary tree of partitions and draw hallways, making a connected graph
         Partition.addRooms(rooms, partition); // traverse partition tree and add leafs to rooms array
 
         for (Room r : rooms) {
-            r.drawRoom(); // Todo: add ability to only draw some rooms
+            r.drawRoom(map); // Todo: add ability to only draw some rooms
 
             int choice = random.nextIntInclusive(1, 100); // representing 100%
             if (choice < 50) {
@@ -64,16 +64,9 @@ public class Map {
                 int x = random.nextIntInclusive(xLower, xUpper);
                 int y = random.nextIntInclusive(yLower, yUpper);
                 int size = random.nextIntInclusive(5, 10);
-                r.drawIrregular(size, new Position(x, y), random);
+                r.drawIrregular(size, new Position(x, y), random, map);
             }
         }
-    }
-
-    /**
-     * Returns the TETile[][] object associated with this class.
-     */
-    public static TETile[][] getMap() {
-        return map;
     }
 
     /**
@@ -125,5 +118,12 @@ public class Map {
             return null;
             // throw new ArrayIndexOutOfBoundsException("Unable to get tile at (" + p.x() + ", " + p.y() + ")");
         }
+    }
+
+    /**
+     * Returns the TETile[][] associated with this object.
+     */
+    public TETile[][] getMap() {
+        return map;
     }
 }

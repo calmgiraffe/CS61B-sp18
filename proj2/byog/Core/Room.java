@@ -6,7 +6,6 @@ import byog.TileEngine.Tileset;
 public class Room {
 
     private static final TETile wallType = Tileset.WALL;
-    private static final TETile[][] map = Map.getMap();
     private final Position lowerLeft;
     private final Position upperRight;
     private final Position centre;
@@ -26,7 +25,7 @@ public class Room {
      * Draws the three wall tiles and floor tile that must be placed when added a new floor tile to a hallway.
      * The overall method works by adding a 'room' of area 1 on a preexisting room.
      */
-    private static void drawHallway(Position p, int way) {
+    private static void drawHallway(Position p, int way, TETile[][] map) {
         int x = p.x();
         int y = p.y();
 
@@ -54,32 +53,70 @@ public class Room {
     }
 
     /**
-     * Draws a FLOOR tile at cursor, then increments the cursor in a direction towards the target.
+     * The method examines the centres of the two rooms, and depending on their orientation,
+     * passes in different values to int[] choices. The first element of this array is up (0) or down (2),
+     * the second element is right (1) or left (3). If the two rooms are positioned so that their centers have the
+     * same x or y coordinate, both elements of the array are set as the same number.
      */
-    private static void moveCursor(Position cursor, Position target, int[] choices, RandomExtra r) {
-        boolean notAligned = (choices[0] != choices[1]);
+    private static int[] getDirections(Position start, Position goal) {
+        if (start.verticallyAligned(goal)) {
+            if (start.y() < goal.y()) {
+                return new int[]{0, 0}; // move up
+            } else {
+                return new int[]{2, 2}; // move down
+            }
+        } else if (start.horizontallyAligned(goal)) {
+            if (start.x() < goal.x()) {
+                return new int[]{1, 1}; // move right
+            } else {
+                return new int[]{3, 3}; // move left
+            }
+        } else if (start.x() < goal.x() && start.y() < goal.y()) {
+            return new int[]{0, 1}; // choose between right or up
 
-        while (!(cursor.equals(target))) {
+        } else if (start.x() < goal.x()) {
+            return new int[]{2, 1}; // choose between right or down
+
+        } else if (start.y() < goal.y()) {
+            return new int[]{0, 3}; // choose between left and up
+
+        } else {
+            return new int[]{2, 3}; // choose between left and down
+        }
+    }
+
+    /**
+     * Given two rooms, draws a path (one with hallways bounding floor path) between them on the provided map.
+     */
+    public static void drawPath(Room roomA, Room roomB, RandomExtra r, TETile[][] map) {
+        // Todo: change to A*
+        Position start = Position.randomPositionWithinRadius(roomA.centre, r);
+        Position goal = Position.randomPositionWithinRadius(roomB.centre, r);
+        int[] choices = getDirections(start, goal);
+
+        boolean notAligned = (choices[0] != choices[1]);
+        while (!(start.equals(goal))) {
             // Choose one of two directions to move in, corresponding to the index of choices
             int choice = choices[r.nextIntInclusive(1)];
 
             // Example: if up (0), move cursor up one space.
             // Then, draw a floor at this space, and draw 3 wall tiles above this space.
             if (choice == 0) {
-                cursor.moveUp();
+                start.moveUp();
             } else if (choice == 1) {
-                cursor.moveRight();
+                start.moveRight();
             } else if (choice == 2) {
-                cursor.moveDown();
+                start.moveDown();
             } else if (choice == 3) {
-                cursor.moveLeft();
+                start.moveLeft();
             }
-            drawHallway(cursor, choice);
+            drawHallway(start, choice, map);
 
-            if (notAligned && cursor.verticallyAligned(target)) {
+            // If inline with goal, edit choices so subsequent tiles all go in same direct line
+            if (notAligned && start.verticallyAligned(goal)) {
                 choices[1] = choices[0];
                 notAligned = false;
-            } else if (notAligned && cursor.horizontallyAligned(target)) {
+            } else if (notAligned && start.horizontallyAligned(goal)) {
                 choices[0] = choices[1];
                 notAligned = false;
             }
@@ -87,48 +124,9 @@ public class Room {
     }
 
     /**
-     * Given two rooms, draws a floor path between them. The method first examines the centres of the two rooms,
-     * and depending on their orientation, passes in different values to int[] choices. The first element of this
-     * array is up (0) or down (2), the second element is right (1) or left (3). If the two rooms are positioned so
-     * that their centers have the same x or y coordinate, both elements of the array are set as the same number.
+     * Draws the rectangular room that is associated with this particular Partition onto the provided map.
      */
-    public static void drawPath(Room roomA, Room roomB, RandomExtra r) {
-        // Todo: change to A*
-        Position start = Position.randomPositionWithinRadius(roomA.centre, r);
-        Position goal = Position.randomPositionWithinRadius(roomB.centre, r);
-        int[] directions;
-
-        if (start.verticallyAligned(goal)) {
-            if (start.y() < goal.y()) {
-                directions = new int[]{0, 0}; // move up
-            } else {
-                directions = new int[]{2, 2}; // move down
-            }
-        } else if (start.horizontallyAligned(goal)) {
-            if (start.x() < goal.x()) {
-                directions = new int[]{1, 1}; // move right
-            } else {
-                directions = new int[]{3, 3}; // move left
-            }
-        } else if (start.x() < goal.x() && start.y() < goal.y()) {
-            directions = new int[]{0, 1}; // choose between right or up
-
-        } else if (start.x() < goal.x()) {
-            directions = new int[]{2, 1}; // choose between right or down
-
-        } else if (start.y() < goal.y()) {
-            directions = new int[]{0, 3}; // choose between left and up
-
-        } else {
-            directions = new int[]{2, 3}; // choose between left and down
-        }
-        moveCursor(start, goal, directions, r);
-    }
-
-    /**
-     * Draws the room of that is associated with this particular Partition onto the map.
-     */
-    public void drawRoom() {
+    public void drawRoom(TETile[][] map) {
         int startX = lowerLeft.x();
         int startY = lowerLeft.y();
         int endX = upperRight.x();
@@ -165,7 +163,7 @@ public class Room {
      * and left of said position, then applying the recursive method on those four new positions.
      * Depending on the location and the count, either a FLOOR or WALL tile is drawn.
      */
-    public void drawIrregular(int count, Position p, RandomExtra r) {
+    public void drawIrregular(int count, Position p, RandomExtra r, TETile[][] map) {
         // Base case: count is 0 and able to place a tile on NOTHING
         if (count <= 0) {
             if (Map.peek(map, p) == Tileset.NOTHING) {
@@ -187,10 +185,10 @@ public class Room {
             int n2 = r.nextIntInclusive(1, 3);
             int n3 = r.nextIntInclusive(1, 3);
 
-            drawIrregular(count - n0, pUp, r);
-            drawIrregular(count - n1, pRight, r);
-            drawIrregular(count - n2, pDown, r);
-            drawIrregular(count - n3, pLeft, r);
+            drawIrregular(count - n0, pUp, r, map);
+            drawIrregular(count - n1, pRight, r, map);
+            drawIrregular(count - n2, pDown, r, map);
+            drawIrregular(count - n3, pLeft, r, map);
         }
     }
 
