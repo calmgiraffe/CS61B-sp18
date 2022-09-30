@@ -58,14 +58,17 @@ public class MazeAStarPath extends MazeExplorer {
         while (fringe.size() > 0 && !targetFound) {
             Node v = fringe.remove();
 
+            // Relax all edges v -> neighbours
             for (int neighbour : maze.adj(v.vertex)) {
-                if (distTo[neighbour] + 1 < distTo[neighbour])  {
+
+                // if current cumulative distance + 1 < previous stored distance to neighbour
+                if (distTo[v.vertex] + 1 < distTo[neighbour])  {
                     marked[neighbour] = true;
                     distTo[neighbour] = distTo[v.vertex] + 1;
                     edgeTo[neighbour] = v.vertex;
                     fringe.add(new Node(neighbour, distTo[neighbour] + euclidian(neighbour)));
+                    announce();
                 }
-                announce();
 
                 if (neighbour == t) {
                     targetFound = true;
