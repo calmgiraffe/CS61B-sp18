@@ -2,6 +2,7 @@ package lab11.graphs;
 
 
 import java.util.ArrayDeque;
+import java.util.Iterator;
 import java.util.Queue;
 
 /**
@@ -39,21 +40,21 @@ public class MazeBreadthFirstPaths extends MazeExplorer {
     /** Conducts a breadth first search of the maze starting at the source. */
     // Recall: is not a recursive algorithm
     private void bfs() {
-        // TODO: Your code here.
         // Don't forget to update distTo, edgeTo, and marked, as well as call announce()
         fringe.add(s);
         marked[s] = true;
-        edgeTo[s] = s;
         distTo[s] = 0;
 
         while (fringe.size() > 0 && !targetFound) {
-            int currentNode = fringe.remove();
-            for (int neighbour: maze.adj(currentNode)) {
+            int v = fringe.remove();
+
+            for (int neighbour: maze.adj(v)) {
                 if (!marked[neighbour]) {
                     marked[neighbour] = true;
-                    edgeTo[neighbour] = currentNode;
-                    distTo[neighbour] = distTo[currentNode] + 1;
+                    edgeTo[neighbour] = v;
+                    distTo[neighbour] = distTo[v] + 1;
                     announce(); // call whenever want drawing to be updated
+
                     if (neighbour == t) {
                         targetFound = true;
                     } else {
