@@ -36,7 +36,7 @@ public class Game {
         // example: N3412S should generate a world with seed 3412
         if (mode == 'n') {
             if (input.charAt(input.length() - 1) == 's') {
-                String seed = input.substring(1, input.length() - 2);
+                String seed = input.substring(1, input.length() - 1);
                 map = new Map(WIDTH, HEIGHT, Long.parseLong(seed));
                 map.generateWorld();
 
