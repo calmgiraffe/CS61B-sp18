@@ -1,10 +1,6 @@
 package byog.Core;
 
 import org.junit.Test;
-
-import java.util.ArrayList;
-
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class UnitTests {
@@ -19,11 +15,13 @@ public class UnitTests {
 
     @Test
     public void positionToOneDimensional() {
-        Map map = new Map(10, 8, 2130);
-        Position p1 = new Position(9, 7);
+        Map map = new Map(8, 8, 2130);
+        Position p1 = new Position(7, 7);
         Position p2 = new Position(5, 3);
-        assertEquals(map.positionToOneDimensional(p1), 79);
-        assertEquals(map.positionToOneDimensional(p2), 35);
+        Position p3 = new Position(3, 3);
+        assertEquals(map.positionToOneDimensional(p1), 63);
+        assertEquals(map.positionToOneDimensional(p2), 29);
+        assertEquals(map.positionToOneDimensional(p3), 27);
     }
 
     @Test

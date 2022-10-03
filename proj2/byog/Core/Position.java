@@ -21,12 +21,17 @@ public class Position {
     }
 
     /**
-     * Given two positions a & b on an x-y plane, calculate the absolute distance between the two.
+     * Given two positions a & b on an x-y plane,
+     * calculate the absolute distance between the two.
      */
     public static int euclidean(Position a, Position b) {
         return (int) (Math.pow((a.x - b.x), 2) + Math.pow((a.y - b.y), 2));
     }
 
+    /**
+     * Given two 1D positions v1 & v2 on an x-y plane,
+     * calculate the absolute distance between the two.
+     */
     public static int euclidean(int v1, int v2, Map map) {
         Position a = map.oneDimensionalToPosition(v1);
         Position b = map.oneDimensionalToPosition(v2);

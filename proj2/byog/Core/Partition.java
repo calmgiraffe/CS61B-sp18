@@ -1,7 +1,5 @@
 package byog.Core;
 
-import byog.TileEngine.TETile;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -94,7 +92,7 @@ public class Partition {
             }
             splitAndConnect(p.left, r, map);
             splitAndConnect(p.right, r, map);
-            connectLeftAndRight(p, r, map);
+            connectLeftAndRight(p, map);
 
         } else { // if leaf
             // generate room
@@ -112,11 +110,11 @@ public class Partition {
      * as stored in the left and rightt pQueues, then draws a path between their centres,
      * thereby connecting them and ensuring a complete graph.
      */
-    public static void connectLeftAndRight(Partition p, RandomExtra r, Map map) {
+    private static void connectLeftAndRight(Partition p, Map map) {
         // Make new pQueue
         p.pQueue = new PriorityQueue<>(getDistanceComparator());
 
-        // At parent node, recalculate distance from parentcentre to its leaf nodes' centre
+        // At parent node, recalculate distance from parent centre to its leaf nodes' centre
         // Left branch: iterate through left PQ and recalculate distance to center
         for (Partition par: p.left.pQueue) {
             par.distanceToParent = Position.euclidean(par.centre, p.centre);
@@ -132,18 +130,18 @@ public class Partition {
         Partition minLeft = p.left.pQueue.peek();
         Partition minRight = p.right.pQueue.peek();
 
-        minLeft.room.astar(minRight.room, r, map);
+        minLeft.room.astar(minRight.room, map);
     }
 
     /**
      * Given an ArrayList and a Partition tree p, traverses tree and adds all leafs to the array.
      */
     public static void addRooms(ArrayList<Room> rooms, Partition p) {
-        if (p.left() == null && p.right() == null) {
-            rooms.add(p.room());
+        if (p.left == null && p.right == null) {
+            rooms.add(p.room);
         } else {
-            addRooms(rooms, p.left());
-            addRooms(rooms, p.right());
+            addRooms(rooms, p.left);
+            addRooms(rooms, p.right);
         }
     }
 
@@ -152,20 +150,20 @@ public class Partition {
      * exact dimensions of the partition area. A Room is an abstract object consisting of two
      * Positions representing the bottom left and top right corner, a floor type, etc
      */
-    public void generateRandomRoom(RandomExtra r) {
+    private void generateRandomRoom(RandomExtra r) {
         int lowerLeftX = r.nextIntInclusive(width - MIN);
         int lowerLeftY = r.nextIntInclusive(height - MIN);
         Position lowerLeft = new Position(position.x() + lowerLeftX, position.y() + lowerLeftY);
 
-        int lowerX = lowerLeft.x() + MINROOM - 1;
-        int upperX = Math.min(lowerLeft.x() + MAXROOM - 1, position.x() + width - 1);
-        int lowerY = lowerLeft.y() + MINROOM - 1;
-        int upperY = Math.min(lowerLeft.y() + MAXROOM - 1, position.y() + height - 1);
+        int minX = lowerLeft.x() + MINROOM - 1;
+        int maxX = Math.min(lowerLeft.x() + MAXROOM - 1, position.x() + width - 1);
+        int minY = lowerLeft.y() + MINROOM - 1;
+        int maxY = Math.min(lowerLeft.y() + MAXROOM - 1, position.y() + height - 1);
 
-        int upperRightX = r.nextIntInclusive(lowerX, upperX);
-        int upperRightY = r.nextIntInclusive(lowerY, upperY);
-
+        int upperRightX = r.nextIntInclusive(minX, maxX);
+        int upperRightY = r.nextIntInclusive(minY, maxY);
         Position upperRight = new Position(upperRightX, upperRightY);
+
         this.room = new Room(lowerLeft, upperRight, r);
     }
 
@@ -190,26 +188,5 @@ public class Partition {
      */
     public static Comparator<Partition> getDistanceComparator() {
         return new DistanceComparator();
-    }
-
-    /**
-     * Returns the room associated with this Partition.
-     */
-    public Room room() {
-        return this.room;
-    }
-
-    /**
-     * Returns the left Partition associated with this Partition.
-     */
-    public Partition left() {
-        return this.left;
-    }
-
-    /**
-     * Returns the right Partition associated with this Partition.
-     */
-    public Partition right() {
-        return this.right;
     }
 }

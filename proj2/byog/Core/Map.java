@@ -55,20 +55,18 @@ public class Map {
         // traverse partition tree and add leafs to rooms array
         Partition.addRooms(rooms, partition);
 
-        /*
         for (Room r : rooms) {
-            r.drawRoom(this, random);
+            r.drawRoom(this);
 
             if (random.nextIntInclusive(1, 100) < 50) {
                 int size = random.nextIntInclusive(5, 8);
-                r.drawIrregular(size, r.randomPositionInRoom(random, 0), random, this);
+                r.drawIrregular(size, r.randomPositionInRoom(0), this);
             }
             if (random.nextIntInclusive(1, 100) < 60) {
                 int size = random.nextIntInclusive(5, 7);
-                r.drawIrregularGrass(size, r.randomPositionInRoom(random, 1), random, this);
+                r.drawIrregularGrass(size, r.randomPositionInRoom(1), this);
             }
         }
-        */
     }
 
     /**
@@ -126,7 +124,7 @@ public class Map {
     }
 
     /**
-     * Returns true if x and y are within the dimensions of the matrix.
+     * Returns true if x and y are within the dimensions of the TETile[][] matrix.
      */
     public boolean isValid(int x, int y) {
         return (0 <= x && x < width) && (0 <= y && y < height);
@@ -169,10 +167,16 @@ public class Map {
         return map;
     }
 
+    /**
+     * Returns TETile[][] matrix width.
+     */
     public int width() {
         return width;
     }
 
+    /**
+     * Returns TETile[][] matrix height.
+     */
     public int height() {
         return height;
     }
