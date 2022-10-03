@@ -64,18 +64,26 @@ public class Room {
                 map.placeTile(x, y + i, Tileset.colorVariantWall(r));
             }
         }
-        map.placeTile(p, Tileset.FLOOR);
     }
 
+    /**
+     * Given a 1D start & end coordinate, following the child-parent relationships
+     * given by the edgeTo array, draws the a* path from start to end.
+     */
     public void drawPath(int[] edgeTo, int start, int end, Map map, RandomExtra r) {
         int next = end;
         while (next != start) {
+            map.placeTile(map.oneDimensionalToPosition(next), Tileset.FLOOR);
+
             if (edgeTo[next] == next + map.width()) { // up
                 drawHallway(map.oneDimensionalToPosition(next), 0, map, r);
+
             } else if (edgeTo[next] == next + 1) { // right
                 drawHallway(map.oneDimensionalToPosition(next), 1, map, r);
+
             } else if (edgeTo[next] == next - map.width()) { // down
                 drawHallway(map.oneDimensionalToPosition(next), 2, map, r);
+
             } else if (edgeTo[next] == next - 1) { // left
                 drawHallway(map.oneDimensionalToPosition(next), 3, map, r);
             }
@@ -83,9 +91,9 @@ public class Room {
         }
     }
 
-
     /**
-     * Given two rooms, draws a path (one with hallways bounding floor path) between them on map.
+     * Given two rooms, draws a path (one with hallways bounding floor path) between them on map
+     * using the a* algorithm.
      */
     public void astar(Room room, RandomExtra r, Map map) {
         Position startPos = Position.randomPositionWithinRadius(this.centre, r);
@@ -94,7 +102,6 @@ public class Room {
         int target = map.positionToOneDimensional(targetPos);
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
-
         int[] edgeTo = new int[map.oneDlength()];
         int[] distTo = new int[map.oneDlength()];
         Arrays.fill(distTo, 2147483647);
@@ -109,7 +116,7 @@ public class Room {
                 if (distTo[p] + 1 < distTo[q]) {
                     distTo[q] = distTo[p] + 1;
                     edgeTo[q] = p;
-                    Node n = new Node(q, distTo[q] + (int) Position.euclidean(q, target, map));
+                    Node n = new Node(q, distTo[q] + Position.euclidean(q, target, map));
                     fringe.add(n);
                 }
                 if (q == target) {

@@ -29,7 +29,7 @@ public class Map {
         this.map = new TETile[width][height];
         this.width = width;
         this.height = height;
-        this.oneDlength = width * height - 1;
+        this.oneDlength = width * height;
         this.partition = new Partition(new Position(0, 0), width, height);
         fillWithNothing();
     }
@@ -55,8 +55,9 @@ public class Map {
         // traverse partition tree and add leafs to rooms array
         Partition.addRooms(rooms, partition);
 
+        /*
         for (Room r : rooms) {
-            r.drawRoom(this, random); // Todo: add ability to only draw some rooms
+            r.drawRoom(this, random);
 
             if (random.nextIntInclusive(1, 100) < 50) {
                 int size = random.nextIntInclusive(5, 8);
@@ -67,6 +68,7 @@ public class Map {
                 r.drawIrregularGrass(size, r.randomPositionInRoom(random, 1), random, this);
             }
         }
+        */
     }
 
     /**
@@ -134,7 +136,6 @@ public class Map {
      * Given a 1D position on a map, returns the adjacent (up, right, down, left) nodes
      */
     public ArrayList<Integer> adjacent(int position) {
-
         Position p = oneDimensionalToPosition(position);
 
         Position pUp = new Position(p.x(), p.y() + 1);
@@ -149,9 +150,9 @@ public class Map {
         tmp.add(pLeft);
 
         ArrayList<Integer> adjacent = new ArrayList<>();
-        for (Position pp: tmp) {
-            if (isValid(pp.x(), pp.y())) {
-                adjacent.add(positionToOneDimensional(p));
+        for (Position pos: tmp) {
+            if (isValid(pos.x(), pos.y())) {
+                adjacent.add(positionToOneDimensional(pos));
             }
         }
         return adjacent;
