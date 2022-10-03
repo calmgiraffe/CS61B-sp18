@@ -17,17 +17,19 @@ public class Map {
     private final TETile[][] map;
     private final int width;
     private final int height;
+    private final int oneDlength;
     private final Partition partition;
     private final ArrayList<Room> rooms = new ArrayList<>();
 
     /**
      * Map constructor
      */
-    public Map(int width, int height, long seed) {
+    Map(int width, int height, long seed) {
         this.random = new RandomExtra(seed);
         this.map = new TETile[width][height];
         this.width = width;
         this.height = height;
+        this.oneDlength = width * height - 1;
         this.partition = new Partition(new Position(0, 0), width, height);
         fillWithNothing();
     }
@@ -38,7 +40,7 @@ public class Map {
     private void fillWithNothing() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                map[x][y] = Tileset.NOTHING;
+                placeTile(x, y, Tileset.NOTHING);
             }
         }
     }
@@ -48,21 +50,21 @@ public class Map {
      */
     public void generateWorld() {
         // make binary tree of partitions and draw hallways, making a connected graph
-        Partition.splitAndConnect(partition, random, map);
+        Partition.splitAndConnect(partition, random, this);
 
         // traverse partition tree and add leafs to rooms array
         Partition.addRooms(rooms, partition);
 
         for (Room r : rooms) {
-            r.drawRoom(map, random); // Todo: add ability to only draw some rooms
+            r.drawRoom(this, random); // Todo: add ability to only draw some rooms
 
             if (random.nextIntInclusive(1, 100) < 50) {
                 int size = random.nextIntInclusive(5, 8);
-                r.drawIrregular(size, r.randomPositionInRoom(random, 0), random, map);
+                r.drawIrregular(size, r.randomPositionInRoom(random, 0), random, this);
             }
             if (random.nextIntInclusive(1, 100) < 60) {
                 int size = random.nextIntInclusive(5, 7);
-                r.drawIrregularGrass(size, r.randomPositionInRoom(random, 1), random, map);
+                r.drawIrregularGrass(size, r.randomPositionInRoom(random, 1), random, this);
             }
         }
     }
@@ -71,10 +73,9 @@ public class Map {
      * Draws the specified tile at position p. If p out of range, prints a
      * message indicating the type of tile and location a placement was attempted.
      * Use this method so you don't get IndexErrors.
-     *
      */
-    public static void placeTile(TETile[][] map, Position p, TETile tile) {
-        if ((0 <= p.x() && p.x() < map.length) && (0 <= p.y() && p.y() < map[0].length)) {
+    public void placeTile(Position p, TETile tile) {
+        if (isValid(p.x(), p.y())) {
             map[p.x()][p.y()] = tile;
         }
     }
@@ -84,19 +85,110 @@ public class Map {
      * indicating the type of tile and location a placement was attempted.
      * Use this method so you don't get IndexErrors.
      */
-    public static void placeTile(TETile[][] map, int x, int y, TETile tile) {
-        if ((0 <= x && x < map.length) && (0 <= y && y < map[0].length)) {
+    public void placeTile(int x, int y, TETile tile) {
+        if (isValid(x, y)) {
             map[x][y] = tile;
         }
         // System.out.println("Unable to place " + tile.toString() + " at (" + x + ", " + y + ")");
     }
 
     /**
+     * Given a xy coordinate on the map (range of 0 to width-1, 0 to height-1), converts this
+     * to a corresponding 1D coordinate. This process can be imagined as lining up the rows of the
+     * map into one long line.
+     */
+    public int positionToOneDimensional(Position p) {
+        if (!isValid(p.x(), p.y())) {
+            throw new ArrayIndexOutOfBoundsException("Position out of bounds.");
+        }
+        return width*p.y() + p.x();
+    }
+
+    /**
+     * Given a 1D position on the map, converts this to a corresponding new Position.
+     */
+    public Position oneDimensionalToPosition(int position) {
+        int x = position % width;
+        int y = position / width;
+        if (!isValid(x, y)) {
+            throw new ArrayIndexOutOfBoundsException("X and Y out of bounds.");
+        }
+        return new Position(x, y);
+    }
+
+    /**
+     * Returns true if the given position is on the map edge, false otherwise.
+     */
+    public boolean onEdge(Position p) {
+        return p.x() == 0 || p.x() == width - 1 || p.y() == 0 || p.y() == height - 1;
+    }
+
+    /**
+     * Returns true if x and y are within the dimensions of the matrix.
+     */
+    public boolean isValid(int x, int y) {
+        return (0 <= x && x < width) && (0 <= y && y < height);
+    }
+
+    /**
+     * Given a 1D position on a map, returns the adjacent (up, right, down, left) nodes
+     */
+    public ArrayList<Integer> adjacent(int position) {
+
+        Position p = oneDimensionalToPosition(position);
+
+        Position pUp = new Position(p.x(), p.y() + 1);
+        Position pRight = new Position(p.x() + 1, p.y());
+        Position pDown = new Position(p.x(), p.y() - 1);
+        Position pLeft = new Position(p.x() - 1, p.y());
+
+        ArrayList<Position> tmp = new ArrayList<>();
+        tmp.add(pUp);
+        tmp.add(pRight);
+        tmp.add(pDown);
+        tmp.add(pLeft);
+
+        ArrayList<Integer> adjacent = new ArrayList<>();
+        for (Position pp: tmp) {
+            if (isValid(pp.x(), pp.y())) {
+                adjacent.add(positionToOneDimensional(p));
+            }
+        }
+        return adjacent;
+    }
+
+    /*
+     * Getter methods below
+     */
+
+    /**
+     * Returns the TETile[][] associated with this object.
+     */
+    public TETile[][] TETileMatrix() {
+        return map;
+    }
+
+    public int width() {
+        return width;
+    }
+
+    public int height() {
+        return height;
+    }
+
+    /**
+     * Returns oneDlength instance variable.
+     */
+    public int oneDlength() {
+        return oneDlength;
+    }
+
+    /**
      * Returns the tile at specified x and y coordinates on the map, but does not remove the tile.
      * If out of bounds, returns null.
      */
-    public static TETile peek(TETile[][] map, int x, int y) {
-        if ((0 <= x && x < map.length) && (0 <= y && y < map[0].length)) {
+    public TETile peek(int x, int y) {
+        if (isValid(x, y)) {
             return map[x][y];
         } else {
             return null;
@@ -107,18 +199,11 @@ public class Map {
      * Returns the tile at specified Position on the map, but does not remove the tile.
      * If out of bounds, returns null.
      */
-    public static TETile peek(TETile[][] map, Position p) {
-        if ((0 <= p.x() && p.x() < map.length) && (0 <= p.y() && p.y() < map[0].length)) {
+    public TETile peek(Position p) {
+        if (isValid(p.x(), p.y())) {
             return map[p.x()][p.y()];
         } else {
             return null;
         }
-    }
-
-    /**
-     * Returns the TETile[][] associated with this object.
-     */
-    public TETile[][] getMap() {
-        return map;
     }
 }

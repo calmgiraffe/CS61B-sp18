@@ -66,7 +66,7 @@ public class Partition {
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as
      * the branches of the current partition. Finally, method traverses the newly created branches.
      */
-    public static void splitAndConnect(Partition p, RandomExtra r, TETile[][] map) {
+    public static void splitAndConnect(Partition p, RandomExtra r, Map map) {
         if (p.width > MAX || p.height > MAX) {
 
             if (p.width <= MAX) {
@@ -112,19 +112,19 @@ public class Partition {
      * as stored in the left and rightt pQueues, then draws a path between their centres,
      * thereby connecting them and ensuring a complete graph.
      */
-    public static void connectLeftAndRight(Partition p, RandomExtra r, TETile[][] map) {
+    public static void connectLeftAndRight(Partition p, RandomExtra r, Map map) {
         // Make new pQueue
         p.pQueue = new PriorityQueue<>(getDistanceComparator());
 
         // At parent node, recalculate distance from parentcentre to its leaf nodes' centre
         // Left branch: iterate through left PQ and recalculate distance to center
         for (Partition par: p.left.pQueue) {
-            par.distanceToParent = Position.calculateDistance(par.centre, p.centre);
+            par.distanceToParent = Position.euclidean(par.centre, p.centre);
             p.pQueue.add(par);
         }
         // Right branch: iterate through right PQ and recalculate distance to center
         for (Partition par: p.right.pQueue) {
-            par.distanceToParent = Position.calculateDistance(par.centre, p.centre);
+            par.distanceToParent = Position.euclidean(par.centre, p.centre);
             p.pQueue.add(par);
         }
         // Left branch: select partition that is closest to the centre
@@ -132,7 +132,7 @@ public class Partition {
         Partition minLeft = p.left.pQueue.peek();
         Partition minRight = p.right.pQueue.peek();
 
-        Room.drawPath(minLeft.room, minRight.room, r, map);
+        minLeft.room.astar(minRight.room, r, map);
     }
 
     /**
@@ -207,7 +207,7 @@ public class Partition {
     }
 
     /**
-     * Returns the right Paritition associated with this Partition.
+     * Returns the right Partition associated with this Partition.
      */
     public Partition right() {
         return this.right;

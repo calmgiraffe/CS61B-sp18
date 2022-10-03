@@ -41,13 +41,13 @@ public class Game {
                 map.generateWorld();
 
                 ter.initialize(WIDTH, HEIGHT);
-                ter.renderFrame(map.getMap());
+                ter.renderFrame(map.TETileMatrix());
             }
         } else if (mode == 'l') {
             return null;
         } else if (mode == 'q') {
             return null;
         }
-        return map.getMap();
+        return map.TETileMatrix();
     }
 }

@@ -56,6 +56,21 @@ public class Tileset {
         }
     }
 
+    public static TETile randomFloorType(Random r) {
+        int choice = r.nextInt(5);
+        if (choice == 0) {
+            return Tileset.FLOOR;
+        } else if (choice == 1) {
+            return Tileset.GRASS;
+        } else if (choice == 2) {
+            return Tileset.FLOWER;
+        } else if (choice == 3) {
+            return Tileset.WATER;
+        } else {
+            return Tileset.NOTHING;
+        }
+    }
+
     public static TETile colorVariantWall(Random r) {
         return TETile.colorVariant(WALL, 30, 30, 30, r);
     }

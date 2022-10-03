@@ -25,8 +25,14 @@ public class Position {
     /**
      * Given two positions a & b on an x-y plane, calculate the absolute distance between the two.
      */
-    public static double calculateDistance(Position a, Position b) {
-        return Math.sqrt(Math.pow((a.x - b.x), 2) + Math.pow((a.y - b.y), 2));
+    public static double euclidean(Position a, Position b) {
+        return Math.pow((a.x - b.x), 2) + Math.pow((a.y - b.y), 2);
+    }
+
+    public static double euclidean(int v1, int v2, Map map) {
+        Position a = map.oneDimensionalToPosition(v1);
+        Position b = map.oneDimensionalToPosition(v2);
+        return euclidean(a, b);
     }
 
     /**
@@ -106,12 +112,4 @@ public class Position {
     public boolean verticallyAligned(Position p) {
         return (x == p.x);
     }
-
-    /**
-     * Returns true if the position is on the map edge, false otherwise.
-     */
-    public boolean onMapEdge(TETile[][] map) {
-        return x == 0 || x == map.length - 1 || y == 0 || y == map[0].length - 1;
-    }
-
 }
