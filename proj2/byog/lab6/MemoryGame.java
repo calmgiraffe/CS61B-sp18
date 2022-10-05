@@ -54,19 +54,37 @@ public class MemoryGame {
         return new String(chars);
     }
 
+    /**
+     * Take the string and display it in the center of the screen
+     * If game is not over, display relevant game information at the top of the screen
+     * @param s input string to be shown
+     */
     public void drawFrame(String s) {
-        //TODO: Take the string and display it in the center of the screen
-        //TODO: If game is not over, display relevant game information at the top of the screen
         StdDraw.clear(Color.BLACK);
         Font font = new Font("Monaco", Font.BOLD, 30);
         StdDraw.setFont(font);
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.text(width / 2.0, height / 2.0, s);
+
+        // Show "Round: #" in upper left, Watch!/Type at top, and encouragement in upper right
+        if (!gameOver) {
+            StdDraw.line(0, height - 2, width, height - 2);
+            Font headerFont = new Font("Monaco", Font.PLAIN, 20);
+            StdDraw.setFont(headerFont);
+            StdDraw.textLeft(1, height - 1, "Round: " + round);
+            StdDraw.text(width / 2.0, height - 1, playerTurn ? "Type!" : "Watch!");
+            StdDraw.textRight(width - 1, height - 1, ENCOURAGEMENT[round % ENCOURAGEMENT.length]);
+        }
         StdDraw.show();
     }
 
+    /**
+     * Display the characters of the string one-by-one in the center of the screen, showing the
+     * character for a second and blanking the screen for 1/2 a second.
+     * screen between letters
+     * @param letters the string to be shown on the screen, one char at a time
+     */
     public void flashSequence(String letters) {
-        //TODO: Display each character in letters, making sure to blank the screen between letters
         for (char c : letters.toCharArray()) {
             drawFrame(String.valueOf(c));
             StdDraw.pause(1000);
