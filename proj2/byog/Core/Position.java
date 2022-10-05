@@ -39,6 +39,24 @@ public class Position {
     }
 
     /**
+     * Given two positions a & b on an x-y plane,
+     * calculate the manhattan distance between the two.
+     */
+    public static int manhattan(Position a, Position b) {
+        return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    }
+
+    /**
+     * Given two 1D positions v1 & v2 on an x-y plane,
+     * calculate the manhattan distance between the two.
+     */
+    public static int manhattan(int v1, int v2, Map map) {
+        Position a = map.oneDimensionalToPosition(v1);
+        Position b = map.oneDimensionalToPosition(v2);
+        return manhattan(a, b);
+    }
+
+    /**
      * Given a Position p, returns a new position within a 5x5 box radius
      * surrounding the original Position.
      */

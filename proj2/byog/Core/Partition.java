@@ -117,12 +117,12 @@ public class Partition {
         // At parent node, recalculate distance from parent centre to its leaf nodes' centre
         // Left branch: iterate through left PQ and recalculate distance to center
         for (Partition par: p.left.pQueue) {
-            par.distanceToParent = Position.euclidean(par.centre, p.centre);
+            par.distanceToParent = Position.manhattan(par.centre, p.centre);
             p.pQueue.add(par);
         }
         // Right branch: iterate through right PQ and recalculate distance to center
         for (Partition par: p.right.pQueue) {
-            par.distanceToParent = Position.euclidean(par.centre, p.centre);
+            par.distanceToParent = Position.manhattan(par.centre, p.centre);
             p.pQueue.add(par);
         }
         // Left branch: select partition that is closest to the centre

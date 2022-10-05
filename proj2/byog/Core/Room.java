@@ -119,7 +119,7 @@ public class Room {
                 if (distTo[p] + 1 < distTo[q]) {
                     distTo[q] = distTo[p] + 1;
                     edgeTo[q] = p;
-                    Node n = new Node(q, distTo[q] + Position.euclidean(q, target, map));
+                    Node n = new Node(q, distTo[q] + Position.manhattan(q, target, map));
                     fringe.add(n);
                 }
                 if (q == target) {
@@ -218,7 +218,7 @@ public class Room {
     }
 
     /**
-     * Pick random location within the room.
+     * Pick random location within the room, int buffer indicating the margin from the room edge.
      */
     public Position randomPositionInRoom(int buffer) {
         int xLower = lowerLeft.x() + buffer;
