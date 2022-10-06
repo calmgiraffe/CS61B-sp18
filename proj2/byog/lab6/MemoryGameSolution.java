@@ -53,7 +53,6 @@ public class MemoryGameSolution {
             drawFrame("Round " + round + "! Good luck!");
             StdDraw.pause(1500);
 
-
             String roundString = generateRandomString(round);
             flashSequence(roundString);
 
