@@ -3,16 +3,74 @@ package byog.Core;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 
+import edu.princeton.cs.introcs.StdDraw;
+import java.awt.Color;
+import java.awt.Font;
+
 public class Game {
     private static final int WIDTH = 60;
     private static final int HEIGHT = 40;
     private final TERenderer ter = new TERenderer();
     private Map map;
 
-    /** Method used for playing a fresh game. The game should start from the main menu. */
+    /**
+     * Method used for playing a fresh game. The game should start from the main menu.
+     */
     public void playWithKeyboard() {
-        // to do
+        ter.initialize(WIDTH, HEIGHT);
+
+        // Display loading screen text; initial text options in first block of code
+        Font title = new Font("Consolas", Font.BOLD, 40);
+        Font option = new Font("Consolas", Font.PLAIN, 30);
+        StdDraw.setPenColor(Color.WHITE);
+
+        StdDraw.setFont(title);
+        StdDraw.text(30 * WIDTH / 60.0, 30 * HEIGHT / 40.0, "Roguelike Dungeon Game");
+
+        StdDraw.setFont(option);
+        StdDraw.text(30 * WIDTH / 60.0, 22 * HEIGHT / 40.0, "New Game (N)");
+        StdDraw.text(30 * WIDTH / 60.0, 20 * HEIGHT / 40.0, "Load Game (L)");
+        StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, "Quit (Q)");
+
+        StdDraw.show();
+
+        // wait for user input
+        // if input == 'n', go to input seed screen
+        label:
+        while (true) {
+            String input = getUserInput(1);
+            switch (input) {
+                case "n":
+                    System.out.println("n was typed");
+                    break label;
+                case "l":
+                    System.out.println("l was typed");
+                    break label;
+                case "q":
+                    System.out.println("q was typed");
+                    break label;
+            }
+        }
+        System.exit(0);
     }
+
+    /**
+     * Waits for the user to type in a String of length n. Once the string in the queue
+     * reaches length n, the method returns the string.
+     * @param n length of string that is desired from the user
+     * @return resulting string typed by user
+     */
+    private String getUserInput(int n) {
+        StringBuilder input = new StringBuilder();
+        while (input.length() < n) {
+            if (StdDraw.hasNextKeyTyped()) {
+                char key = StdDraw.nextKeyTyped();
+                input.append(key);
+            }
+        }
+        return input.toString();
+    }
+
 
     /**
      * Method used for autograding and testing the game code. The input string will be a series
