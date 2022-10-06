@@ -23,23 +23,21 @@ public class Game {
     public void playWithKeyboard() {
         ter.initialize(WIDTH, HEIGHT);
 
-        while (true) {
-            StdDraw.clear(Color.BLACK);
-            StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(title);
-            StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
-            StdDraw.setFont(option);
-            StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, "New Game (N)");
-            StdDraw.text(30 * WIDTH / 60.0, 16 * HEIGHT / 40.0, "Load Game (L)");
-            StdDraw.text(30 * WIDTH / 60.0, 14 * HEIGHT / 40.0, "Quit (Q)");
-            StdDraw.show();
+        StdDraw.clear(Color.BLACK);
+        StdDraw.setPenColor(Color.WHITE);
+        StdDraw.setFont(title);
+        StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
+        StdDraw.setFont(option);
+        StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, "New Game (N)");
+        StdDraw.text(30 * WIDTH / 60.0, 16 * HEIGHT / 40.0, "Load Game (L)");
+        StdDraw.text(30 * WIDTH / 60.0, 14 * HEIGHT / 40.0, "Quit (Q)");
+        StdDraw.show();
 
-            char input = getUserChar();
-            switch (input) {
-                case 'n' -> inputSeedScreen();
-                case 'l' -> loadGame();
-                case 'q' -> System.exit(0);
-            }
+        char input = getUserChar();
+        switch (input) {
+            case 'n' -> inputSeedScreen();
+            case 'l' -> loadGame();
+            case 'q' -> System.exit(0);
         }
     }
 
@@ -70,7 +68,7 @@ public class Game {
             StdDraw.setFont(title);
             StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
             StdDraw.setFont(option);
-            StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, "(s to submit, Esc to return)");
+            StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, "(s to submit)");
             StdDraw.text(30 * WIDTH / 60.0, 14 * HEIGHT / 40.0, "Seed: " + seed);
             StdDraw.show();
 
@@ -81,8 +79,6 @@ public class Game {
                 }
             } else if (c == 's' && seed.length() > 0) {
                 seedTyped = true;
-            } else if ((int) c == 27) { // ASCII esc key
-                return;
             } else if (seed.length() < 15) { // Max seed length is 16
                 seed.append(c);
             }
