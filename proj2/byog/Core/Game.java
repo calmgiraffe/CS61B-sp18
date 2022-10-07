@@ -3,7 +3,6 @@ package byog.Core;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 
-import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
 import java.awt.Color;
 import java.awt.Font;
@@ -14,7 +13,7 @@ public class Game {
     private static final Font title = new Font("Consolas", Font.BOLD, 40);
     private static final Font option = new Font("Consolas", Font.PLAIN, 28);
     private static final Font tileFont = new Font("Monaco", Font.BOLD, 14);
-    private static final Font HUDFont = new Font("Bahnschrift", Font.PLAIN, 20);
+    private static final Font HUDFont = new Font("Bahnschrift", Font.PLAIN, 18);
     private final TERenderer ter = new TERenderer();
     private Map map;
     private int level = 1;
@@ -26,8 +25,6 @@ public class Game {
      */
     public void playWithKeyboard() {
         ter.initialize(WIDTH, HEIGHT);
-
-        StdDraw.setPenColor(Color.WHITE);
         StdDraw.clear(Color.BLACK);
         loadTitle();
         loadPrompts("New Game (N)", "Load Game (L)", "Quit (Q)");
@@ -46,35 +43,40 @@ public class Game {
                 break;
             }
         }
-
         while (!quitGame) {
             StdDraw.clear(Color.BLACK);
             if (StdDraw.hasNextKeyTyped()) {
                 char next = StdDraw.nextKeyTyped();
-                map.movePlayer(next);
                 if (next == ':' && getUserChar() == 'q') {
                     break;
                 }
+                map.movePlayer(next);
             }
             StdDraw.setFont(tileFont);
             ter.renderFrame(map.TETileMatrix());
 
             // From the retrieved x and y, determine which tile is ot that TETile[][] location
-            long mouseX = Math.round(StdDraw.mouseX());
-            long mouseY = Math.round(StdDraw.mouseY());
+            long mouseX = Math.round(Math.floor(StdDraw.mouseX()));
+            long mouseY = Math.round(Math.floor(StdDraw.mouseY()));
 
-            StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(HUDFont);
-
-            String description = map.peek((int) mouseX, (int) mouseY).description();
-            System.out.println(description);
-
-            StdDraw.textLeft(2 * WIDTH / 60.0, 48 * HEIGHT / 50.0, description);
+            loadTileDescription((int) mouseX, (int) mouseY);
             StdDraw.show();
         }
         System.exit(0);
     }
 
+    /**
+     * Given an x and y coordinate corresponding to TETile[x][y], displays the description of
+     * the hovered tile in the HUD.
+     */
+    private void loadTileDescription(int x, int y) {
+        if (x >= 0 && x < map.width() && y >= 0 && y < map.height()) {
+            StdDraw.setPenColor(Color.WHITE);
+            StdDraw.setFont(HUDFont);
+            String description = map.peek(x, y).description();
+            StdDraw.textLeft(2 * WIDTH / 60.0, 48 * HEIGHT / 50.0, description);
+        }
+    }
     /**
      * Loops infinitely, reading user input and appending each character to variable "input".
      * Once the string's length reaches length n, the loop ends, and the method returns the string.
@@ -89,12 +91,20 @@ public class Game {
         }
     }
 
+    /**
+     * Loads title screen into the buffer.
+     */
     private void loadTitle() {
+        StdDraw.setPenColor(Color.WHITE);
         StdDraw.setFont(title);
         StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
     }
 
+    /**
+     * Loads given strings into the buffer to be shown as (up to 3) prompts.
+     */
     private void loadPrompts(String s1, String s2, String s3) {
+        StdDraw.setPenColor(Color.WHITE);
         StdDraw.setFont(option);
         StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, s1);
         StdDraw.text(30 * WIDTH / 60.0, 16 * HEIGHT / 40.0, s2);
