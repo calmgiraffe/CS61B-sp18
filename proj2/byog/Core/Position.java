@@ -9,8 +9,8 @@ public class Position {
     /**
      * Position instance variables
      */
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
 
     /**
      * Position constructor

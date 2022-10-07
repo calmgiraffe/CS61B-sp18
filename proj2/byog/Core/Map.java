@@ -20,6 +20,7 @@ public class Map {
     private final int oneDlength;
     private final Partition partition;
     private final ArrayList<Room> rooms = new ArrayList<>();
+    private final PlayerMover pMover;
 
     /**
      * Map constructor
@@ -31,6 +32,7 @@ public class Map {
         this.height = height;
         this.oneDlength = width * height;
         this.partition = new Partition(new Position(0, 0), width, height);
+        this.pMover = new PlayerMover(this);
         fillWithNothing();
     }
 
@@ -58,15 +60,23 @@ public class Map {
         for (Room r : rooms) {
             r.drawRoom(this);
 
-            if (random.nextIntInclusive(1, 100) < 50) {
+            if (random.nextIntInclusive(1, 100) < 50) { // 50% chance
                 int size = random.nextIntInclusive(5, 8);
                 r.drawIrregular(size, r.randomPositionInRoom(0), this);
             }
-            if (random.nextIntInclusive(1, 100) < 60) {
+            if (random.nextIntInclusive(1, 100) < 60) { // 60% chance
                 int size = random.nextIntInclusive(5, 7);
                 r.drawIrregularGrass(size, r.randomPositionInRoom(1), this);
             }
         }
+        // Pick some random room and place character in center
+        int i = random.nextInt(rooms.size());
+        Position playerPos = rooms.get(i).randomPositionInRoom(1);
+        pMover.setPosition(playerPos);
+    }
+
+    public void movePlayer(char direction) {
+        pMover.movePlayer(direction);
     }
 
     /**

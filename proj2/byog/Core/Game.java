@@ -3,6 +3,7 @@ package byog.Core;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 
+import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
 import java.awt.Color;
 import java.awt.Font;
@@ -39,6 +40,12 @@ public class Game {
             case 'l' -> loadGame();
             case 'q' -> System.exit(0);
         }
+
+        while (true) {
+            char direction = getUserChar();
+            map.movePlayer(direction);
+            ter.renderFrame(map.TETileMatrix());
+        }
     }
 
     /**
@@ -60,11 +67,11 @@ public class Game {
      * s to submit the seed and generate a new map.
      */
     private void inputSeedScreen() {
-        StdDraw.clear(Color.BLACK);
-
         StringBuilder seed = new StringBuilder();
+
         boolean seedTyped = false;
         while (!seedTyped) {
+            StdDraw.clear(Color.BLACK);
             StdDraw.setFont(title);
             StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
             StdDraw.setFont(option);
@@ -79,10 +86,9 @@ public class Game {
                 }
             } else if (c == 's' && seed.length() > 0) {
                 seedTyped = true;
-            } else if (seed.length() < 15) { // Max seed length is 16
+            } else if (seed.length() < 15 && Character.isDigit(c)) { // Max seed length is 16
                 seed.append(c);
             }
-            StdDraw.clear(Color.BLACK);
         }
         generateWorld(seed.toString());
     }
@@ -122,6 +128,7 @@ public class Game {
                 generateWorld(seed);
             }
         } else if (mode == 'l') {
+            // Todo
             return null;
 
         } else if (mode == 'q') {
@@ -134,7 +141,7 @@ public class Game {
      * Given a seed String, creates new map object, generates a new world, then renders the world.
      */
     private void generateWorld(String seed) {
-        map = new Map(WIDTH, HEIGHT, seed.hashCode());
+        map = new Map(WIDTH, HEIGHT, Long.parseLong(seed));
         map.generateWorld();
         StdDraw.setFont(tileFont);
         ter.renderFrame(map.TETileMatrix());
