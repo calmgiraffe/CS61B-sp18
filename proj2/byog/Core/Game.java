@@ -27,7 +27,7 @@ public class Game implements Serializable{
     public void playWithKeyboard() {
         ter.initialize(WIDTH, HEIGHT);
         StdDraw.clear(Color.BLACK);
-        loadTitleScreen();
+        loadTitle();
         loadPrompts("New Game (N)", "Load Game (L)", "Quit (Q)");
         StdDraw.show();
 
@@ -51,8 +51,9 @@ public class Game implements Serializable{
                 if (next == ':' && getUserChar() == 'q') {
                     saveGame();
                     break;
+                } else {
+                    map.movePlayer(next);
                 }
-                map.movePlayer(next);
             }
             StdDraw.setFont(tileFont);
             ter.renderFrame(map.TETileMatrix());
@@ -62,7 +63,68 @@ public class Game implements Serializable{
             loadHUD((int) mouseX, (int) mouseY);
             StdDraw.show();
         }
+        quitGame = true;
         System.exit(0);
+    }
+
+    /**
+     * Method used for autograding and testing the game code. The input string will be a series
+     * of characters (for example, "n123sswwdasdassadwas", "n123sss:q", "lwww". The game should
+     * behave exactly as if the user typed these characters into the game after playing
+     * playWithKeyboard. If the string ends in ":q", the same world should be returned as if the
+     * string did not end with q. For example "n123sss" and "n123sss:q" should return the same
+     * world. However, the behavior is slightly different. After playing with "n123sss:q", the game
+     * should save, and thus if we then called playWithInputString with the string "l", we'd expect
+     * to get the exact same world back again, since this corresponds to loading the saved game.
+     * @param input the input string to feed to your program
+     * @return the 2D TETile[][] representing the state of the world
+     */
+    public TETile[][] playWithInputString(String input) {
+        /*
+         * Fill out this method to run the game using the input passed in,
+         * and return a 2D tile representation of the world that would have been
+         * drawn if the same inputs had been given to playWithKeyboard().
+         */
+        ter.initialize(WIDTH, HEIGHT);
+        input = input.toLowerCase();
+
+        char mode = input.charAt(0);
+        if (mode == 'n') {
+            input = parseSeed(input.substring(1));
+            parseCommands(input);
+        } else if (mode == 'l') {
+            loadGame();
+            parseCommands(input.substring(1));
+        } else if (mode == 'q') {
+            System.exit(0);
+        }
+        return map.TETileMatrix();
+    }
+
+    private String parseSeed(String input) {
+        StringBuilder seed = new StringBuilder();
+        int curr = 0;
+        char c = input.charAt(curr);
+        do {
+            seed.append(c);
+            curr += 1;
+            c = input.charAt(curr);
+        } while (c != 's');
+        generateWorld(seed.toString());
+        return input.substring(curr + 1);
+    }
+
+    private void parseCommands(String input) {
+        for (int i = 0; i < input.length(); i++) {
+            char next = input.charAt(i);
+            if (next == ':' && input.charAt(i + 1) == 'q') {
+                saveGame();
+                break;
+            } else {
+                map.movePlayer(next);
+                ter.renderFrame(map.TETileMatrix());
+            }
+        }
     }
 
     /**
@@ -98,7 +160,7 @@ public class Game implements Serializable{
     /**
      * Loads title screen into the buffer.
      */
-    private void loadTitleScreen() {
+    private void loadTitle() {
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.setFont(title);
         StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
@@ -116,15 +178,15 @@ public class Game implements Serializable{
     }
 
     /**
-     * Displays the seed input screen; backspace to return to main menu,
-     * s to submit the seed and generate a new map. Can only put in numbers for a seed.
+     * Displays the seed input screen; s to submit the seed and generate a new map.
+     * Can only put in numbers for a seed.
      */
     private void inputSeedScreen() {
         StringBuilder seed = new StringBuilder();
 
         while (true) {
             StdDraw.clear(Color.BLACK);
-            loadTitleScreen();
+            loadTitle();
             loadPrompts("(press s to submit)", "", "Seed: " + seed);
             StdDraw.show();
 
@@ -150,7 +212,6 @@ public class Game implements Serializable{
             out.writeObject(this);
             out.close();
             fileOut.close();
-            System.out.println("Serialized data is saved in savefile.text");
         } catch (IOException i)  {
             i.printStackTrace();
         }
@@ -176,43 +237,6 @@ public class Game implements Serializable{
             System.out.println("Game class not found");
             c.printStackTrace();
         }
-    }
-
-    /**
-     * Method used for autograding and testing the game code. The input string will be a series
-     * of characters (for example, "n123sswwdasdassadwas", "n123sss:q", "lwww". The game should
-     * behave exactly as if the user typed these characters into the game after playing
-     * playWithKeyboard. If the string ends in ":q", the same world should be returned as if the
-     * string did not end with q. For example "n123sss" and "n123sss:q" should return the same
-     * world. However, the behavior is slightly different. After playing with "n123sss:q", the game
-     * should save, and thus if we then called playWithInputString with the string "l", we'd expect
-     * to get the exact same world back again, since this corresponds to loading the saved game.
-     * @param input the input string to feed to your program
-     * @return the 2D TETile[][] representing the state of the world
-     */
-    public TETile[][] playWithInputString(String input) {
-        /*
-         * Fill out this method to run the game using the input passed in,
-         * and return a 2D tile representation of the world that would have been
-         * drawn if the same inputs had been given to playWithKeyboard().
-         */
-        ter.initialize(WIDTH, HEIGHT);
-        input = input.toLowerCase();
-
-        char mode = input.charAt(0);
-        if (mode == 'n') {
-            if (input.charAt(input.length() - 1) == 's') {
-                String seed = input.substring(1, input.length() - 1);
-                generateWorld(seed);
-            }
-        } else if (mode == 'l') {
-            // Todo
-            return null;
-
-        } else if (mode == 'q') {
-            System.exit(0);
-        }
-        return map.TETileMatrix();
     }
 
     /**
