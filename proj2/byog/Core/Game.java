@@ -34,7 +34,7 @@ public class Game implements Serializable{
         while (true) {
             char input = getUserChar();
             if (input == 'n') {
-                inputSeedScreen();
+                inputSeed();
                 break;
             } else if (input == 'l') {
                 loadGame();
@@ -63,7 +63,7 @@ public class Game implements Serializable{
             loadHUD((int) mouseX, (int) mouseY);
             StdDraw.show();
         }
-        quitGame = true;
+        quitGame = false;
         System.exit(0);
     }
 
@@ -85,7 +85,6 @@ public class Game implements Serializable{
          * and return a 2D tile representation of the world that would have been
          * drawn if the same inputs had been given to playWithKeyboard().
          */
-        ter.initialize(WIDTH, HEIGHT);
         input = input.toLowerCase();
 
         char mode = input.charAt(0);
@@ -94,7 +93,7 @@ public class Game implements Serializable{
             parseCommands(input);
         } else if (mode == 'l') {
             loadGame();
-            parseCommands(input.substring(1));
+            parseCommands(input);
         } else if (mode == 'q') {
             System.exit(0);
         }
@@ -122,7 +121,6 @@ public class Game implements Serializable{
                 break;
             } else {
                 map.movePlayer(next);
-                ter.renderFrame(map.TETileMatrix());
             }
         }
     }
@@ -181,7 +179,7 @@ public class Game implements Serializable{
      * Displays the seed input screen; s to submit the seed and generate a new map.
      * Can only put in numbers for a seed.
      */
-    private void inputSeedScreen() {
+    private void inputSeed() {
         StringBuilder seed = new StringBuilder();
 
         while (true) {
