@@ -6,8 +6,9 @@ import byog.TileEngine.TETile;
 import edu.princeton.cs.introcs.StdDraw;
 import java.awt.Color;
 import java.awt.Font;
+import java.io.*;
 
-public class Game {
+public class Game implements Serializable{
     private static final int WIDTH = 60;
     private static final int HEIGHT = 50;
     private static final Font title = new Font("Consolas", Font.BOLD, 40);
@@ -26,7 +27,7 @@ public class Game {
     public void playWithKeyboard() {
         ter.initialize(WIDTH, HEIGHT);
         StdDraw.clear(Color.BLACK);
-        loadTitle();
+        loadTitleScreen();
         loadPrompts("New Game (N)", "Load Game (L)", "Quit (Q)");
         StdDraw.show();
 
@@ -43,12 +44,12 @@ public class Game {
                 break;
             }
         }
-
         while (!quitGame) {
             StdDraw.clear(Color.BLACK);
             if (StdDraw.hasNextKeyTyped()) {
                 char next = StdDraw.nextKeyTyped();
                 if (next == ':' && getUserChar() == 'q') {
+                    saveGame();
                     break;
                 }
                 map.movePlayer(next);
@@ -97,7 +98,7 @@ public class Game {
     /**
      * Loads title screen into the buffer.
      */
-    private void loadTitle() {
+    private void loadTitleScreen() {
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.setFont(title);
         StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
@@ -123,7 +124,7 @@ public class Game {
 
         while (true) {
             StdDraw.clear(Color.BLACK);
-            loadTitle();
+            loadTitleScreen();
             loadPrompts("(press s to submit)", "", "Seed: " + seed);
             StdDraw.show();
 
@@ -140,10 +141,41 @@ public class Game {
     }
 
     /**
+     * Serializes the current Game object.
+     */
+    private void saveGame() {
+        try {
+            FileOutputStream fileOut = new FileOutputStream("./byog/savefile.txt");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(this);
+            out.close();
+            fileOut.close();
+            System.out.println("Serialized data is saved in savefile.text");
+        } catch (IOException i)  {
+            i.printStackTrace();
+        }
+
+    }
+
+    /**
      * Load a game from the stored save.
      */
     private void loadGame() {
-        // Todo
+        Game g;
+        try {
+            FileInputStream fileIn = new FileInputStream("./byog/savefile.txt");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            g = (Game) in.readObject();
+            in.close();
+            fileIn.close();
+            this.map = g.map;
+            this.level = g.level;
+        } catch (IOException i) {
+            i.printStackTrace();
+        } catch (ClassNotFoundException c) {
+            System.out.println("Game class not found");
+            c.printStackTrace();
+        }
     }
 
     /**

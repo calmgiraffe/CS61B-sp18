@@ -2,13 +2,15 @@ package byog.Core;
 
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Map object to represent the underlying data type (TETIle[][]),
  * and other invariants like its width, height, numRooms, etc
  */
-public class Map {
+public class Map implements Serializable {
 
     /**
      * Map instance variables
@@ -70,7 +72,8 @@ public class Map {
             }
         }
         // Pick a room and place character in center
-        Position playerPos = rooms.get(0).randomPositionInRoom(1);
+        int i = random.nextIntInclusive(0, rooms.size() - 1);
+        Position playerPos = rooms.get(i).randomPositionInRoom(1);
         pMover.setPosition(playerPos);
     }
 

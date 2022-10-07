@@ -3,7 +3,9 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
-public class PlayerMover {
+import java.io.Serializable;
+
+public class PlayerMover implements Serializable {
     private static final String matchString = "wasd";
     private Map map;
     private Position pos;

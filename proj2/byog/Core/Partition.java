@@ -1,5 +1,6 @@
 package byog.Core;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -8,7 +9,7 @@ import java.util.PriorityQueue;
  * Inner class to represent an imaginary rectangular partition of the map.
  * Position p is the coordinate of the lower left corner
  */
-public class Partition {
+public class Partition implements Serializable {
 
     /**
      * Partition class and instance variables
@@ -171,7 +172,7 @@ public class Partition {
      * Comparator based on the difference between the two partitions distanceToParent.
      * Returns 1, 0, or -1 because distanceToParent is a double.
      */
-    private static class DistanceComparator implements Comparator<Partition> {
+    private static class DistanceComparator implements Comparator<Partition>, Serializable {
         public int compare(Partition a, Partition b) {
             if (a.distanceToParent - b.distanceToParent > 0) {
                 return 1;

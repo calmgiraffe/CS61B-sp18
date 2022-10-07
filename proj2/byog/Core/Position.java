@@ -1,10 +1,12 @@
 package byog.Core;
 
+import java.io.Serializable;
+
 /**
  * Class to represent an (x,y) coordinate.
  * a Position must be between 0 and width-1, 0 and height-1
  */
-public class Position {
+public class Position implements Serializable {
 
     /**
      * Position instance variables
