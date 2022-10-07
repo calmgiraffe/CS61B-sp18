@@ -14,8 +14,10 @@ public class Game {
     private static final Font title = new Font("Consolas", Font.BOLD, 40);
     private static final Font option = new Font("Consolas", Font.PLAIN, 28);
     private static final Font tileFont = new Font("Monaco", Font.BOLD, 14);
+    private static final Font HUDFont = new Font("Bahnschrift", Font.PLAIN, 20);
     private final TERenderer ter = new TERenderer();
     private Map map;
+    private int level = 1;
     private boolean quitGame = false;
 
     /**
@@ -31,14 +33,22 @@ public class Game {
         loadPrompts("New Game (N)", "Load Game (L)", "Quit (Q)");
         StdDraw.show();
 
-        char input = getUserChar();
-        switch (input) {
-            case 'n' -> inputSeedScreen();
-            case 'l' -> loadGame();
-            case 'q' -> System.exit(0);
+        while (true) {
+            char input = getUserChar();
+            if (input == 'n') {
+                inputSeedScreen();
+                break;
+            } else if (input == 'l') {
+                loadGame();
+                break;
+            } else if (input == 'q') {
+                quitGame = true;
+                break;
+            }
         }
 
         while (!quitGame) {
+            StdDraw.clear(Color.BLACK);
             if (StdDraw.hasNextKeyTyped()) {
                 char next = StdDraw.nextKeyTyped();
                 map.movePlayer(next);
@@ -46,17 +56,23 @@ public class Game {
                     break;
                 }
             }
+            StdDraw.setFont(tileFont);
+            ter.renderFrame(map.TETileMatrix());
+
+            // From the retrieved x and y, determine which tile is ot that TETile[][] location
             long mouseX = Math.round(StdDraw.mouseX());
             long mouseY = Math.round(StdDraw.mouseY());
-            ter.renderFrame(map.TETileMatrix());
+
+            StdDraw.setPenColor(Color.WHITE);
+            StdDraw.setFont(HUDFont);
+
+            String description = map.peek((int) mouseX, (int) mouseY).description();
+            System.out.println(description);
+
+            StdDraw.textLeft(2 * WIDTH / 60.0, 48 * HEIGHT / 50.0, description);
+            StdDraw.show();
         }
         System.exit(0);
-
-        // HUD should display the tile currently under the mouse pointer
-        // Continuous loop that always reads mouse x and mouse y
-        // From the retrieved x and y, determine which tile is ot that TETile[][] location
-        // Output the name of the tile in the upper right
-        // Also output the current level in the upper left
     }
 
     /**
@@ -87,7 +103,7 @@ public class Game {
 
     /**
      * Displays the seed input screen; backspace to return to main menu,
-     * s to submit the seed and generate a new map.
+     * s to submit the seed and generate a new map. Can only put in numbers for a seed.
      */
     private void inputSeedScreen() {
         StringBuilder seed = new StringBuilder();
@@ -95,7 +111,7 @@ public class Game {
         while (true) {
             StdDraw.clear(Color.BLACK);
             loadTitle();
-            loadPrompts("(s to submit)", "", "Seed: " + seed);
+            loadPrompts("(press s to submit)", "", "Seed: " + seed);
             StdDraw.show();
 
             char c = getUserChar();
@@ -103,7 +119,7 @@ public class Game {
                 seed.deleteCharAt(seed.length() - 1);
             } else if (c == 's' && seed.length() > 0) {
                 break;
-            } else if (seed.length() < 16 && Character.isDigit(c)) { // Max seed length is 16
+            } else if (seed.length() < 16 && Character.isDigit(c)) {
                 seed.append(c);
             }
         }
