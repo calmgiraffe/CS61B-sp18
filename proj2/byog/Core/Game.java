@@ -43,6 +43,7 @@ public class Game {
                 break;
             }
         }
+
         while (!quitGame) {
             StdDraw.clear(Color.BLACK);
             if (StdDraw.hasNextKeyTyped()) {
@@ -55,11 +56,9 @@ public class Game {
             StdDraw.setFont(tileFont);
             ter.renderFrame(map.TETileMatrix());
 
-            // From the retrieved x and y, determine which tile is ot that TETile[][] location
             long mouseX = Math.round(Math.floor(StdDraw.mouseX()));
             long mouseY = Math.round(Math.floor(StdDraw.mouseY()));
-
-            loadTileDescription((int) mouseX, (int) mouseY);
+            loadHUD((int) mouseX, (int) mouseY);
             StdDraw.show();
         }
         System.exit(0);
@@ -67,16 +66,20 @@ public class Game {
 
     /**
      * Given an x and y coordinate corresponding to TETile[x][y], displays the description of
-     * the hovered tile in the HUD.
+     * the hovered tile in the HUD as well as the current level.
      */
-    private void loadTileDescription(int x, int y) {
+    private void loadHUD(int x, int y) {
         if (x >= 0 && x < map.width() && y >= 0 && y < map.height()) {
             StdDraw.setPenColor(Color.WHITE);
             StdDraw.setFont(HUDFont);
             String description = map.peek(x, y).description();
             StdDraw.textLeft(2 * WIDTH / 60.0, 48 * HEIGHT / 50.0, description);
         }
+        StdDraw.setPenColor(Color.WHITE);
+        StdDraw.setFont(HUDFont);
+        StdDraw.textRight(58 * WIDTH / 60.0, 48 * HEIGHT / 50.0, "Level " + level);
     }
+
     /**
      * Loops infinitely, reading user input and appending each character to variable "input".
      * Once the string's length reaches length n, the loop ends, and the method returns the string.
