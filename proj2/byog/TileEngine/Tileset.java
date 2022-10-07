@@ -39,9 +39,9 @@ public class Tileset {
     // Better looking flowers
     public static final TETile FLOWERMAGENTA = new TETile('❀', Color.magenta, Color.black,
             "flower");
-    public static final TETile FLOWERORANGE = new TETile('❀', Color.ORANGE, Color.black, "flower");
-    public static final TETile FLOWERRED = new TETile('❀', Color.red, Color.black, "flower");
-    public static final TETile FLOWERPINK = new TETile('❀', Color.pink, Color.black, "flower");
+    public static final TETile FLOWERORANGE = new TETile('❀', Color.ORANGE, Color.black, "orange flower");
+    public static final TETile FLOWERRED = new TETile('❀', Color.red, Color.black, "red flower");
+    public static final TETile FLOWERPINK = new TETile('❀', Color.pink, Color.black, "pink flower");
     public static final TETile FLOWERCYAN = new TETile('❀', Color.cyan, Color.black, "flower");
 
 

@@ -4,8 +4,9 @@ import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
 public class PlayerMover {
+    private static final String matchString = "wasd";
     private Map map;
-    private Position playerPos;
+    private Position pos;
     private Position newPos;
     private TETile last;
 
@@ -14,7 +15,7 @@ public class PlayerMover {
     }
 
     public void setPosition(Position p) {
-        playerPos = p;
+        pos = p;
         last = map.peek(p);
         map.placeTile(p, Tileset.PLAYER);
     }
@@ -27,17 +28,28 @@ public class PlayerMover {
      * @param direction one of 'wasd', representing direction to move in
      */
     public void movePlayer(char direction) {
-        switch (direction) {
-            case 'w' -> newPos = new Position(playerPos.x(), playerPos.y() + 1);
-            case 'd' -> newPos = new Position(playerPos.x() + 1, playerPos.y());
-            case 's' -> newPos = new Position(playerPos.x(), playerPos.y() - 1);
-            case 'a' -> newPos = new Position(playerPos.x() - 1, playerPos.y());
+        if (inMatchString(direction)) {
+            switch (direction) {
+                case 'w' -> newPos = new Position(pos.x(), pos.y() + 1);
+                case 'd' -> newPos = new Position(pos.x() + 1, pos.y());
+                case 's' -> newPos = new Position(pos.x(), pos.y() - 1);
+                case 'a' -> newPos = new Position(pos.x() - 1, pos.y());
+            }
+            if (map.peek(newPos).character() != '#') {
+                map.placeTile(pos, last);
+                last = map.peek(newPos);
+                map.placeTile(newPos, Tileset.PLAYER);
+                pos = newPos;
+            }
         }
-        if (map.peek(newPos).character() != '#') {
-            map.placeTile(playerPos, last);
-            last = map.peek(newPos);
-            map.placeTile(newPos, Tileset.PLAYER);
-            playerPos = newPos;
+    }
+
+    private boolean inMatchString(char direction) {
+        for (int i = 0; i < matchString.length(); i++) {
+            if (matchString.charAt(i) == direction) {
+                return true;
+            }
         }
+        return false;
     }
 }

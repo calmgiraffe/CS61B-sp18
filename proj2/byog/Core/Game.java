@@ -10,12 +10,13 @@ import java.awt.Font;
 
 public class Game {
     private static final int WIDTH = 60;
-    private static final int HEIGHT = 40;
+    private static final int HEIGHT = 50;
     private static final Font title = new Font("Consolas", Font.BOLD, 40);
     private static final Font option = new Font("Consolas", Font.PLAIN, 28);
     private static final Font tileFont = new Font("Monaco", Font.BOLD, 14);
     private final TERenderer ter = new TERenderer();
     private Map map;
+    private boolean quitGame = false;
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
@@ -24,14 +25,10 @@ public class Game {
     public void playWithKeyboard() {
         ter.initialize(WIDTH, HEIGHT);
 
-        StdDraw.clear(Color.BLACK);
         StdDraw.setPenColor(Color.WHITE);
-        StdDraw.setFont(title);
-        StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
-        StdDraw.setFont(option);
-        StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, "New Game (N)");
-        StdDraw.text(30 * WIDTH / 60.0, 16 * HEIGHT / 40.0, "Load Game (L)");
-        StdDraw.text(30 * WIDTH / 60.0, 14 * HEIGHT / 40.0, "Quit (Q)");
+        StdDraw.clear(Color.BLACK);
+        loadTitle();
+        loadPrompts("New Game (N)", "Load Game (L)", "Quit (Q)");
         StdDraw.show();
 
         char input = getUserChar();
@@ -41,11 +38,25 @@ public class Game {
             case 'q' -> System.exit(0);
         }
 
-        while (true) {
-            char direction = getUserChar();
-            map.movePlayer(direction);
+        while (!quitGame) {
+            if (StdDraw.hasNextKeyTyped()) {
+                char next = StdDraw.nextKeyTyped();
+                map.movePlayer(next);
+                if (next == ':' && getUserChar() == 'q') {
+                    break;
+                }
+            }
+            long mouseX = Math.round(StdDraw.mouseX());
+            long mouseY = Math.round(StdDraw.mouseY());
             ter.renderFrame(map.TETileMatrix());
         }
+        System.exit(0);
+
+        // HUD should display the tile currently under the mouse pointer
+        // Continuous loop that always reads mouse x and mouse y
+        // From the retrieved x and y, determine which tile is ot that TETile[][] location
+        // Output the name of the tile in the upper right
+        // Also output the current level in the upper left
     }
 
     /**
@@ -62,6 +73,18 @@ public class Game {
         }
     }
 
+    private void loadTitle() {
+        StdDraw.setFont(title);
+        StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
+    }
+
+    private void loadPrompts(String s1, String s2, String s3) {
+        StdDraw.setFont(option);
+        StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, s1);
+        StdDraw.text(30 * WIDTH / 60.0, 16 * HEIGHT / 40.0, s2);
+        StdDraw.text(30 * WIDTH / 60.0, 14 * HEIGHT / 40.0, s3);
+    }
+
     /**
      * Displays the seed input screen; backspace to return to main menu,
      * s to submit the seed and generate a new map.
@@ -69,24 +92,18 @@ public class Game {
     private void inputSeedScreen() {
         StringBuilder seed = new StringBuilder();
 
-        boolean seedTyped = false;
-        while (!seedTyped) {
+        while (true) {
             StdDraw.clear(Color.BLACK);
-            StdDraw.setFont(title);
-            StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
-            StdDraw.setFont(option);
-            StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, "(s to submit)");
-            StdDraw.text(30 * WIDTH / 60.0, 14 * HEIGHT / 40.0, "Seed: " + seed);
+            loadTitle();
+            loadPrompts("(s to submit)", "", "Seed: " + seed);
             StdDraw.show();
 
             char c = getUserChar();
-            if ((int) c == 8) { // ASCII backspace
-                if (seed.length() > 0) {
-                    seed.deleteCharAt(seed.length() - 1);
-                }
+            if ((int) c == 8 && seed.length() > 0) { // ASCII backspace
+                seed.deleteCharAt(seed.length() - 1);
             } else if (c == 's' && seed.length() > 0) {
-                seedTyped = true;
-            } else if (seed.length() < 15 && Character.isDigit(c)) { // Max seed length is 16
+                break;
+            } else if (seed.length() < 16 && Character.isDigit(c)) { // Max seed length is 16
                 seed.append(c);
             }
         }
@@ -138,10 +155,11 @@ public class Game {
     }
 
     /**
-     * Given a seed String, creates new map object, generates a new world, then renders the world.
+     * Given a seed String, creates new map object, makes this object generate a new TETile[][]
+     * matrix, then renders the world, displaying this on the screen
      */
     private void generateWorld(String seed) {
-        map = new Map(WIDTH, HEIGHT, Long.parseLong(seed));
+        map = new Map(WIDTH, HEIGHT - 4, Long.parseLong(seed));
         map.generateWorld();
         StdDraw.setFont(tileFont);
         ter.renderFrame(map.TETileMatrix());

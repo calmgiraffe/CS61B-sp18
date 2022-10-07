@@ -69,9 +69,8 @@ public class Map {
                 r.drawIrregularGrass(size, r.randomPositionInRoom(1), this);
             }
         }
-        // Pick some random room and place character in center
-        int i = random.nextInt(rooms.size());
-        Position playerPos = rooms.get(i).randomPositionInRoom(1);
+        // Pick a room and place character in center
+        Position playerPos = rooms.get(0).randomPositionInRoom(1);
         pMover.setPosition(playerPos);
     }
 
