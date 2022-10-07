@@ -76,6 +76,10 @@ public class Map implements Serializable {
         pMover.setPosition(playerPos);
     }
 
+    /**
+     * Given one of "wasd", moves the player in that direction.
+     * @param direction wasd
+     */
     public void movePlayer(char direction) {
         pMover.movePlayer(direction);
     }
@@ -112,7 +116,7 @@ public class Map implements Serializable {
         if (!isValid(p.x(), p.y())) {
             throw new ArrayIndexOutOfBoundsException("Position out of bounds.");
         }
-        return width*p.y() + p.x();
+        return width * p.y() + p.x();
     }
 
     /**

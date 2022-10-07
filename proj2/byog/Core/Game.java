@@ -8,13 +8,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.*;
 
-public class Game implements Serializable{
+public class Game implements Serializable {
     private static final int WIDTH = 60;
     private static final int HEIGHT = 50;
-    private static final Font title = new Font("Consolas", Font.BOLD, 40);
-    private static final Font option = new Font("Consolas", Font.PLAIN, 28);
-    private static final Font tileFont = new Font("Monaco", Font.BOLD, 14);
-    private static final Font HUDFont = new Font("Bahnschrift", Font.PLAIN, 18);
+    private static final Font TITLE = new Font("Consolas", Font.BOLD, 40);
+    private static final Font OPTION = new Font("Consolas", Font.PLAIN, 28);
+    private static final Font TILEFONT = new Font("Monaco", Font.BOLD, 14);
+    private static final Font HUDFONT = new Font("Bahnschrift", Font.PLAIN, 18);
     private final TERenderer ter = new TERenderer();
     private Map map;
     private int level = 1;
@@ -55,7 +55,7 @@ public class Game implements Serializable{
                     map.movePlayer(next);
                 }
             }
-            StdDraw.setFont(tileFont);
+            StdDraw.setFont(TILEFONT);
             ter.renderFrame(map.TETileMatrix());
 
             long mouseX = Math.round(Math.floor(StdDraw.mouseX()));
@@ -100,6 +100,9 @@ public class Game implements Serializable{
         return map.TETileMatrix();
     }
 
+    /**
+     * Parse the seed to be used; used when playing with string
+     */
     private String parseSeed(String input) {
         StringBuilder seed = new StringBuilder();
         int curr = 0;
@@ -113,6 +116,9 @@ public class Game implements Serializable{
         return input.substring(curr + 1);
     }
 
+    /**
+     * Parse the user commands while in game; used when playing with string
+     */
     private void parseCommands(String input) {
         for (int i = 0; i < input.length(); i++) {
             char next = input.charAt(i);
@@ -132,12 +138,12 @@ public class Game implements Serializable{
     private void loadHUD(int x, int y) {
         if (x >= 0 && x < map.width() && y >= 0 && y < map.height()) {
             StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(HUDFont);
+            StdDraw.setFont(HUDFONT);
             String description = map.peek(x, y).description();
             StdDraw.textLeft(2 * WIDTH / 60.0, 48 * HEIGHT / 50.0, description);
         }
         StdDraw.setPenColor(Color.WHITE);
-        StdDraw.setFont(HUDFont);
+        StdDraw.setFont(HUDFONT);
         StdDraw.textRight(58 * WIDTH / 60.0, 48 * HEIGHT / 50.0, "Level " + level);
     }
 
@@ -160,7 +166,7 @@ public class Game implements Serializable{
      */
     private void loadTitle() {
         StdDraw.setPenColor(Color.WHITE);
-        StdDraw.setFont(title);
+        StdDraw.setFont(TITLE);
         StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
     }
 
@@ -169,7 +175,7 @@ public class Game implements Serializable{
      */
     private void loadPrompts(String s1, String s2, String s3) {
         StdDraw.setPenColor(Color.WHITE);
-        StdDraw.setFont(option);
+        StdDraw.setFont(OPTION);
         StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, s1);
         StdDraw.text(30 * WIDTH / 60.0, 16 * HEIGHT / 40.0, s2);
         StdDraw.text(30 * WIDTH / 60.0, 14 * HEIGHT / 40.0, s3);
@@ -244,7 +250,7 @@ public class Game implements Serializable{
     private void generateWorld(String seed) {
         map = new Map(WIDTH, HEIGHT - 4, Long.parseLong(seed));
         map.generateWorld();
-        StdDraw.setFont(tileFont);
+        StdDraw.setFont(TILEFONT);
         ter.renderFrame(map.TETileMatrix());
     }
 }

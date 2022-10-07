@@ -5,8 +5,8 @@ import byog.TileEngine.Tileset;
 import java.io.Serializable;
 
 public class PlayerMover implements Serializable {
-    private static final String matchString = "wasd";
-    private Map map;
+    private static final String MATCHSTRING = "wasd";
+    private final Map map;
     private Position pos;
     private Position newPos;
     private TETile last;
@@ -45,9 +45,14 @@ public class PlayerMover implements Serializable {
         }
     }
 
-    private boolean inMatchString(char direction) {
-        for (int i = 0; i < matchString.length(); i++) {
-            if (matchString.charAt(i) == direction) {
+    /**
+     * Returns true or false, depending on whether the char is in MATCHSTRING
+     * @param c char to be checked
+     * @return resulting true or false
+     */
+    private boolean inMatchString(char c) {
+        for (int i = 0; i < MATCHSTRING.length(); i++) {
+            if (MATCHSTRING.charAt(i) == c) {
                 return true;
             }
         }
