@@ -3,22 +3,27 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class PlayerMover implements Serializable {
     private static final String MATCHSTRING = "wasd";
+    private static final int FOVRANGE = 5;
     private final Map map;
     private Position pos;
     private Position newPos;
     private TETile last;
+    private final ArrayList<Position> fov;
 
     public PlayerMover(Map map) {
         this.map = map;
+        this.fov = new ArrayList<>();
     }
 
     public void setPosition(Position p) {
         pos = p;
         last = map.peek(p);
         map.placeTile(p, Tileset.PLAYER);
+        updateFOV(FOVRANGE, pos);
     }
 
     /**
@@ -41,8 +46,38 @@ public class PlayerMover implements Serializable {
                 last = map.peek(newPos);
                 map.placeTile(newPos, Tileset.PLAYER);
                 pos = newPos;
+
+                fov.clear();
+                updateFOV(FOVRANGE, newPos);
             }
         }
+    }
+
+    /**
+     * Updates the list of points that make up the current FOV of the player.
+     */
+    private void updateFOV(int count, Position p) {
+        fov.add(p);
+        if (!(map.peek(p).character() == '#')) {
+            if (count > 0) {
+                Position pUp = new Position(p.x(), p.y() + 1);
+                Position pRight = new Position(p.x() + 1, p.y());
+                Position pDown = new Position(p.x(), p.y() - 1);
+                Position pLeft = new Position(p.x() - 1, p.y());
+
+                updateFOV(count - 1, pUp);
+                updateFOV(count - 1, pRight);
+                updateFOV(count - 1, pDown);
+                updateFOV(count - 1, pLeft);
+            }
+        }
+    }
+
+    /**
+     * Returns the list of points that comprise the FOV.
+     */
+    public ArrayList<Position> getFOV() {
+        return fov;
     }
 
     /**

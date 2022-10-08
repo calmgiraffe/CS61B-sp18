@@ -31,6 +31,7 @@ public class Game implements Serializable {
         loadPrompts("New Game (N)", "Load Game (L)", "Quit (Q)");
         StdDraw.show();
 
+        // Main menu loop
         while (true) {
             char input = getUserChar();
             if (input == 'n') {
@@ -44,6 +45,7 @@ public class Game implements Serializable {
                 break;
             }
         }
+        // Game loop; tiles and HUD
         while (!quitGame) {
             StdDraw.clear(Color.BLACK);
             if (StdDraw.hasNextKeyTyped()) {
@@ -56,7 +58,7 @@ public class Game implements Serializable {
                 }
             }
             StdDraw.setFont(TILEFONT);
-            ter.renderFrame(map.TETileMatrix());
+            ter.renderFrame(map.getMap());
 
             long mouseX = Math.round(Math.floor(StdDraw.mouseX()));
             long mouseY = Math.round(Math.floor(StdDraw.mouseY()));
@@ -67,14 +69,30 @@ public class Game implements Serializable {
         System.exit(0);
     }
 
-    // Generate the whole map without FOV feature, but don't show
-    // Given the player position, using recursion, determine which points should be drawn
-    // Add these points to a list (need some way of preventing duplicates)
-    // Make another TETile[][] map of the same size but completely empty
-    // Only show the tiles that are at these positions
+    /**
+     * Displays the seed input screen; s to submit the seed and generate a new map.
+     * Can only put in numbers for a seed.
+     */
+    private void inputSeed() {
+        StringBuilder seed = new StringBuilder();
 
-    // When the player moves, redo the procedure, but with the new player position
+        while (true) {
+            StdDraw.clear(Color.BLACK);
+            loadTitle();
+            loadPrompts("(press s to submit)", "", "Seed: " + seed);
+            StdDraw.show();
 
+            char c = getUserChar();
+            if ((int) c == 8 && seed.length() > 0) { // ASCII backspace
+                seed.deleteCharAt(seed.length() - 1);
+            } else if (c == 's' && seed.length() > 0) {
+                break;
+            } else if (seed.length() < 16 && Character.isDigit(c)) {
+                seed.append(c);
+            }
+        }
+        generateWorld(seed.toString());
+    }
 
     /**
      * Method used for autograding and testing the game code. The input string will be a series
@@ -106,7 +124,7 @@ public class Game implements Serializable {
         } else if (mode == 'q') {
             System.exit(0);
         }
-        return map.TETileMatrix();
+        return map.getMap();
     }
 
     /**
@@ -138,22 +156,6 @@ public class Game implements Serializable {
                 map.movePlayer(next);
             }
         }
-    }
-
-    /**
-     * Given an x and y coordinate corresponding to TETile[x][y], displays the description of
-     * the hovered tile in the HUD as well as the current level.
-     */
-    private void loadHUD(int x, int y) {
-        if (x >= 0 && x < map.width() && y >= 0 && y < map.height()) {
-            StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(HUDFONT);
-            String description = map.peek(x, y).description();
-            StdDraw.textLeft(2 * WIDTH / 60.0, 48 * HEIGHT / 50.0, description);
-        }
-        StdDraw.setPenColor(Color.WHITE);
-        StdDraw.setFont(HUDFONT);
-        StdDraw.textRight(58 * WIDTH / 60.0, 48 * HEIGHT / 50.0, "Level " + level);
     }
 
     /**
@@ -191,28 +193,19 @@ public class Game implements Serializable {
     }
 
     /**
-     * Displays the seed input screen; s to submit the seed and generate a new map.
-     * Can only put in numbers for a seed.
+     * Given an x and y coordinate corresponding to TETile[x][y], displays the description of
+     * the hovered tile in the HUD as well as the current level.
      */
-    private void inputSeed() {
-        StringBuilder seed = new StringBuilder();
-
-        while (true) {
-            StdDraw.clear(Color.BLACK);
-            loadTitle();
-            loadPrompts("(press s to submit)", "", "Seed: " + seed);
-            StdDraw.show();
-
-            char c = getUserChar();
-            if ((int) c == 8 && seed.length() > 0) { // ASCII backspace
-                seed.deleteCharAt(seed.length() - 1);
-            } else if (c == 's' && seed.length() > 0) {
-                break;
-            } else if (seed.length() < 16 && Character.isDigit(c)) {
-                seed.append(c);
-            }
+    private void loadHUD(int x, int y) {
+        if (x >= 0 && x < map.width() && y >= 0 && y < map.height()) {
+            StdDraw.setPenColor(Color.WHITE);
+            StdDraw.setFont(HUDFONT);
+            String description = map.peek(x, y).description();
+            StdDraw.textLeft(2 * WIDTH / 60.0, 48 * HEIGHT / 50.0, description);
         }
-        generateWorld(seed.toString());
+        StdDraw.setPenColor(Color.WHITE);
+        StdDraw.setFont(HUDFONT);
+        StdDraw.textRight(58 * WIDTH / 60.0, 48 * HEIGHT / 50.0, "Level " + level);
     }
 
     /**
@@ -260,6 +253,6 @@ public class Game implements Serializable {
         map = new Map(WIDTH, HEIGHT - 4, Long.parseLong(seed));
         map.generateWorld();
         StdDraw.setFont(TILEFONT);
-        ter.renderFrame(map.TETileMatrix());
+        ter.renderFrame(map.getMap());
     }
 }

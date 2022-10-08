@@ -14,14 +14,16 @@ public class Map implements Serializable {
     /**
      * Map instance variables
      */
+    private static final boolean ENABLEFOV = true;
     private final RandomExtra random;
     private final TETile[][] map;
+    private final TETile[][] FOVmap;
     private final int width;
     private final int height;
     private final int oneDlength;
     private final Partition partition;
     private final ArrayList<Room> rooms = new ArrayList<>();
-    private final PlayerMover pMover;
+    private final PlayerMover playerMover;
 
     /**
      * Map constructor
@@ -29,23 +31,14 @@ public class Map implements Serializable {
     Map(int width, int height, long seed) {
         this.random = new RandomExtra(seed);
         this.map = new TETile[width][height];
+        this.FOVmap = new TETile[width][height];
         this.width = width;
         this.height = height;
         this.oneDlength = width * height;
         this.partition = new Partition(new Position(0, 0), width, height);
-        this.pMover = new PlayerMover(this);
-        fillWithNothing();
-    }
-
-    /**
-     * Fill the map with NOTHING Tileset.
-     */
-    private void fillWithNothing() {
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                placeTile(x, y, Tileset.NOTHING);
-            }
-        }
+        this.playerMover = new PlayerMover(this);
+        fillWithNothing(map);
+        fillWithNothing(FOVmap);
     }
 
     /**
@@ -73,15 +66,25 @@ public class Map implements Serializable {
         // Pick a room and place character in center
         int i = random.nextIntInclusive(0, rooms.size() - 1);
         Position playerPos = rooms.get(i).randomPositionInRoom(1);
-        pMover.setPosition(playerPos);
+        playerMover.setPosition(playerPos);
+
+        // Initially fill the FOVmap with appropriate tiles
+        if (ENABLEFOV) {
+            for (Position p : playerMover.getFOV()) {
+                FOVmap[p.x()][p.y()] = peek(p);
+            }
+        }
     }
 
     /**
-     * Given one of "wasd", moves the player in that direction.
-     * @param direction wasd
+     * Fill the given TETile[][] with NOTHING Tileset.
      */
-    public void movePlayer(char direction) {
-        pMover.movePlayer(direction);
+    private void fillWithNothing(TETile[][] map) {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                map[x][y] = Tileset.NOTHING;
+            }
+        }
     }
 
     /**
@@ -171,14 +174,31 @@ public class Map implements Serializable {
         return adjacent;
     }
 
+    /**
+     * Given one of "wasd", moves the player in that direction. Updates FOV if feature enabled.
+     * @param direction wasd
+     */
+    public void movePlayer(char direction) {
+        playerMover.movePlayer(direction);
+        if (ENABLEFOV) {
+            fillWithNothing(FOVmap);
+            for (Position p : playerMover.getFOV()) {
+                FOVmap[p.x()][p.y()] = peek(p);
+            }
+        }
+    }
+
     /*
-     * Getter methods below
+     * Getter methods
      */
 
     /**
-     * Returns the TETile[][] associated with this object.
+     * Returns the TETile[][] associated with this object that is to be rendered.
      */
-    public TETile[][] TETileMatrix() {
+    public TETile[][] getMap() {
+        if (ENABLEFOV) {
+            return FOVmap;
+        }
         return map;
     }
 

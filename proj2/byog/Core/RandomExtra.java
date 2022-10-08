@@ -2,6 +2,9 @@ package byog.Core;
 
 import java.util.Random;
 
+/**
+ * Made this because the built-in Random made code hard to read
+ */
 public class RandomExtra extends Random {
     private final Random r;
 
