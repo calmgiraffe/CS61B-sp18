@@ -67,6 +67,15 @@ public class Game implements Serializable {
         System.exit(0);
     }
 
+    // Generate the whole map without FOV feature, but don't show
+    // Given the player position, using recursion, determine which points should be drawn
+    // Add these points to a list (need some way of preventing duplicates)
+    // Make another TETile[][] map of the same size but completely empty
+    // Only show the tiles that are at these positions
+
+    // When the player moves, redo the procedure, but with the new player position
+
+
     /**
      * Method used for autograding and testing the game code. The input string will be a series
      * of characters (for example, "n123sswwdasdassadwas", "n123sss:q", "lwww". The game should
