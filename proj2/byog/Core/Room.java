@@ -4,6 +4,7 @@ import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -23,9 +24,15 @@ public class Room implements Serializable {
         }
     }
 
+    /**
+     * Instance variables
+     */
+    private static final int UP = 0;
+    private static final int RIGHT = 1;
+    private static final int DOWN = 2;
+    private static final int LEFT = 3;
     private final Position lowerLeft;
     private final Position upperRight;
-    private final Position centre;
     private final TETile floorType;
     private final RandomExtra r;
 
@@ -35,9 +42,6 @@ public class Room implements Serializable {
     Room(Position lowerLeft, Position upperRight, RandomExtra r) {
         this.lowerLeft = lowerLeft;
         this.upperRight = upperRight;
-        this.centre = new Position(
-                (lowerLeft.x() + upperRight.x()) / 2,
-                (lowerLeft.y() + upperRight.y()) / 2);
         this.floorType = Tileset.FLOOR;
         this.r = r;
     }
@@ -47,24 +51,28 @@ public class Room implements Serializable {
      * to a hallway. The overall method works by adding a 'room' of area 1 on a preexisting room.
      */
     private void drawHallway(Position p, int way, Map map) {
-        int x = p.x();
-        int y = p.y();
+        int x = p.x;
+        int y = p.y;
 
-        if (way == 0) { // up
-            x -= 1;
-            y += 1;
-        } else if (way == 1) { // right
-            x += 1;
-            y -= 1;
-        } else { // down or left
-            x -= 1;
-            y -= 1;
+        switch (way) {
+            case UP -> {
+                x -= 1;
+                y += 1;
+            }
+            case RIGHT -> {
+                x += 1;
+                y -= 1;
+            }
+            default -> {
+                x -= 1;
+                y -= 1;
+            }
         }
         for (int i = 0; i < 3; i++) {
-            if (map.peek(x + i, y) != floorType && (way % 2 == 0)) { // up or down
+            if (map.peek(x + i, y) != floorType && (way == UP || way == DOWN)) {
                 map.placeTile(x + i, y, Tileset.colorVariantWall(r));
 
-            } else if (map.peek(x, y + i) != floorType && (way % 2 == 1)) { // left or right
+            } else if (map.peek(x, y + i) != floorType && (way == LEFT || way == RIGHT)) {
                 map.placeTile(x, y + i, Tileset.colorVariantWall(r));
             }
         }
@@ -73,24 +81,24 @@ public class Room implements Serializable {
     /**
      * Given a 1D start & end coordinate, following the child-parent relationships
      * given by the edgeTo array, draws the a* path from start to end.
+     * Todo: can simplify?
      */
     private void drawPath(int[] edgeTo, int start, int end, Map map) {
         int curr = edgeTo[end];
         int prev = end;
         while (curr != start) {
-            map.placeTile(map.oneDimensionalToPosition(curr), floorType);
+            map.placeTile(map.oneDToPosition(curr), floorType);
+            if (curr == prev + map.width()) {
+                drawHallway(map.oneDToPosition(curr), UP, map);
 
-            if (curr == prev + map.width()) { // up
-                drawHallway(map.oneDimensionalToPosition(curr), 0, map);
+            } else if (curr == prev + 1) {
+                drawHallway(map.oneDToPosition(curr), RIGHT, map);
 
-            } else if (curr == prev + 1) { // right
-                drawHallway(map.oneDimensionalToPosition(curr), 1, map);
+            } else if (curr == prev - map.width()) {
+                drawHallway(map.oneDToPosition(curr), DOWN, map);
 
-            } else if (curr == prev - map.width()) { // down
-                drawHallway(map.oneDimensionalToPosition(curr), 2, map);
-
-            } else if (curr == prev - 1) { // left
-                drawHallway(map.oneDimensionalToPosition(curr), 3, map);
+            } else if (curr == prev - 1) {
+                drawHallway(map.oneDToPosition(curr), LEFT, map);
             }
             prev = curr;
             curr = edgeTo[curr];
@@ -102,15 +110,14 @@ public class Room implements Serializable {
      * using the a* algorithm.
      */
     public void astar(Room room, Map map) {
-        int start = map.positionToOneDimensional(
-                Position.randomPositionWithinRadius(this.centre, r));
-        int target = map.positionToOneDimensional(
-                Position.randomPositionWithinRadius(room.centre, r));
+        int start = map.positionToOneD(this.randomPositionInRoom(1));
+        int target = map.positionToOneD(room.randomPositionInRoom(1));
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
         int[] edgeTo = new int[map.oneDlength()];
         int[] distTo = new int[map.oneDlength()];
-        Arrays.fill(distTo, 2147483647);
+        int infinity = 2147483647;
+        Arrays.fill(distTo, infinity);
         boolean targetFound = false;
 
         fringe.add(new Node(start, 0));
@@ -135,10 +142,10 @@ public class Room implements Serializable {
      * Draws the rectangular room that is associated with this particular Partition onto map.
      */
     public void drawRoom(Map map) {
-        int startX = lowerLeft.x();
-        int startY = lowerLeft.y();
-        int endX = upperRight.x();
-        int endY = upperRight.y();
+        int startX = lowerLeft.x;
+        int startY = lowerLeft.y;
+        int endX = upperRight.x;
+        int endY = upperRight.y;
 
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
@@ -183,15 +190,10 @@ public class Room implements Serializable {
             } else {
                 map.placeTile(p, floorType);
             }
-            Position pUp = new Position(p.x(), p.y() + 1);
-            Position pRight = new Position(p.x() + 1, p.y());
-            Position pDown = new Position(p.x(), p.y() - 1);
-            Position pLeft = new Position(p.x() - 1, p.y());
-
-            drawIrregular(count - r.nextIntInclusive(1, 3), pUp, map);
-            drawIrregular(count - r.nextIntInclusive(1, 3), pRight, map);
-            drawIrregular(count - r.nextIntInclusive(1, 3), pDown, map);
-            drawIrregular(count - r.nextIntInclusive(1, 3), pLeft, map);
+            ArrayList<Position> adjacents =  map.adjacent(p);
+            for (Position a : adjacents) {
+                drawIrregular(count - r.nextIntInclusive(1, 3), a, map);
+            }
         }
     }
 
@@ -206,15 +208,11 @@ public class Room implements Serializable {
             } else {
                 map.placeTile(p, Tileset.GRASS);
             }
-            Position pUp = new Position(p.x(), p.y() + 1);
-            Position pRight = new Position(p.x() + 1, p.y());
-            Position pDown = new Position(p.x(), p.y() - 1);
-            Position pLeft = new Position(p.x() - 1, p.y());
 
-            drawIrregularGrass(count - r.nextIntInclusive(1, 2), pUp, map);
-            drawIrregularGrass(count - r.nextIntInclusive(1, 2), pRight, map);
-            drawIrregularGrass(count - r.nextIntInclusive(1, 2), pDown, map);
-            drawIrregularGrass(count - r.nextIntInclusive(1, 2), pLeft, map);
+            ArrayList<Position> adjacents =  map.adjacent(p);
+            for (Position a : adjacents) {
+                drawIrregularGrass(count - r.nextIntInclusive(1, 2), a, map);
+            }
         }
     }
 
@@ -222,10 +220,10 @@ public class Room implements Serializable {
      * Pick random location within the room, int buffer indicating the margin from the room edge.
      */
     public Position randomPositionInRoom(int buffer) {
-        int xLower = lowerLeft.x() + buffer;
-        int xUpper = upperRight.x() - buffer;
-        int yLower = lowerLeft.y() + buffer;
-        int yUpper = upperRight.y() - buffer;
+        int xLower = lowerLeft.x + buffer;
+        int xUpper = upperRight.x - buffer;
+        int yLower = lowerLeft.y + buffer;
+        int yUpper = upperRight.y - buffer;
 
         return new Position(
                 r.nextIntInclusive(xLower, xUpper),

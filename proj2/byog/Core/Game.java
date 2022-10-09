@@ -18,6 +18,7 @@ public class Game implements Serializable {
     private int level = 1;
     private boolean quitMenu = false;
     private boolean quitGame = false;
+    private final boolean enableFOV = false;
     private StringBuilder commands;
 
     /**
@@ -228,7 +229,7 @@ public class Game implements Serializable {
      * matrix, then renders the world, displaying this on the screen
      */
     private void generateWorld(String seed) {
-        map = new Map(WIDTH, HEIGHT - HUDHEIGHT, Long.parseLong(seed));
+        map = new Map(WIDTH, HEIGHT - HUDHEIGHT, Long.parseLong(seed), enableFOV);
         map.generateWorld();
         ter.renderFrame(map.getMap());
     }

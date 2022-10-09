@@ -11,8 +11,8 @@ public class Position implements Serializable {
     /**
      * Position instance variables
      */
-    private final int x;
-    private final int y;
+    protected final int x;
+    protected final int y;
 
     /**
      * Position constructor
@@ -35,8 +35,8 @@ public class Position implements Serializable {
      * calculate the absolute distance between the two.
      */
     public static int euclidean(int v1, int v2, Map map) {
-        Position a = map.oneDimensionalToPosition(v1);
-        Position b = map.oneDimensionalToPosition(v2);
+        Position a = map.oneDToPosition(v1);
+        Position b = map.oneDToPosition(v2);
         return euclidean(a, b);
     }
 
@@ -53,37 +53,8 @@ public class Position implements Serializable {
      * calculate the manhattan distance between the two.
      */
     public static int manhattan(int v1, int v2, Map map) {
-        Position a = map.oneDimensionalToPosition(v1);
-        Position b = map.oneDimensionalToPosition(v2);
+        Position a = map.oneDToPosition(v1);
+        Position b = map.oneDToPosition(v2);
         return manhattan(a, b);
-    }
-
-    /**
-     * Given a Position p, returns a new position within a 5x5 box radius
-     * surrounding the original Position.
-     */
-    public static Position randomPositionWithinRadius(Position p, RandomExtra r) {
-        int lowerX = p.x() - 2;
-        int upperX = p.x() + 2;
-        int lowerY = p.y() - 2;
-        int upperY = p.y() + 2;
-
-        int x = r.nextIntInclusive(lowerX, upperX);
-        int y = r.nextIntInclusive(lowerY, upperY);
-        return new Position(x, y);
-    }
-
-    /**
-     * Returns the position's x value.
-     */
-    public int x() {
-        return x;
-    }
-
-    /**
-     * Returns the position's y value.
-     */
-    public int y() {
-        return y;
     }
 }

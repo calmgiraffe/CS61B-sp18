@@ -14,7 +14,7 @@ public class Map implements Serializable {
     /**
      * Map instance variables
      */
-    private static final boolean ENABLEFOV = true;
+    private final boolean enableFOV;
     private final RandomExtra random;
     private final TETile[][] map;
     private final TETile[][] FOVmap;
@@ -28,7 +28,8 @@ public class Map implements Serializable {
     /**
      * Map constructor
      */
-    Map(int width, int height, long seed) {
+    Map(int width, int height, long seed, boolean enableFOV) {
+        this.enableFOV = enableFOV;
         this.random = new RandomExtra(seed);
         this.map = new TETile[width][height];
         this.FOVmap = new TETile[width][height];
@@ -69,9 +70,9 @@ public class Map implements Serializable {
         playerMover.setPosition(playerPos);
 
         // Initially fill the FOVmap with appropriate tiles
-        if (ENABLEFOV) {
+        if (enableFOV) {
             for (Position p : playerMover.getFOV()) {
-                FOVmap[p.x()][p.y()] = peek(p);
+                FOVmap[p.x][p.y] = peek(p);
             }
         }
     }
@@ -93,8 +94,8 @@ public class Map implements Serializable {
      * Use this method so you don't get IndexErrors.
      */
     public void placeTile(Position p, TETile tile) {
-        if (isValid(p.x(), p.y())) {
-            map[p.x()][p.y()] = tile;
+        if (isValid(p.x, p.y)) {
+            map[p.x][p.y] = tile;
         }
     }
 
@@ -107,7 +108,6 @@ public class Map implements Serializable {
         if (isValid(x, y)) {
             map[x][y] = tile;
         }
-        // System.out.println("Unable to place " + tile.toString() + " at (" + x + ", " + y + ")");
     }
 
     /**
@@ -115,17 +115,17 @@ public class Map implements Serializable {
      * to a corresponding 1D coordinate. This process can be imagined as lining up the rows of the
      * map into one long line.
      */
-    public int positionToOneDimensional(Position p) {
-        if (!isValid(p.x(), p.y())) {
+    public int positionToOneD(Position p) {
+        if (!isValid(p.x, p.y)) {
             throw new ArrayIndexOutOfBoundsException("Position out of bounds.");
         }
-        return width * p.y() + p.x();
+        return width * p.y + p.x;
     }
 
     /**
      * Given a 1D position on the map, converts this to a corresponding new Position.
      */
-    public Position oneDimensionalToPosition(int position) {
+    public Position oneDToPosition(int position) {
         int x = position % width;
         int y = position / width;
         if (!isValid(x, y)) {
@@ -138,7 +138,7 @@ public class Map implements Serializable {
      * Returns true if the given position is on the map edge, false otherwise.
      */
     public boolean onEdge(Position p) {
-        return p.x() == 0 || p.x() == width - 1 || p.y() == 0 || p.y() == height - 1;
+        return p.x == 0 || p.x == width - 1 || p.y == 0 || p.y == height - 1;
     }
 
     /**
@@ -152,12 +152,12 @@ public class Map implements Serializable {
      * Given a 1D position on a map, returns the adjacent (up, right, down, left) nodes
      */
     public ArrayList<Integer> adjacent(int position) {
-        Position p = oneDimensionalToPosition(position);
+        Position p = oneDToPosition(position);
 
-        Position pUp = new Position(p.x(), p.y() + 1);
-        Position pRight = new Position(p.x() + 1, p.y());
-        Position pDown = new Position(p.x(), p.y() - 1);
-        Position pLeft = new Position(p.x() - 1, p.y());
+        Position pUp = new Position(p.x, p.y + 1);
+        Position pRight = new Position(p.x + 1, p.y);
+        Position pDown = new Position(p.x, p.y - 1);
+        Position pLeft = new Position(p.x - 1, p.y);
 
         ArrayList<Position> tmp = new ArrayList<>();
         tmp.add(pUp);
@@ -167,8 +167,32 @@ public class Map implements Serializable {
 
         ArrayList<Integer> adjacent = new ArrayList<>();
         for (Position pos: tmp) {
-            if (isValid(pos.x(), pos.y())) {
-                adjacent.add(positionToOneDimensional(pos));
+            if (isValid(pos.x, pos.y)) {
+                adjacent.add(positionToOneD(pos));
+            }
+        }
+        return adjacent;
+    }
+
+    /**
+     * Given a 1D position on a map, returns the adjacent (up, right, down, left) nodes
+     */
+    public ArrayList<Position> adjacent(Position p) {
+        Position pUp = new Position(p.x, p.y + 1);
+        Position pRight = new Position(p.x + 1, p.y);
+        Position pDown = new Position(p.x, p.y - 1);
+        Position pLeft = new Position(p.x - 1, p.y);
+
+        ArrayList<Position> tmp = new ArrayList<>();
+        tmp.add(pUp);
+        tmp.add(pRight);
+        tmp.add(pDown);
+        tmp.add(pLeft);
+
+        ArrayList<Position> adjacent = new ArrayList<>();
+        for (Position pos: tmp) {
+            if (isValid(pos.x, pos.y)) {
+                adjacent.add(pos);
             }
         }
         return adjacent;
@@ -180,14 +204,16 @@ public class Map implements Serializable {
      */
     public void movePlayer(char direction) {
         playerMover.movePlayer(direction);
-        if (ENABLEFOV) {
+
+        if (enableFOV) {
             fillWithNothing(FOVmap);
             for (Position p : playerMover.getFOV()) {
-                FOVmap[p.x()][p.y()] = peek(p);
+                FOVmap[p.x][p.y] = peek(p);
             }
         }
     }
 
+    
     /*
      * Getter methods
      */
@@ -196,7 +222,7 @@ public class Map implements Serializable {
      * Returns the TETile[][] associated with this object that is to be rendered.
      */
     public TETile[][] getMap() {
-        if (ENABLEFOV) {
+        if (enableFOV) {
             return FOVmap;
         }
         return map;
@@ -240,8 +266,8 @@ public class Map implements Serializable {
      * If out of bounds, returns null.
      */
     public TETile peek(Position p) {
-        if (isValid(p.x(), p.y())) {
-            return map[p.x()][p.y()];
+        if (isValid(p.x, p.y)) {
+            return map[p.x][p.y];
         } else {
             return null;
         }

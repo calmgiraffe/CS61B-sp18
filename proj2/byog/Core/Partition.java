@@ -38,7 +38,7 @@ public class Partition implements Serializable {
         this.position = p;
         this.width = width;
         this.height = height;
-        this.centre = new Position(position.x() + width / 2, position.y() + height / 2);
+        this.centre = new Position(position.x + width / 2, position.y + height / 2);
     }
 
     /**
@@ -46,7 +46,7 @@ public class Partition implements Serializable {
      * the middle of the current partition's width so that both partitions are within bounds.
      */
     private static Partition splitHorizontally(Partition p, int border) {
-        Position newPos = new Position(p.position.x() + border, p.position.y());
+        Position newPos = new Position(p.position.x + border, p.position.y);
         return new Partition(newPos, p.width - border, p.height);
     }
 
@@ -55,7 +55,7 @@ public class Partition implements Serializable {
      * the middle of the current partition's height so that both partitions are within bounds.
      */
     private static Partition splitVertically(Partition p, int border) {
-        Position newPos = new Position(p.position.x(), p.position.y() + border);
+        Position newPos = new Position(p.position.x, p.position.y + border);
         return new Partition(newPos, p.width, p.height - border);
     }
 
@@ -64,6 +64,7 @@ public class Partition implements Serializable {
      * depending on their dimensions. If both dimensions are greater than MAX, either vertical
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as
      * the branches of the current partition. Finally, method traverses the newly created branches.
+     * Todo: MST for drawing hallways instead?
      */
     public static void splitAndConnect(Partition p, RandomExtra r, Map map) {
         if (p.width > MAX || p.height > MAX) {
@@ -154,12 +155,12 @@ public class Partition implements Serializable {
     private void generateRandomRoom(RandomExtra r) {
         int lowerLeftX = r.nextIntInclusive(width - MIN);
         int lowerLeftY = r.nextIntInclusive(height - MIN);
-        Position lowerLeft = new Position(position.x() + lowerLeftX, position.y() + lowerLeftY);
+        Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
 
-        int minX = lowerLeft.x() + MINROOM - 1;
-        int maxX = Math.min(lowerLeft.x() + MAXROOM - 1, position.x() + width - 1);
-        int minY = lowerLeft.y() + MINROOM - 1;
-        int maxY = Math.min(lowerLeft.y() + MAXROOM - 1, position.y() + height - 1);
+        int minX = lowerLeft.x + MINROOM - 1;
+        int maxX = Math.min(lowerLeft.x + MAXROOM - 1, position.x + width - 1);
+        int minY = lowerLeft.y + MINROOM - 1;
+        int maxY = Math.min(lowerLeft.y + MAXROOM - 1, position.y + height - 1);
 
         int upperRightX = r.nextIntInclusive(minX, maxX);
         int upperRightY = r.nextIntInclusive(minY, maxY);
