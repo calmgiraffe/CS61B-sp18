@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class PlayerMover implements Serializable {
     private static final String MATCHSTRING = "wasd";
-    private static final int FOVRANGE = 5;
+    private static final int FOVRANGE = 6;
     private final Map map;
     private Position pos;
     private Position newPos;

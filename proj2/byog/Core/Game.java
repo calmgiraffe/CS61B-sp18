@@ -10,59 +10,57 @@ import java.io.*;
 public class Game implements Serializable {
     private static final int WIDTH = 60;
     private static final int HEIGHT = 50;
+    private static final int HUDHEIGHT = 4;
+    private static final double WIDTHCENTRE = WIDTH / 2.0;
+    private static final int BACKSPACE = 8;
     private final TERenderer ter = new TERenderer();
     private Map map;
     private int level = 1;
+    private boolean quitMenu = false;
     private boolean quitGame = false;
+    private StringBuilder commands;
 
     /**
-     * Method used for playing a fresh game. The game should start from the main menu.
-     * Loop until proper user input is obtained, then go to appropriate method.
+     * Method used for playing a fresh game using the keyboard.
      */
     public void playWithKeyboard() {
         ter.initialize(WIDTH, HEIGHT);
-        StdDraw.clear(Color.BLACK);
-        loadTitle();
-        loadPrompts("New Game (N)", "Load Game (L)", "Quit (Q)");
-        StdDraw.show();
+        mainMenu();
+        quitGame = false;
+        System.exit(0);
+    }
 
-        // Main menu loop
-        while (true) {
-            char input = getUserChar();
-            if (input == 'n') {
+    /**
+     * Shows the main menu on the screen. Loops until proper input is gotten
+     */
+    private void mainMenu() {
+        while (!quitMenu) {
+            StdDraw.clear(Color.BLACK);
+            StdDraw.setPenColor(Color.WHITE);
+            StdDraw.setFont(FontSet.TITLE);
+            StdDraw.text(WIDTHCENTRE, 26 * HEIGHT / 40.0, "CS61B: The Game");
+
+            StdDraw.setFont(FontSet.OPTION);
+            StdDraw.text(WIDTHCENTRE, 18 * HEIGHT / 40.0, "New Game (N)");
+            StdDraw.text(WIDTHCENTRE, 16 * HEIGHT / 40.0, "Load Game (L)");
+            StdDraw.text(WIDTHCENTRE, 14 * HEIGHT / 40.0, "Quit (Q)");
+            StdDraw.show();
+
+            char next = getNextCommand();
+            if (next == 'n') {
                 inputSeed();
-                break;
-            } else if (input == 'l') {
+            } else if (next == 'l') {
+                quitMenu = true;
                 loadGame();
-                break;
-            } else if (input == 'q') {
+            } else if (next == 'q') {
+                quitMenu = true;
                 quitGame = true;
                 break;
             }
         }
-        // Game loop; tiles and HUD
-        while (!quitGame) {
-            StdDraw.clear(Color.BLACK);
-            if (StdDraw.hasNextKeyTyped()) {
-                char next = StdDraw.nextKeyTyped();
-                if (next == ':' && getUserChar() == 'q') {
-                    saveGame();
-                    break;
-                } else {
-                    map.movePlayer(next);
-                }
-            }
-            StdDraw.setFont(FontSet.TILEFONT);
-            ter.renderFrame(map.getMap());
-
-            long mouseX = Math.round(Math.floor(StdDraw.mouseX()));
-            long mouseY = Math.round(Math.floor(StdDraw.mouseY()));
-            loadHUD((int) mouseX, (int) mouseY);
-            StdDraw.show();
-        }
-        quitGame = false;
-        System.exit(0);
+        playGame();
     }
+
 
     /**
      * Displays the seed input screen; s to submit the seed and generate a new map.
@@ -73,20 +71,49 @@ public class Game implements Serializable {
 
         while (true) {
             StdDraw.clear(Color.BLACK);
-            loadTitle();
-            loadPrompts("(press s to submit)", "", "Seed: " + seed);
+            StdDraw.setPenColor(Color.WHITE);
+            StdDraw.setFont(FontSet.TITLE);
+            StdDraw.text(WIDTHCENTRE, 26 * HEIGHT / 40.0, "CS61B: The Game");
+
+            StdDraw.setFont(FontSet.OPTION);
+            StdDraw.text(WIDTHCENTRE, 18 * HEIGHT / 40.0, "(s to submit, b to go back)");
+            StdDraw.text(WIDTHCENTRE, 16 * HEIGHT / 40.0, "");
+            StdDraw.text(WIDTHCENTRE, 14 * HEIGHT / 40.0, "Seed: " + seed);
             StdDraw.show();
 
-            char c = getUserChar();
-            if ((int) c == 8 && seed.length() > 0) { // ASCII backspace
+            char c = getNextCommand();
+            if ((int) c == BACKSPACE && seed.length() > 0) {
                 seed.deleteCharAt(seed.length() - 1);
-            } else if (c == 's' && seed.length() > 0) {
-                break;
             } else if (seed.length() < 16 && Character.isDigit(c)) {
                 seed.append(c);
+            } else if (c == 's' && seed.length() > 0) {
+                generateWorld(seed.toString());
+                quitMenu = true;
+                break;
+            } else if (c == 'b') {
+                break;
             }
         }
-        generateWorld(seed.toString());
+    }
+
+    public void playGame() {
+        while (!quitGame) {
+            StdDraw.clear(Color.BLACK);
+
+            char next = getNextCommand();
+            if (next == ':' && getNextCommand() == 'q' ) {
+                saveGame();
+                quitGame = true;
+            } else {
+                map.movePlayer(next);
+                ter.renderFrame(map.getMap());
+            }
+            double rawMouseX = StdDraw.mouseX();
+            double rawMouseY = StdDraw.mouseY();
+            long x = Math.round(Math.floor(rawMouseX));
+            long y = Math.round(Math.floor(rawMouseY));
+            showHUD((int) x, (int) y);
+        }
     }
 
     /**
@@ -107,91 +134,20 @@ public class Game implements Serializable {
          * and return a 2D tile representation of the world that would have been
          * drawn if the same inputs had been given to playWithKeyboard().
          */
-        input = input.toLowerCase();
+        commands = new StringBuilder();
+        commands.append(input.toLowerCase());
 
-        char mode = input.charAt(0);
-        if (mode == 'n') {
-            input = parseSeed(input.substring(1));
-            parseCommands(input);
-        } else if (mode == 'l') {
-            loadGame();
-            parseCommands(input);
-        } else if (mode == 'q') {
-            System.exit(0);
-        }
+        ter.initialize(WIDTH, HEIGHT);
+        mainMenu();
+        quitGame = false;
         return map.getMap();
-    }
-
-    /**
-     * Parse the seed to be used; used when playing with string
-     */
-    private String parseSeed(String input) {
-        StringBuilder seed = new StringBuilder();
-        int curr = 0;
-        char c = input.charAt(curr);
-        do {
-            seed.append(c);
-            curr += 1;
-            c = input.charAt(curr);
-        } while (c != 's');
-        generateWorld(seed.toString());
-        return input.substring(curr + 1);
-    }
-
-    /**
-     * Parse the user commands while in game; used when playing with string
-     */
-    private void parseCommands(String input) {
-        for (int i = 0; i < input.length(); i++) {
-            char next = input.charAt(i);
-            if (next == ':' && input.charAt(i + 1) == 'q') {
-                saveGame();
-                break;
-            } else {
-                map.movePlayer(next);
-            }
-        }
-    }
-
-    /**
-     * Loops infinitely, reading user input and appending each character to variable "input".
-     * Once the string's length reaches length n, the loop ends, and the method returns the string.
-     * @return resulting string typed by user
-     */
-    private char getUserChar() {
-        while (true) {
-            if (!StdDraw.hasNextKeyTyped()) {
-                continue;
-            }
-            return StdDraw.nextKeyTyped();
-        }
-    }
-
-    /**
-     * Loads title screen into the buffer.
-     */
-    private void loadTitle() {
-        StdDraw.setPenColor(Color.WHITE);
-        StdDraw.setFont(FontSet.TITLE);
-        StdDraw.text(30 * WIDTH / 60.0, 26 * HEIGHT / 40.0, "CS61B: The Game");
-    }
-
-    /**
-     * Loads given strings into the buffer to be shown as (up to 3) prompts.
-     */
-    private void loadPrompts(String s1, String s2, String s3) {
-        StdDraw.setPenColor(Color.WHITE);
-        StdDraw.setFont(FontSet.OPTION);
-        StdDraw.text(30 * WIDTH / 60.0, 18 * HEIGHT / 40.0, s1);
-        StdDraw.text(30 * WIDTH / 60.0, 16 * HEIGHT / 40.0, s2);
-        StdDraw.text(30 * WIDTH / 60.0, 14 * HEIGHT / 40.0, s3);
     }
 
     /**
      * Given an x and y coordinate corresponding to TETile[x][y], displays the description of
      * the hovered tile in the HUD as well as the current level.
      */
-    private void loadHUD(int x, int y) {
+    private void showHUD(int x, int y) {
         if (x >= 0 && x < map.width() && y >= 0 && y < map.height()) {
             StdDraw.setPenColor(Color.WHITE);
             StdDraw.setFont(FontSet.HUDFONT);
@@ -201,6 +157,7 @@ public class Game implements Serializable {
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.setFont(FontSet.HUDFONT);
         StdDraw.textRight(58 * WIDTH / 60.0, 48 * HEIGHT / 50.0, "Level " + level);
+        StdDraw.show();
     }
 
     /**
@@ -240,14 +197,32 @@ public class Game implements Serializable {
         }
     }
 
+    public char getNextCommand() {
+        if (commands == null) {
+            // Loops infinitely until the user presses a key
+            while (true) {
+                if (StdDraw.hasNextKeyTyped()) {
+                    return StdDraw.nextKeyTyped();
+                }
+            }
+        } else {
+            // Return first char in StringBuilder commands
+            if (!commands.isEmpty()) {
+                char next = commands.charAt(0);
+                commands.deleteCharAt(0);
+                return next;
+            }
+            return '@';
+        }
+    }
+
     /**
      * Given a seed String, creates new map object, makes this object generate a new TETile[][]
      * matrix, then renders the world, displaying this on the screen
      */
     private void generateWorld(String seed) {
-        map = new Map(WIDTH, HEIGHT - 4, Long.parseLong(seed));
+        map = new Map(WIDTH, HEIGHT - HUDHEIGHT, Long.parseLong(seed));
         map.generateWorld();
-        StdDraw.setFont(FontSet.TILEFONT);
         ter.renderFrame(map.getMap());
     }
 }

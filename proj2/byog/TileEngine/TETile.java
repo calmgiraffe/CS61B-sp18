@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Random;
 
+import byog.Core.FontSet;
 import edu.princeton.cs.introcs.StdDraw;
 import byog.Core.RandomUtils;
 
@@ -92,7 +93,7 @@ public class TETile implements Serializable {
                 // and just use the character and background color for the tile.
             }
         }
-
+        StdDraw.setFont(FontSet.TILEFONT);
         StdDraw.setPenColor(backgroundColor);
         StdDraw.filledSquare(x + 0.5, y + 0.5, 0.5);
         StdDraw.setPenColor(textColor);
