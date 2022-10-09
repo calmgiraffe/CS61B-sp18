@@ -18,9 +18,9 @@ public class Map implements Serializable {
     private final RandomExtra random;
     private final TETile[][] map;
     private final TETile[][] FOVmap;
-    private final int width;
-    private final int height;
-    private final int oneDlength;
+    protected final int width;
+    protected final int height;
+    protected final int oneDlength;
     private final Partition partition;
     private final ArrayList<Room> rooms = new ArrayList<>();
     private final PlayerMover playerMover;
@@ -79,6 +79,7 @@ public class Map implements Serializable {
 
     /**
      * Fill the given TETile[][] with NOTHING Tileset.
+     * // Todo: make more general?
      */
     private void fillWithNothing(TETile[][] map) {
         for (int x = 0; x < width; x++) {
@@ -94,9 +95,7 @@ public class Map implements Serializable {
      * Use this method so you don't get IndexErrors.
      */
     public void placeTile(Position p, TETile tile) {
-        if (isValid(p.x, p.y)) {
-            map[p.x][p.y] = tile;
-        }
+        placeTile(p.x, p.y, tile);
     }
 
     /**
@@ -151,27 +150,14 @@ public class Map implements Serializable {
     /**
      * Given a 1D position on a map, returns the adjacent (up, right, down, left) nodes
      */
-    public ArrayList<Integer> adjacent(int position) {
-        Position p = oneDToPosition(position);
+    public ArrayList<Integer> adjacent(int p) {
+        ArrayList<Position> tmp = adjacent(oneDToPosition(p));
+        ArrayList<Integer> adjacents = new ArrayList<>();
 
-        Position pUp = new Position(p.x, p.y + 1);
-        Position pRight = new Position(p.x + 1, p.y);
-        Position pDown = new Position(p.x, p.y - 1);
-        Position pLeft = new Position(p.x - 1, p.y);
-
-        ArrayList<Position> tmp = new ArrayList<>();
-        tmp.add(pUp);
-        tmp.add(pRight);
-        tmp.add(pDown);
-        tmp.add(pLeft);
-
-        ArrayList<Integer> adjacent = new ArrayList<>();
-        for (Position pos: tmp) {
-            if (isValid(pos.x, pos.y)) {
-                adjacent.add(positionToOneD(pos));
-            }
+        for (Position pos : tmp) {
+            adjacents.add(positionToOneD(pos));
         }
-        return adjacent;
+        return adjacents;
     }
 
     /**
@@ -206,14 +192,14 @@ public class Map implements Serializable {
         playerMover.movePlayer(direction);
 
         if (enableFOV) {
-            fillWithNothing(FOVmap);
+            // fillWithNothing(FOVmap);
             for (Position p : playerMover.getFOV()) {
                 FOVmap[p.x][p.y] = peek(p);
             }
         }
     }
 
-    
+
     /*
      * Getter methods
      */
@@ -226,27 +212,6 @@ public class Map implements Serializable {
             return FOVmap;
         }
         return map;
-    }
-
-    /**
-     * Returns TETile[][] matrix width.
-     */
-    public int width() {
-        return width;
-    }
-
-    /**
-     * Returns TETile[][] matrix height.
-     */
-    public int height() {
-        return height;
-    }
-
-    /**
-     * Returns oneDlength instance variable.
-     */
-    public int oneDlength() {
-        return oneDlength;
     }
 
     /**

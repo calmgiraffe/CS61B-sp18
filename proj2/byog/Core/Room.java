@@ -88,13 +88,13 @@ public class Room implements Serializable {
         int prev = end;
         while (curr != start) {
             map.placeTile(map.oneDToPosition(curr), floorType);
-            if (curr == prev + map.width()) {
+            if (curr == prev + map.width) {
                 drawHallway(map.oneDToPosition(curr), UP, map);
 
             } else if (curr == prev + 1) {
                 drawHallway(map.oneDToPosition(curr), RIGHT, map);
 
-            } else if (curr == prev - map.width()) {
+            } else if (curr == prev - map.width) {
                 drawHallway(map.oneDToPosition(curr), DOWN, map);
 
             } else if (curr == prev - 1) {
@@ -114,8 +114,8 @@ public class Room implements Serializable {
         int target = map.positionToOneD(room.randomPositionInRoom(1));
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
-        int[] edgeTo = new int[map.oneDlength()];
-        int[] distTo = new int[map.oneDlength()];
+        int[] edgeTo = new int[map.oneDlength];
+        int[] distTo = new int[map.oneDlength];
         int infinity = 2147483647;
         Arrays.fill(distTo, infinity);
         boolean targetFound = false;

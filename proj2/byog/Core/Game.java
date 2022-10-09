@@ -18,7 +18,7 @@ public class Game implements Serializable {
     private int level = 1;
     private boolean quitMenu = false;
     private boolean quitGame = false;
-    private final boolean enableFOV = false;
+    private final boolean enableFOV = true;
     private StringBuilder commands;
 
     /**
@@ -153,7 +153,7 @@ public class Game implements Serializable {
      * the hovered tile in the HUD as well as the current level.
      */
     private void showHUD(int x, int y) {
-        if (x >= 0 && x < map.width() && y >= 0 && y < map.height()) {
+        if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
             StdDraw.setPenColor(Color.WHITE);
             StdDraw.setFont(FontSet.HUDFONT);
             String description = map.peek(x, y).description();

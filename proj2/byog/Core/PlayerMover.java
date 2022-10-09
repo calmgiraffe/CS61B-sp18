@@ -8,10 +8,10 @@ import java.util.ArrayList;
 public class PlayerMover implements Serializable {
     private static final int FOVRANGE = 6;
     private final Map map;
+    private final ArrayList<Position> fov;
     private Position pos;
     private Position newPos;
     private TETile last;
-    private final ArrayList<Position> fov;
 
     public PlayerMover(Map map) {
         this.map = map;
