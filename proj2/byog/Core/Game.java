@@ -26,12 +26,11 @@ public class Game implements Serializable {
     public void playWithKeyboard() {
         ter.initialize(WIDTH, HEIGHT);
         mainMenu();
-        quitGame = false;
         System.exit(0);
     }
 
     /**
-     * Shows the main menu on the screen. Loops until proper input is gotten
+     * Shows the main menu on the screen. Loops until proper input is received
      */
     private void mainMenu() {
         while (!quitMenu) {
@@ -60,7 +59,6 @@ public class Game implements Serializable {
         }
         playGame();
     }
-
 
     /**
      * Displays the seed input screen; s to submit the seed and generate a new map.
@@ -96,6 +94,9 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Game loop, runs in real time
+     */
     public void playGame() {
         while (!quitGame) {
             StdDraw.clear(Color.BLACK);
@@ -139,7 +140,6 @@ public class Game implements Serializable {
 
         ter.initialize(WIDTH, HEIGHT);
         mainMenu();
-        quitGame = false;
         return map.getMap();
     }
 
@@ -161,7 +161,7 @@ public class Game implements Serializable {
     }
 
     /**
-     * Serializes the current Game object.
+     * Serializes the current Game object and saves to txt file.
      */
     private void saveGame() {
         try {
@@ -177,7 +177,7 @@ public class Game implements Serializable {
     }
 
     /**
-     * Load a game from the stored save.
+     * Load a game from the stored save file, then sets map and level to the saved objects values.
      */
     private void loadGame() {
         Game g;
@@ -197,6 +197,9 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Parse the next command (char) from the user. Works for both keyboard and string modes.
+     */
     public char getNextCommand() {
         if (commands == null) {
             // Loops infinitely until the user presses a key
@@ -212,7 +215,7 @@ public class Game implements Serializable {
                 commands.deleteCharAt(0);
                 return next;
             }
-            return '@';
+            return '~'; // Need some arbitrary value
         }
     }
 
