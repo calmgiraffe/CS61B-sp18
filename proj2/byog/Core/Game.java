@@ -98,17 +98,21 @@ public class Game implements Serializable {
      * Game loop, runs in real time
      */
     public void playGame() {
+        boolean colonPressed = false;
         while (!quitGame) {
             StdDraw.clear(Color.BLACK);
 
             char next = getNextCommand();
-            if (next == ':' && getNextCommand() == 'q' ) {
+            if (next == ':') {
+                colonPressed = true;
+            } else if (next == 'q' && colonPressed) {
                 saveGame();
                 quitGame = true;
-            } else {
+            } else if (next == 'w' || next == 'a' || next == 's' || next == 'd') {
+                colonPressed = false;
                 map.movePlayer(next);
-                ter.renderFrame(map.getMap());
             }
+            ter.renderFrame(map.getMap());
             double rawMouseX = StdDraw.mouseX();
             double rawMouseY = StdDraw.mouseY();
             long x = Math.round(Math.floor(rawMouseX));
@@ -202,11 +206,11 @@ public class Game implements Serializable {
      */
     public char getNextCommand() {
         if (commands == null) {
-            // Loops infinitely until the user presses a key
-            while (true) {
-                if (StdDraw.hasNextKeyTyped()) {
-                    return StdDraw.nextKeyTyped();
-                }
+            // Returns the pressed key, otherwise returns ~
+            if (StdDraw.hasNextKeyTyped()) {
+                return StdDraw.nextKeyTyped();
+            } else {
+                return '~';
             }
         } else {
             // Return first char in StringBuilder commands
