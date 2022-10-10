@@ -35,8 +35,8 @@ public class Position implements Serializable {
      * calculate the absolute distance between the two.
      */
     public static int euclidean(int v1, int v2, Map map) {
-        Position a = map.oneDToPosition(v1);
-        Position b = map.oneDToPosition(v2);
+        Position a = map.oneDToPos(v1);
+        Position b = map.oneDToPos(v2);
         return euclidean(a, b);
     }
 
@@ -53,8 +53,8 @@ public class Position implements Serializable {
      * calculate the manhattan distance between the two.
      */
     public static int manhattan(int v1, int v2, Map map) {
-        Position a = map.oneDToPosition(v1);
-        Position b = map.oneDToPosition(v2);
+        Position a = map.oneDToPos(v1);
+        Position b = map.oneDToPos(v2);
         return manhattan(a, b);
     }
 }

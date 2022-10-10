@@ -38,12 +38,12 @@ public class Map implements Serializable {
         this.oneDlength = width * height;
         this.partition = new Partition(new Position(0, 0), width, height);
         this.playerMover = new PlayerMover(this);
-        fillWithNothing(map);
-        fillWithNothing(FOVmap);
+        fill(map, Tileset.NOTHING);
+        fill(FOVmap, Tileset.NOTHING);
     }
 
     /**
-     * Randomly generates some rectangular rooms on the map.
+     * Randomly generates a complete world
      */
     public void generateWorld() {
         // make binary tree of partitions and draw hallways, making a connected graph
@@ -78,13 +78,12 @@ public class Map implements Serializable {
     }
 
     /**
-     * Fill the given TETile[][] with NOTHING Tileset.
-     * // Todo: make more general?
+     * Fill the given TETile[][] with given TETile.
      */
-    private void fillWithNothing(TETile[][] map) {
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                map[x][y] = Tileset.NOTHING;
+    private static void fill(TETile[][] map, TETile tile) {
+        for (int x = 0; x < map.length; x++) {
+            for (int y = 0; y < map[0].length; y++) {
+                map[x][y] = tile;
             }
         }
     }
@@ -110,11 +109,18 @@ public class Map implements Serializable {
     }
 
     /**
+     * Returns true if x and y are within the dimensions of the TETile[][] matrix.
+     */
+    public boolean isValid(int x, int y) {
+        return (0 <= x && x < width) && (0 <= y && y < height);
+    }
+
+    /**
      * Given a xy coordinate on the map (range of 0 to width-1, 0 to height-1), converts this
      * to a corresponding 1D coordinate. This process can be imagined as lining up the rows of the
      * map into one long line.
      */
-    public int positionToOneD(Position p) {
+    public int posToOneD(Position p) {
         if (!isValid(p.x, p.y)) {
             throw new ArrayIndexOutOfBoundsException("Position out of bounds.");
         }
@@ -124,7 +130,7 @@ public class Map implements Serializable {
     /**
      * Given a 1D position on the map, converts this to a corresponding new Position.
      */
-    public Position oneDToPosition(int position) {
+    public Position oneDToPos(int position) {
         int x = position % width;
         int y = position / width;
         if (!isValid(x, y)) {
@@ -141,21 +147,14 @@ public class Map implements Serializable {
     }
 
     /**
-     * Returns true if x and y are within the dimensions of the TETile[][] matrix.
-     */
-    public boolean isValid(int x, int y) {
-        return (0 <= x && x < width) && (0 <= y && y < height);
-    }
-
-    /**
      * Given a 1D position on a map, returns the adjacent (up, right, down, left) nodes
      */
     public ArrayList<Integer> adjacent(int p) {
-        ArrayList<Position> tmp = adjacent(oneDToPosition(p));
+        ArrayList<Position> tmp = adjacent(oneDToPos(p));
         ArrayList<Integer> adjacents = new ArrayList<>();
 
         for (Position pos : tmp) {
-            adjacents.add(positionToOneD(pos));
+            adjacents.add(posToOneD(pos));
         }
         return adjacents;
     }
@@ -192,7 +191,7 @@ public class Map implements Serializable {
         playerMover.movePlayer(direction);
 
         if (enableFOV) {
-            // fillWithNothing(FOVmap);
+            fill(FOVmap, Tileset.NOTHING);
             for (Position p : playerMover.getFOV()) {
                 FOVmap[p.x][p.y] = peek(p);
             }

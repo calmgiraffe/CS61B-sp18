@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class PlayerMover implements Serializable {
-    private static final int FOVRANGE = 6;
+    private static final int FOVRANGE = 5;
     private final Map map;
     private final ArrayList<Position> fov;
     private Position pos;
@@ -53,21 +53,15 @@ public class PlayerMover implements Serializable {
     /**
      * Updates the list of points that make up the current FOV of the player.
      * Todo: change to Dijkstra's allowing diagonal
+     * I guess I can use BFS here but the performance gain is minimal
      */
     private void updateFOV(int count, Position p) {
         fov.add(p);
-        if (!(map.peek(p).character() == '#')) {
-            if (count > 0) {
-                Position pUp = new Position(p.x, p.y + 1);
-                Position pRight = new Position(p.x + 1, p.y);
-                Position pDown = new Position(p.x, p.y - 1);
-                Position pLeft = new Position(p.x - 1, p.y);
-
-                updateFOV(count - 1, pUp);
-                updateFOV(count - 1, pRight);
-                updateFOV(count - 1, pDown);
-                updateFOV(count - 1, pLeft);
+        if (!(map.peek(p).character() == '#') && count > 0) {
+            for (Position pos : map.adjacent(p)) {
+                updateFOV(count - 1, pos);
             }
+
         }
     }
 

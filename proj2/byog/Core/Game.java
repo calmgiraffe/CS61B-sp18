@@ -15,6 +15,7 @@ public class Game implements Serializable {
     private static final int BACKSPACE = 8;
     private final TERenderer ter = new TERenderer();
     private Map map;
+    private long seed;
     private int level = 1;
     private boolean quitMenu = false;
     private boolean quitGame = false;
@@ -161,6 +162,7 @@ public class Game implements Serializable {
         }
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.setFont(FontSet.HUDFONT);
+        StdDraw.text(WIDTHCENTRE, 48 * HEIGHT / 50.0, "Seed: " + seed);
         StdDraw.textRight(58 * WIDTH / 60.0, 48 * HEIGHT / 50.0, "Level " + level);
         StdDraw.show();
     }
@@ -229,7 +231,8 @@ public class Game implements Serializable {
      * matrix, then renders the world, displaying this on the screen
      */
     private void generateWorld(String seed) {
-        map = new Map(WIDTH, HEIGHT - HUDHEIGHT, Long.parseLong(seed), enableFOV);
+        this.seed = Long.parseLong(seed);
+        map = new Map(WIDTH, HEIGHT - HUDHEIGHT, this.seed, enableFOV);
         map.generateWorld();
         ter.renderFrame(map.getMap());
     }

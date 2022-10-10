@@ -64,7 +64,6 @@ public class Partition implements Serializable {
      * depending on their dimensions. If both dimensions are greater than MAX, either vertical
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as
      * the branches of the current partition. Finally, method traverses the newly created branches.
-     * Todo: MST for drawing hallways instead?
      */
     public static void splitAndConnect(Partition p, RandomExtra r, Map map) {
         if (p.width > MAX || p.height > MAX) {

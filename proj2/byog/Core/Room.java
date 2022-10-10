@@ -4,7 +4,6 @@ import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -31,6 +30,7 @@ public class Room implements Serializable {
     private static final int RIGHT = 1;
     private static final int DOWN = 2;
     private static final int LEFT = 3;
+    private static final int INFINITY = 2147483647;
     private final Position lowerLeft;
     private final Position upperRight;
     private final TETile floorType;
@@ -50,7 +50,7 @@ public class Room implements Serializable {
      * Draws the three wall tiles and floor tile that must be placed when added a new floor tile
      * to a hallway. The overall method works by adding a 'room' of area 1 on a preexisting room.
      */
-    private void drawHallway(Position p, int way, Map map) {
+    private void drawWalls(Position p, int way, Map map) {
         int x = p.x;
         int y = p.y;
 
@@ -81,25 +81,28 @@ public class Room implements Serializable {
     /**
      * Given a 1D start & end coordinate, following the child-parent relationships
      * given by the edgeTo array, draws the a* path from start to end.
-     * Todo: can simplify?
      */
     private void drawPath(int[] edgeTo, int start, int end, Map map) {
         int curr = edgeTo[end];
         int prev = end;
+        int direction = -1;
+
         while (curr != start) {
-            map.placeTile(map.oneDToPosition(curr), floorType);
             if (curr == prev + map.width) {
-                drawHallway(map.oneDToPosition(curr), UP, map);
+                direction = UP;
 
             } else if (curr == prev + 1) {
-                drawHallway(map.oneDToPosition(curr), RIGHT, map);
+                direction = RIGHT;
 
             } else if (curr == prev - map.width) {
-                drawHallway(map.oneDToPosition(curr), DOWN, map);
+                direction = DOWN;
 
             } else if (curr == prev - 1) {
-                drawHallway(map.oneDToPosition(curr), LEFT, map);
+                direction = LEFT;
             }
+            Position currentPos = map.oneDToPos(curr);
+            map.placeTile(currentPos, floorType);
+            drawWalls(currentPos, direction, map);
             prev = curr;
             curr = edgeTo[curr];
         }
@@ -110,14 +113,13 @@ public class Room implements Serializable {
      * using the a* algorithm.
      */
     public void astar(Room room, Map map) {
-        int start = map.positionToOneD(this.randomPositionInRoom(1));
-        int target = map.positionToOneD(room.randomPositionInRoom(1));
+        int start = map.posToOneD(this.randomPositionInRoom(1));
+        int target = map.posToOneD(room.randomPositionInRoom(1));
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
         int[] edgeTo = new int[map.oneDlength];
         int[] distTo = new int[map.oneDlength];
-        int infinity = 2147483647;
-        Arrays.fill(distTo, infinity);
+        Arrays.fill(distTo, INFINITY);
         boolean targetFound = false;
 
         fringe.add(new Node(start, 0));
@@ -190,8 +192,7 @@ public class Room implements Serializable {
             } else {
                 map.placeTile(p, floorType);
             }
-            ArrayList<Position> adjacents =  map.adjacent(p);
-            for (Position a : adjacents) {
+            for (Position a : map.adjacent(p)) {
                 drawIrregular(count - r.nextIntInclusive(1, 3), a, map);
             }
         }
@@ -206,11 +207,9 @@ public class Room implements Serializable {
             if (r.nextIntInclusive(0, 100) <= 10) {
                 map.placeTile(p, Tileset.randomColorFlower(r));
             } else {
-                map.placeTile(p, Tileset.GRASS);
+                map.placeTile(p, Tileset.colorVariantGrass(r));
             }
-
-            ArrayList<Position> adjacents =  map.adjacent(p);
-            for (Position a : adjacents) {
+            for (Position a : map.adjacent(p)) {
                 drawIrregularGrass(count - r.nextIntInclusive(1, 2), a, map);
             }
         }
