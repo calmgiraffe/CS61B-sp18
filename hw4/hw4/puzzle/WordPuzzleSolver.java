@@ -8,8 +8,8 @@ public class WordPuzzleSolver {
      **********************************************************************/
 
     public static void main(String[] args) {
-        String start = "horse";
-        String goal = "information";
+        String start = "host";
+        String goal = "crack";
 
         Word startState = new Word(start, goal);
         Solver solver = new Solver(startState);
