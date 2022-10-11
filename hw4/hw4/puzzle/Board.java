@@ -147,8 +147,13 @@ public class Board implements WorldState {
     public boolean equals(Object y) {
         if (!(y instanceof Board)) {
             return false;
+        } else if (this == y) {
+            return true;
         }
         Board b = (Board) y;
+        if (b.size() != this.size()) {
+            return false;
+        }
         for (int i = 0; i < size(); i++) {
             for (int j = 0; j < size(); j++) {
                 if (this.tileAt(i, j) != b.tileAt(i, j)) {
