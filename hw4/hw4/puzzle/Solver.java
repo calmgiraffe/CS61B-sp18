@@ -86,7 +86,7 @@ public class Solver {
         return solution;
     }
 
-    public static class NodeComparator implements Comparator<SearchNode> {
+    private static class NodeComparator implements Comparator<SearchNode> {
         @Override
         public int compare(SearchNode n1, SearchNode n2) {
             return (n1.moves + n1.estDist) - (n2.moves + n2.estDist);

@@ -145,9 +145,10 @@ public class Board implements WorldState {
      */
     @Override
     public boolean equals(Object y) {
-        if (!(y instanceof Board b)) {
+        if (!(y instanceof Board)) {
             return false;
         }
+        Board b = (Board) y;
         for (int i = 0; i < size(); i++) {
             for (int j = 0; j < size(); j++) {
                 if (this.tileAt(i, j) != b.tileAt(i, j)) {
