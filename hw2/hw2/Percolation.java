@@ -39,29 +39,31 @@ public class Percolation {
         }
     }
 
-    // Check for open adjacent sites
+    // Check for open adjacent sites that are open
     // if open, add current site to set of adjacent site
     public void connectAdjacents(int row, int col) {
         int curr = xyTo1D(row, col);
 
-        // If not on left edge
+        // If not on left edge, union with left
         if (curr % sideLength > 0) {
             sets.union(curr - 1, curr);
         }
-        // If not on right edge
+        // If not on right edge, union with right
         if (curr % sideLength < (sideLength - 1)) {
             sets.union(curr + 1, curr);
         }
-        // If not on top edge
+        // If not on top edge, union with up
+        // Else, union with top (source)
         int up = curr - sideLength;
         if (up < 0) {
             sets.union(top, curr);
         } else {
             sets.union(up, curr);
         }
-        // If not on bottom edge
+        // If not on bottom edge, union with down
+        // Else, union with bottom (sink)
         int down = curr + sideLength;
-        if (up >= sideLength * sideLength) {
+        if (down >= sideLength * sideLength) {
             sets.union(bottom, curr);
         } else {
             sets.union(down, curr);
@@ -86,6 +88,21 @@ public class Percolation {
     private int xyTo1D(int row, int col) {
         return sideLength * row + col;
     }
+
+    /**
+     * Converts a 1D coordinate to row
+     */
+    private int oneDtoRow(int position) {
+        return position / sideLength;
+    }
+
+    /**
+     * Converts a 1D coordinate to col
+     */
+    private int oneDtoCol(int position) {
+        return position % sideLength;
+    }
+
 
     // number of open sites
     public int numberOfOpenSites() {
