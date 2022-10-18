@@ -109,7 +109,6 @@ public class Percolation {
         return position % sideLength;
     }
 
-
     // number of open sites
     public int numberOfOpenSites() {
         return numOpenSites;
