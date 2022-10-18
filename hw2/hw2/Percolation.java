@@ -40,33 +40,39 @@ public class Percolation {
     }
 
     // Check for open adjacent sites that are open
-    // if open, add current site to set of adjacent site
     public void connectAdjacents(int row, int col) {
         int curr = xyTo1D(row, col);
 
         // If not on left edge, union with left
         if (curr % sideLength > 0) {
-            sets.union(curr - 1, curr);
+            join(curr - 1, curr);
         }
         // If not on right edge, union with right
         if (curr % sideLength < (sideLength - 1)) {
-            sets.union(curr + 1, curr);
+            join(curr + 1, curr);
         }
         // If not on top edge, union with up
         // Else, union with top (source)
         int up = curr - sideLength;
         if (up < 0) {
-            sets.union(top, curr);
+            join(top, curr);
         } else {
-            sets.union(up, curr);
+            join(up, curr);
         }
         // If not on bottom edge, union with down
         // Else, union with bottom (sink)
         int down = curr + sideLength;
         if (down >= sideLength * sideLength) {
-            sets.union(bottom, curr);
+            join(bottom, curr);
         } else {
-            sets.union(down, curr);
+            join(down, curr);
+        }
+    }
+
+    // if adj is open, add current site to set of adjacent site
+    public void join(int adj, int curr) {
+        if (adj == top || adj == bottom || isOpen(oneDtoRow(adj), oneDtoCol(adj))) {
+            sets.union(adj, curr);
         }
     }
 
