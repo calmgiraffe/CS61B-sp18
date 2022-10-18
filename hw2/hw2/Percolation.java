@@ -17,8 +17,8 @@ public class Percolation {
     private final int numSites;
     private int numOpenSites;
     private final WeightedQuickUnionUF sets;
-    private final int top; // n*n is top
-    private final int bottom; // n*n + 1 is bottom
+    private int top; // n*n is top
+    private int bottom; // n*n + 1 is bottom
 
     /**
      * Create an N-by-N grid, with all sites initially blocked

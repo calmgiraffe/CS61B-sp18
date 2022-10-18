@@ -9,8 +9,8 @@ import edu.princeton.cs.algs4.StdStats;
 public class PercolationStats {
 
     /** Instance variables */
-    int numExperiments;
-    private PercolationFactory pf;
+    private final int numExperiments;
+    private final PercolationFactory pf;
     private final double[] thresholds;
 
     /**
@@ -21,6 +21,9 @@ public class PercolationStats {
      * @param pf percolation factor object
      */
     public PercolationStats(int N, int T, PercolationFactory pf) {
+        if (N <= 0 || T <= 0) {
+            throw new IllegalArgumentException("N and/or T must be greater than 0");
+        }
         this.numExperiments = T;
         this.pf = pf;
         this.thresholds = new double[T];
@@ -51,7 +54,7 @@ public class PercolationStats {
         }
         Collections.shuffle(positions);
 
-        while (!perc.percolates() || positions.size() > 0) {
+        while (!perc.percolates()) {
             int oneDPos = positions.remove(positions.size() - 1);
             int row = perc.oneDtoRow(oneDPos);
             int col = perc.oneDtoCol(oneDPos);
@@ -78,5 +81,12 @@ public class PercolationStats {
     // high endpoint of 95% confidence interval
     public double confidenceHigh() {
         return mean() + (1.96 * stddev() / Math.sqrt(numExperiments));
+    }
+
+    public static void main(String[] args) {
+        PercolationStats ps = new PercolationStats(200, 1000, new PercolationFactory());
+        System.out.println("Mean: " + ps.mean());
+        System.out.println("95% low: " + ps.confidenceLow());
+        System.out.println("95% high: " + ps.confidenceHigh());
     }
 }
