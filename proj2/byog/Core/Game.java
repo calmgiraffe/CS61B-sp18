@@ -12,21 +12,25 @@ public class Game implements Serializable {
     private static final int HEIGHT = 50;
     private static final int HUDHEIGHT = 4;
     private static final double WIDTHCENTRE = WIDTH / 2.0;
+    private static final double HEADER = 26 * HEIGHT / 40.0;
+    private static final double ROW1 = 18 * HEIGHT / 40.0;
+    private static final double ROW2 = 16 * HEIGHT / 40.0;
+    private static final double ROW3 = 14 * HEIGHT / 40.0;
     private static final int BACKSPACE = 8;
-    private final TERenderer ter = new TERenderer();
+    private static final TERenderer ter = new TERenderer();
+
     private Map map;
     private long seed;
     private int level = 1;
+    private StringBuilder commands;
+    private final boolean enableFOV = true;
     private boolean quitMenu = false;
     private boolean quitGame = false;
-    private final boolean enableFOV = true;
-    private StringBuilder commands;
 
     /**
      * Method used for playing a fresh game using the keyboard.
      */
     public void playWithKeyboard() {
-        ter.initialize(WIDTH, HEIGHT);
         mainMenu();
         System.exit(0);
     }
@@ -35,16 +39,18 @@ public class Game implements Serializable {
      * Shows the main menu on the screen. Loops until proper input is received
      */
     private void mainMenu() {
+        ter.initialize(WIDTH, HEIGHT);
+
         while (!quitMenu) {
             StdDraw.clear(Color.BLACK);
             StdDraw.setPenColor(Color.WHITE);
             StdDraw.setFont(FontSet.TITLE);
-            StdDraw.text(WIDTHCENTRE, 26 * HEIGHT / 40.0, "CS61B: The Game");
+            StdDraw.text(WIDTHCENTRE, HEADER, "CS61B: The Game");
 
             StdDraw.setFont(FontSet.OPTION);
-            StdDraw.text(WIDTHCENTRE, 18 * HEIGHT / 40.0, "New Game (N)");
-            StdDraw.text(WIDTHCENTRE, 16 * HEIGHT / 40.0, "Load Game (L)");
-            StdDraw.text(WIDTHCENTRE, 14 * HEIGHT / 40.0, "Quit (Q)");
+            StdDraw.text(WIDTHCENTRE, ROW1, "New Game (N)");
+            StdDraw.text(WIDTHCENTRE, ROW2, "Load Game (L)");
+            StdDraw.text(WIDTHCENTRE, ROW3, "Quit (Q)");
             StdDraw.show();
 
             char next = getNextCommand();
@@ -73,12 +79,11 @@ public class Game implements Serializable {
             StdDraw.clear(Color.BLACK);
             StdDraw.setPenColor(Color.WHITE);
             StdDraw.setFont(FontSet.TITLE);
-            StdDraw.text(WIDTHCENTRE, 26 * HEIGHT / 40.0, "CS61B: The Game");
+            StdDraw.text(WIDTHCENTRE, HEADER, "CS61B: The Game");
 
             StdDraw.setFont(FontSet.OPTION);
-            StdDraw.text(WIDTHCENTRE, 18 * HEIGHT / 40.0, "(s to submit, b to go back)");
-            StdDraw.text(WIDTHCENTRE, 16 * HEIGHT / 40.0, "");
-            StdDraw.text(WIDTHCENTRE, 14 * HEIGHT / 40.0, "Seed: " + seed);
+            StdDraw.text(WIDTHCENTRE, ROW1, "(s to submit, b to go back)");
+            StdDraw.text(WIDTHCENTRE, ROW3, "Seed: " + seed);
             StdDraw.show();
 
             char c = getNextCommand();
@@ -144,7 +149,6 @@ public class Game implements Serializable {
         commands = new StringBuilder();
         commands.append(input.toLowerCase());
 
-        ter.initialize(WIDTH, HEIGHT);
         mainMenu();
         return map.getMap();
     }
@@ -180,7 +184,6 @@ public class Game implements Serializable {
         } catch (IOException i)  {
             i.printStackTrace();
         }
-
     }
 
     /**
@@ -189,6 +192,8 @@ public class Game implements Serializable {
     private void loadGame() {
         Game g;
         try {
+            // Build new Game object from InputStream
+            // Then, set map and level to
             FileInputStream fileIn = new FileInputStream("./byog/savefile.txt");
             ObjectInputStream in = new ObjectInputStream(fileIn);
             g = (Game) in.readObject();
