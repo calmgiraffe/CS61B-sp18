@@ -39,7 +39,6 @@ public class Map implements Serializable {
         this.partition = new Partition(new Position(0, 0), width, height);
         this.playerMover = new PlayerMover(this);
         fill(map, Tileset.NOTHING);
-        fill(FOVmap, Tileset.NOTHING);
     }
 
     /**
@@ -57,22 +56,34 @@ public class Map implements Serializable {
 
             if (random.nextIntInclusive(1, 100) < 50) { // 50% chance
                 int size = random.nextIntInclusive(5, 8);
-                r.drawIrregular(size, r.randomPositionInRoom(0), this);
+                r.drawIrregular(size, r.randomPosition(0), this);
             }
             if (random.nextIntInclusive(1, 100) < 60) { // 60% chance
                 int size = random.nextIntInclusive(5, 7);
-                r.drawIrregularGrass(size, r.randomPositionInRoom(1), this);
+                r.drawIrregularGrass(size, r.randomPosition(1), this);
             }
         }
         // Pick a room and place character in center
         int i = random.nextIntInclusive(0, rooms.size() - 1);
-        Position playerPos = rooms.get(i).randomPositionInRoom(1);
+        Position playerPos = rooms.get(i).randomPosition(1);
         playerMover.setPosition(playerPos);
 
-        // Initially fill the FOVmap with appropriate tiles
+        // Update the player
+        updatePlayer('~');
+    }
+
+    /**
+     * Given one of "wasd", moves the player in that direction. Updates FOV if feature enabled.
+     * @param direction any char
+     */
+    public void updatePlayer(char direction) {
+        if (direction == 'w' || direction == 'a' || direction == 's' || direction == 'd') {
+            playerMover.movePlayer(direction);
+        }
         if (enableFOV) {
+            fill(FOVmap, Tileset.NOTHING);
             for (Position p : playerMover.getFOV()) {
-                FOVmap[p.x][p.y] = peek(p);
+                placeTile(FOVmap, p.x, p.y, peek(p));
             }
         }
     }
@@ -89,12 +100,14 @@ public class Map implements Serializable {
     }
 
     /**
-     * Draws the specified tile at position p. If p out of range, prints a
-     * message indicating the type of tile and location a placement was attempted.
+     * Draws the specified tile at the specified x & y. If x or y out of range, prints a message
+     * indicating the type of tile and location a placement was attempted.
      * Use this method so you don't get IndexErrors.
      */
-    public void placeTile(Position p, TETile tile) {
-        placeTile(p.x, p.y, tile);
+    public static void placeTile(TETile[][] map, int x, int y, TETile tile) {
+        if ((0 <= x && x < map.length) && (0 <= y && y < map[0].length)) {
+            map[x][y] = tile;
+        }
     }
 
     /**
@@ -160,7 +173,7 @@ public class Map implements Serializable {
     }
 
     /**
-     * Given a 1D position on a map, returns the adjacent (up, right, down, left) nodes
+     * Given a Position on a map, returns the adjacent (up, right, down, left) nodes
      */
     public ArrayList<Position> adjacent(Position p) {
         Position pUp = new Position(p.x, p.y + 1);
@@ -182,22 +195,6 @@ public class Map implements Serializable {
         }
         return adjacent;
     }
-
-    /**
-     * Given one of "wasd", moves the player in that direction. Updates FOV if feature enabled.
-     * @param direction wasd
-     */
-    public void movePlayer(char direction) {
-        playerMover.movePlayer(direction);
-
-        if (enableFOV) {
-            fill(FOVmap, Tileset.NOTHING);
-            for (Position p : playerMover.getFOV()) {
-                FOVmap[p.x][p.y] = peek(p);
-            }
-        }
-    }
-
 
     /*
      * Getter methods

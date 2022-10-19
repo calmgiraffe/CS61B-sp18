@@ -23,7 +23,7 @@ public class Game implements Serializable {
     private long seed;
     private int level = 1;
     private StringBuilder commands;
-    private final boolean enableFOV = true;
+    private boolean enableFOV = true;
     private boolean quitMenu = false;
     private boolean quitGame = false;
 
@@ -107,8 +107,10 @@ public class Game implements Serializable {
     public void playGame() {
         boolean colonPressed = false;
         while (!quitGame) {
+            // reset everything to black
             StdDraw.clear(Color.BLACK);
 
+            // Get the next commond (keyboard or string) and render updated map
             char next = getNextCommand();
             if (next == ':') {
                 colonPressed = true;
@@ -117,9 +119,11 @@ public class Game implements Serializable {
                 quitGame = true;
             } else if (next == 'w' || next == 'a' || next == 's' || next == 'd') {
                 colonPressed = false;
-                map.movePlayer(next);
+                map.updatePlayer(next);
             }
             ter.renderFrame(map.getMap());
+
+            // Build and show the HUD
             double rawMouseX = StdDraw.mouseX();
             double rawMouseY = StdDraw.mouseY();
             long x = Math.round(Math.floor(rawMouseX));
@@ -192,14 +196,13 @@ public class Game implements Serializable {
     private void loadGame() {
         Game g;
         try {
-            // Build new Game object from InputStream
-            // Then, set map and level to
             FileInputStream fileIn = new FileInputStream("./byog/savefile.txt");
             ObjectInputStream in = new ObjectInputStream(fileIn);
             g = (Game) in.readObject();
             in.close();
             fileIn.close();
             this.map = g.map;
+            this.seed = g.seed;
             this.level = g.level;
         } catch (IOException i) {
             i.printStackTrace();

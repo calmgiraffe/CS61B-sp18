@@ -101,7 +101,7 @@ public class Room implements Serializable {
                 direction = LEFT;
             }
             Position currentPos = map.oneDToPos(curr);
-            map.placeTile(currentPos, floorType);
+            map.placeTile(currentPos.x, currentPos.y, floorType);
             drawWalls(currentPos, direction, map);
             prev = curr;
             curr = edgeTo[curr];
@@ -113,8 +113,8 @@ public class Room implements Serializable {
      * using the a* algorithm.
      */
     public void astar(Room room, Map map) {
-        int start = map.posToOneD(this.randomPositionInRoom(1));
-        int target = map.posToOneD(room.randomPositionInRoom(1));
+        int start = map.posToOneD(this.randomPosition(1));
+        int target = map.posToOneD(room.randomPosition(1));
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
         int[] edgeTo = new int[map.oneDlength];
@@ -122,10 +122,14 @@ public class Room implements Serializable {
         Arrays.fill(distTo, INFINITY);
         boolean targetFound = false;
 
+        // Initially, add start to PQ. Then loop until target found
         fringe.add(new Node(start, 0));
         while (fringe.size() > 0 && !targetFound) {
             int p = fringe.remove().position;
+
             for (int q : map.adjacent(p)) {
+                // If new distance < old distance, update distTo and edgeTo
+                // Add neighbour node q to PQ, factoring in heuristic
                 if (distTo[p] + 1 < distTo[q]) {
                     distTo[q] = distTo[p] + 1;
                     edgeTo[q] = p;
@@ -184,13 +188,13 @@ public class Room implements Serializable {
         // Base case: count is 0 and able to place a tile on NOTHING
         if (count <= 0) {
             if (map.peek(p) == Tileset.NOTHING) {
-                map.placeTile(p, Tileset.colorVariantWall(r));
+                map.placeTile(p.x, p.y, Tileset.colorVariantWall(r));
             }
         } else {
             if (map.onEdge(p)) {
-                map.placeTile(p, Tileset.colorVariantWall(r));
+                map.placeTile(p.x, p.y, Tileset.colorVariantWall(r));
             } else {
-                map.placeTile(p, floorType);
+                map.placeTile(p.x, p.y, floorType);
             }
             for (Position a : map.adjacent(p)) {
                 drawIrregular(count - r.nextIntInclusive(1, 3), a, map);
@@ -205,9 +209,9 @@ public class Room implements Serializable {
         if (map.peek(p) == floorType && count > 0) {
 
             if (r.nextIntInclusive(0, 100) <= 10) {
-                map.placeTile(p, Tileset.randomColorFlower(r));
+                map.placeTile(p.x, p.y, Tileset.randomColorFlower(r));
             } else {
-                map.placeTile(p, Tileset.colorVariantGrass(r));
+                map.placeTile(p.x, p.y, Tileset.colorVariantGrass(r));
             }
             for (Position a : map.adjacent(p)) {
                 drawIrregularGrass(count - r.nextIntInclusive(1, 2), a, map);
@@ -218,7 +222,7 @@ public class Room implements Serializable {
     /**
      * Pick random location within the room, int buffer indicating the margin from the room edge.
      */
-    public Position randomPositionInRoom(int buffer) {
+    public Position randomPosition(int buffer) {
         int xLower = lowerLeft.x + buffer;
         int xUpper = upperRight.x - buffer;
         int yLower = lowerLeft.y + buffer;

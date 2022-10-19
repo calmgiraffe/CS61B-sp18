@@ -11,17 +11,21 @@ public class PlayerMover implements Serializable {
     private final ArrayList<Position> fov;
     private Position pos;
     private Position newPos;
-    private TETile last;
+    private TETile prevTile;
 
     public PlayerMover(Map map) {
         this.map = map;
         this.fov = new ArrayList<>();
     }
 
+    /**
+     * Set the player icon to given Position p and update fov array
+     * @param p player position
+     */
     public void setPosition(Position p) {
         pos = p;
-        last = map.peek(p);
-        map.placeTile(p, Tileset.PLAYER);
+        prevTile = map.peek(p);
+        map.placeTile(p.x, p.y, Tileset.PLAYER);
         updateFOV(FOVRANGE, pos);
     }
 
@@ -40,9 +44,9 @@ public class PlayerMover implements Serializable {
             case 'a' -> newPos = new Position(pos.x - 1, pos.y);
         }
         if (map.peek(newPos).character() != '#') {
-            map.placeTile(pos, last);
-            last = map.peek(newPos);
-            map.placeTile(newPos, Tileset.PLAYER);
+            map.placeTile(pos.x, pos.y, prevTile);
+            prevTile = map.peek(newPos);
+            map.placeTile(newPos.x, newPos.y, Tileset.PLAYER);
             pos = newPos;
 
             fov.clear();
