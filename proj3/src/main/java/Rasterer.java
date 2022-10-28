@@ -12,35 +12,35 @@ public class Rasterer {
     double lowestRes;
     double latDiff;
     double lonDiff;
-
-    // mapping depths to array of doubles representing latitudes and longitudes of partitions
+    // mapping depths to double[] representing lats and longs of partitions
     double[][] latCache;
     double[][] lonCache;
 
     public Rasterer() {
         this.ftPerDeg = 288200.0;
-        this.lowestRes = Math.abs(MapServer.ROOT_ULLON - MapServer.ROOT_LRLON) * ftPerDeg
+        this.lowestRes = (MapServer.ROOT_LRLON - MapServer.ROOT_ULLON) * ftPerDeg
                 / MapServer.TILE_SIZE;
-        this.latDiff = MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT;
+        this.latDiff = MapServer.ROOT_LRLAT - MapServer.ROOT_ULLAT;
         this.lonDiff = MapServer.ROOT_LRLON - MapServer.ROOT_ULLON;
         this.latCache = new double[MapServer.NUM_DEPTHS][];
         this.lonCache = new double[MapServer.NUM_DEPTHS][];
 
-        // Fill the cache with proper values for each depth level
+        // Fill the cache with proper values for each depth level (0 to 7)
         for (int d = 0; d <= 7; d += 1) {
+
+            // partitions = 2^depth. For example, at depth 7, 2^7 = 128 partitions along lat or lon
             int numDivisions = (int) Math.pow(2, d);
             double[] latPartitions = new double[numDivisions];
             double[] lonPartitions = new double[numDivisions];
 
             // Fill the double[] array for the particular depth level, then add key-value to cache
             for (int i = 0; i < numDivisions; i += 1) {
-                latPartitions[i] = MapServer.ROOT_LRLAT + latDiff * i / numDivisions;
+                latPartitions[i] = (MapServer.ROOT_ULLAT + latDiff * i / numDivisions) * -1;
                 lonPartitions[i] = MapServer.ROOT_ULLON + lonDiff * i / numDivisions;
             }
             latCache[d] = latPartitions;
             lonCache[d] = lonPartitions;
         }
-        System.out.println(1);
     }
 
     /**
@@ -77,13 +77,18 @@ public class Rasterer {
         System.out.println(params); // for debugging
         Map<String, Object> results = new HashMap<>();
 
-        // Given params, determine required depth
+        if (!isValidParams(params)) {
+            results.put("query_success", false);
+            return results;
+        }
+        // Given params, determine required resolution
         double ULLon = params.get("ullon");
         double LRLon = params.get("lrlon");
-        double width = params.get("w");
-        double requiredRes = Math.abs(ULLon - LRLon) * ftPerDeg / width;
+        double ULLat = params.get("ullat");
+        double LRLat = params.get("lrlat");
+        double requiredRes = (LRLon - ULLon) * ftPerDeg / params.get("w");
 
-        // Continuously decrease res until res is less than requiredRes
+        // Determine depth by continuously halving res until it is less than requiredRes
         int depth = 0;
         double res = lowestRes;
         for (int i = 0; i <= 7; i += 1) {
@@ -94,15 +99,80 @@ public class Rasterer {
             res = res / 2;
             depth += 1;
         }
+        double divisions = Math.pow(2, depth);
 
-        // Range finding
-        // From depth, determine the maximum value of the partition x and y coordinates
-        // length = 2^depth
-        // maxXY = length - 1
+        // Use binary search on cache to determine index of closest partition
+        int minX = binarySearch(lonCache[depth], 0, lonCache[depth].length, ULLon);
+        int maxX = binarySearch(lonCache[depth], 0, lonCache[depth].length, LRLon);
+        int minY = binarySearch(latCache[depth], 0, latCache[depth].length, -ULLat);
+        int maxY = binarySearch(latCache[depth], 0, latCache[depth].length, -LRLat);
 
-        // Determine which box UL and LR belong in
-
+        int numRows = maxY - minY + 1;
+        int numCols = maxX - minX + 1;
+        String prefix = "d" + depth;
+        String[][] render_grid = new String[numRows][numCols];
+        for (int row = minY; row <= maxY; row += 1) {
+            for (int col = minX; col <= maxX; col += 1) {
+                render_grid[row][col] = prefix + "_x" + col + "_y" + row + ".png";
+            }
+        }
+        results.put("render_grid", render_grid);
+        results.put("raster_ul_lon", MapServer.ROOT_ULLON + minX * lonDiff / divisions);
+        results.put("raster_ul_lat", MapServer.ROOT_ULLAT + minY * latDiff / divisions);
+        results.put("raster_lr_lon", MapServer.ROOT_ULLAT + (maxX + 1) * lonDiff / divisions);
+        results.put("raster_lr_lat", MapServer.ROOT_ULLAT + (maxY + 1) * latDiff / divisions);
+        results.put("depth", depth);
+        results.put("query_success", true);
+        
         return results;
     }
 
+    /**
+     * Return false if query box is outside root longitude/latitudes or if invalid query.
+     * @param params query parameters
+     * @return true or false
+     */
+    private boolean isValidParams(Map<String, Double> params) {
+        double upperLeftLon = params.get("ullon");
+        double lowerRightLon = params.get("lrlon");
+        double upperLeftLat = params.get("ullat");
+        double lowerRightLat = params.get("lrlat");
+
+        /* Immediately return false if invalid query.
+        Invalid if upperRightLon is left of upperLeftLon, or lowerRightLat above upperLeftLat.
+        Invalid if LRLon is to the left to ROOT_ULLON, or if ULLON is right of ROOT_LRLON.
+        Invalid if LRLat is above ROOT_ULLAT, or if ULLat < ROOT_LRLAT */
+        if (lowerRightLon < upperLeftLon || lowerRightLat > upperLeftLat) {
+            return false;
+        } else if (lowerRightLon < MapServer.ROOT_ULLON || upperLeftLon > MapServer.ROOT_LRLON) {
+            return false;
+        } else if (lowerRightLat > MapServer.ROOT_ULLAT || upperLeftLat < MapServer.ROOT_LRLAT) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Given a double[] representing the cache at a certain depth level,
+     * determine the index of the closest partition. Start is the index of the left boundary of
+     * binary search (inclusive), and end is the index of the right boundary (exclusive).
+     * For example, start and end are initially 0 and 8 for an array of length 8.
+     * When end - start = 1, the sub array currently looked at is of length 1.
+     */
+    public int binarySearch(double[] cache, int start, int end, double desired) {
+        // Base case
+        if (end - start == 1) {
+            return start;
+        }
+        // Calculate mid, then one of three depending on comparison of desired and cache[mid]
+        int mid = (start + end) / 2;
+        if (desired == cache[mid]) {
+            return mid;
+        } else if (desired > cache[mid]) {
+            return binarySearch(cache, mid, end, desired);
+        } else {
+            return binarySearch(cache, start, mid, desired);
+        }
+    }
 }
