@@ -91,7 +91,7 @@ public class Rasterer {
         // Determine depth by continuously halving res until it is less than requiredRes
         int depth = 0;
         double res = lowestRes;
-        for (int i = 0; i <= 7; i += 1) {
+        for (int i = 0; i < 7; i += 1) {
             if (res <= requiredRes) {
                 results.put("depth", depth);
                 break;
@@ -113,17 +113,17 @@ public class Rasterer {
         String[][] render_grid = new String[numRows][numCols];
         for (int row = minY; row <= maxY; row += 1) {
             for (int col = minX; col <= maxX; col += 1) {
-                render_grid[row][col] = prefix + "_x" + col + "_y" + row + ".png";
+                render_grid[row - minY][col - minX] = prefix + "_x" + col + "_y" + row + ".png";
             }
         }
         results.put("render_grid", render_grid);
         results.put("raster_ul_lon", MapServer.ROOT_ULLON + minX * lonDiff / divisions);
         results.put("raster_ul_lat", MapServer.ROOT_ULLAT + minY * latDiff / divisions);
-        results.put("raster_lr_lon", MapServer.ROOT_ULLAT + (maxX + 1) * lonDiff / divisions);
+        results.put("raster_lr_lon", MapServer.ROOT_ULLON + (maxX + 1) * lonDiff / divisions);
         results.put("raster_lr_lat", MapServer.ROOT_ULLAT + (maxY + 1) * latDiff / divisions);
         results.put("depth", depth);
         results.put("query_success", true);
-        
+
         return results;
     }
 
