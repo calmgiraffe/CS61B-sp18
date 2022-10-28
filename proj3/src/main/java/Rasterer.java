@@ -93,7 +93,6 @@ public class Rasterer {
         double res = lowestRes;
         for (int i = 0; i < 7; i += 1) {
             if (res <= requiredRes) {
-                results.put("depth", depth);
                 break;
             }
             res = res / 2;
@@ -101,22 +100,14 @@ public class Rasterer {
         }
         double divisions = Math.pow(2, depth);
 
-        // Use binary search on cache to determine index of closest partition
+        /* Use binary search on cache to determine index of closest partition, given min/max x/y,
+        which represent the lowest and highest x/y values to use when generating the filenames. */
         int minX = binarySearch(lonCache[depth], 0, lonCache[depth].length, ULLon);
         int maxX = binarySearch(lonCache[depth], 0, lonCache[depth].length, LRLon);
         int minY = binarySearch(latCache[depth], 0, latCache[depth].length, -ULLat);
         int maxY = binarySearch(latCache[depth], 0, latCache[depth].length, -LRLat);
 
-        int numRows = maxY - minY + 1;
-        int numCols = maxX - minX + 1;
-        String prefix = "d" + depth;
-        String[][] render_grid = new String[numRows][numCols];
-        for (int row = minY; row <= maxY; row += 1) {
-            for (int col = minX; col <= maxX; col += 1) {
-                render_grid[row - minY][col - minX] = prefix + "_x" + col + "_y" + row + ".png";
-            }
-        }
-        results.put("render_grid", render_grid);
+        results.put("render_grid", generateRenderGrid(minX, maxX, minY, maxY, depth));
         results.put("raster_ul_lon", MapServer.ROOT_ULLON + minX * lonDiff / divisions);
         results.put("raster_ul_lat", MapServer.ROOT_ULLAT + minY * latDiff / divisions);
         results.put("raster_lr_lon", MapServer.ROOT_ULLON + (maxX + 1) * lonDiff / divisions);
@@ -151,6 +142,23 @@ public class Rasterer {
         } else {
             return true;
         }
+    }
+
+    /**
+     * Given min/max x/y, which represent the lowest and highest x/y values to use when generating
+     * the filenames, return the complete String[][] renderGrid object.
+     */
+    private String[][] generateRenderGrid(int minX, int maxX, int minY, int maxY, int depth) {
+        int numRows = maxY - minY + 1;
+        int numCols = maxX - minX + 1;
+        String prefix = "d" + depth;
+        String[][] render_grid = new String[numRows][numCols];
+        for (int row = minY; row <= maxY; row += 1) {
+            for (int col = minX; col <= maxX; col += 1) {
+                render_grid[row - minY][col - minX] = prefix + "_x" + col + "_y" + row + ".png";
+            }
+        }
+        return render_grid;
     }
 
     /**
