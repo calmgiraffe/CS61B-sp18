@@ -26,7 +26,7 @@ public class Rasterer {
         this.lonCache = new double[MapServer.NUM_DEPTHS][];
 
         // Fill the cache with proper values for each depth level (0 to 7)
-        for (int d = 0; d <= 7; d += 1) {
+        for (int d = 0; d < 8; d += 1) {
 
             // partitions = 2^depth. For example, at depth 7, 2^7 = 128 partitions along lat or lon
             int numDivisions = (int) Math.pow(2, d);
@@ -100,7 +100,8 @@ public class Rasterer {
         }
         double divisions = Math.pow(2, depth);
 
-        /* Use binary search on cache to determine index of closest partition, given min/max x/y,
+        /*
+        Use binary search on cache to determine index of the closest partition, given min/max x/y,
         which represent the lowest and highest x/y values to use when generating the filenames. */
         int minX = binarySearch(lonCache[depth], 0, lonCache[depth].length, ULLon);
         int maxX = binarySearch(lonCache[depth], 0, lonCache[depth].length, LRLon);
@@ -129,7 +130,8 @@ public class Rasterer {
         double upperLeftLat = params.get("ullat");
         double lowerRightLat = params.get("lrlat");
 
-        /* Immediately return false if invalid query.
+        /*
+        Immediately return false if invalid query.
         Invalid if upperRightLon is left of upperLeftLon, or lowerRightLat above upperLeftLat.
         Invalid if LRLon is to the left to ROOT_ULLON, or if ULLON is right of ROOT_LRLON.
         Invalid if LRLat is above ROOT_ULLAT, or if ULLat < ROOT_LRLAT */
@@ -153,6 +155,7 @@ public class Rasterer {
         int numCols = maxX - minX + 1;
         String prefix = "d" + depth;
         String[][] render_grid = new String[numRows][numCols];
+
         for (int row = minY; row <= maxY; row += 1) {
             for (int col = minX; col <= maxX; col += 1) {
                 render_grid[row - minY][col - minX] = prefix + "_x" + col + "_y" + row + ".png";
