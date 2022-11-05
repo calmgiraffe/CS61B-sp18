@@ -53,6 +53,9 @@ public class GraphDB {
      * @param dbPath Path to the XML file to be parsed.
      */
     public GraphDB(String dbPath) {
+        this.nodes = new HashMap<>();
+        this.edges = new HashMap<>();
+
         try {
             File inputFile = new File(dbPath);
             FileInputStream inputStream = new FileInputStream(inputFile);
