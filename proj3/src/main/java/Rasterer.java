@@ -132,9 +132,10 @@ public class Rasterer {
 
         /*
         Immediately return false if invalid query.
-        Invalid if upperRightLon is left of upperLeftLon, or lowerRightLat above upperLeftLat.
+        Invalid if upperRightLon is left of upperLeftLon, or lowerRightLat is above upperLeftLat.
         Invalid if LRLon is to the left to ROOT_ULLON, or if ULLON is right of ROOT_LRLON.
-        Invalid if LRLat is above ROOT_ULLAT, or if ULLat < ROOT_LRLAT */
+        Invalid if LRLat is above ROOT_ULLAT, or if ULLat < ROOT_LRLAT
+        */
         if (lowerRightLon < upperLeftLon || lowerRightLat > upperLeftLat) {
             return false;
         } else if (lowerRightLon < MapServer.ROOT_ULLON || upperLeftLon > MapServer.ROOT_LRLON) {
@@ -147,11 +148,11 @@ public class Rasterer {
     }
 
     /**
-     * Given min/max x/y, which represent the lowest and highest x/y values to use when generating
-     * the filenames, return the complete String[][] renderGrid object.
+     * Given min/max x/y, which represent the lowest and highest x & y values to use when
+     * generating the filenames, return the complete String[][] renderGrid object.
      */
     private String[][] generateRenderGrid(int minX, int maxX, int minY, int maxY, int depth) {
-        int numRows = maxY - minY + 1;
+        int numRows = maxY - minY + 1; // ex: 6-4 + 1 = 3 for 4, 5, 6
         int numCols = maxX - minX + 1;
         String prefix = "d" + depth;
         String[][] render_grid = new String[numRows][numCols];
