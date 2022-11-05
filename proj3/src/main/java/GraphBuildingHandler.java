@@ -87,33 +87,28 @@ public class GraphBuildingHandler extends DefaultHandler {
 
             /* TODO Use the above id to make "possible" connections between the nodes in this way */
 
-            /* Hint1: It would be useful to remember what was the last node in this way. */
             /* Hint2: Not all ways are valid. So, directly connecting the nodes here would be
             cumbersome since you might have to remove the connections if you later see a tag that
             makes this way invalid. Instead, think of keeping a list of possible connections and
             remember whether this way is valid or not. */
 
-            // Keep tmp list of nodes
-            Long id = Long.parseLong(attributes.getValue("id"));
+            /* Add to g.nodeStaging, a temporary list of nodes that is kept track of in the case
+            that the way is highway AND is one of the valid types */
+            Long id = Long.parseLong(attributes.getValue("ref"));
             g.nodeStaging.add(id);
-
-            // Re
 
         } else if (activeState.equals("way") && qName.equals("tag")) {
             /* <tag> represents important information about the way like whether it is a valid way
             in the content of this program, speed, name, etc. k is the key, v is the value. */
 
+            //
+
             String k = attributes.getValue("k");
             String v = attributes.getValue("v");
-            if (k.equals("maxspeed")) {
-                // System.out.println("Max Speed: " + v);
-                /* TODO set the max speed of the "current way" here. */
-
-            } else if (k.equals("highway")) {
+            if (k.equals("highway")) {
                 System.out.println("Highway type: " + v);
                 /* TODO Figure out whether this way and its connections are valid. */
                 /* Hint: Setting a "flag" is good enough! */
-
             } else if (k.equals("name")) {
                 System.out.println("Way Name: " + v);
             }

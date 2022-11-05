@@ -27,7 +27,6 @@ public class GraphDB {
         double longitude;
         String name;
         ArrayList<Long> adjacent;
-
         long way;
 
         Node(double lat, double lon, String name) {
