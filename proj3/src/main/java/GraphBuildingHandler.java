@@ -93,6 +93,12 @@ public class GraphBuildingHandler extends DefaultHandler {
             makes this way invalid. Instead, think of keeping a list of possible connections and
             remember whether this way is valid or not. */
 
+            // Keep tmp list of nodes
+            Long id = Long.parseLong(attributes.getValue("id"));
+            g.nodeStaging.add(id);
+
+            // Re
+
         } else if (activeState.equals("way") && qName.equals("tag")) {
             /* <tag> represents important information about the way like whether it is a valid way
             in the content of this program, speed, name, etc. k is the key, v is the value. */

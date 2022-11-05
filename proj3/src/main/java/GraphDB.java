@@ -27,6 +27,7 @@ public class GraphDB {
         double longitude;
         String name;
         ArrayList<Long> adjacent;
+
         long way;
 
         Node(double lat, double lon, String name) {
@@ -46,6 +47,7 @@ public class GraphDB {
     // mapping node/way ids to an object that contains all relevant info about the node/way
     HashMap<Long, Node> nodes;
     HashMap<Long, Edge> edges;
+    ArrayList<Long> nodeStaging;
 
     /**
      * Example constructor shows how to create and start an XML parser.
@@ -55,6 +57,7 @@ public class GraphDB {
     public GraphDB(String dbPath) {
         this.nodes = new HashMap<>();
         this.edges = new HashMap<>();
+        this.nodeStaging = new ArrayList<>();
 
         try {
             File inputFile = new File(dbPath);
