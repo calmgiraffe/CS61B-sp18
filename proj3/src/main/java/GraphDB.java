@@ -7,6 +7,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Graph for storing all of the intersection (vertex) and road (edge) information.
@@ -20,6 +21,31 @@ import java.util.ArrayList;
 public class GraphDB {
     /* Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
+
+    public static class Node {
+        double latitude;
+        double longitude;
+        String name;
+        ArrayList<Long> adjacent;
+        long way;
+
+        Node(double lat, double lon, String name) {
+            this.latitude = lat;
+            this.longitude = lon;
+            this.name = name;
+            this.adjacent = new ArrayList<>();
+        }
+    }
+
+    public static class Edge {
+        ArrayList<Long> nodes;
+        String name;
+        String maxSpeed;
+    }
+
+    // mapping node/way ids to an object that contains all relevant info about the node/way
+    HashMap<Long, Node> nodes;
+    HashMap<Long, Edge> edges;
 
     /**
      * Example constructor shows how to create and start an XML parser.
@@ -58,6 +84,8 @@ public class GraphDB {
      */
     private void clean() {
         // TODO: Your code here.
+
+        // Iterate through hashmap, remove nodes that don't have neighbours
     }
 
     /**

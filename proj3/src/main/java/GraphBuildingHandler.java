@@ -26,6 +26,7 @@ import java.util.Set;
  *  @author Alan Yao, Maurice Lee
  */
 public class GraphBuildingHandler extends DefaultHandler {
+
     /**
      * Only allow for non-service roads; this prevents going on pedestrian streets as much as
      * possible. Note that in Berkeley, many of the campus roads are tagged as motor vehicle
@@ -68,9 +69,9 @@ public class GraphBuildingHandler extends DefaultHandler {
         if (qName.equals("node")) {
             /* We encountered a new <node...> tag. */
             activeState = "node";
-            System.out.println("Node id: " + attributes.getValue("id"));
-            System.out.println("Node lon: " + attributes.getValue("lon"));
-            System.out.println("Node lat: " + attributes.getValue("lat"));
+             System.out.println("Node id: " + attributes.getValue("id"));
+            // System.out.println("Node lon: " + attributes.getValue("lon"));
+            // System.out.println("Node lat: " + attributes.getValue("lat"));
 
             /* TODO Use the above information to save a "node" to somewhere. */
             /* Hint: A graph-like structure would be nice. */
@@ -92,20 +93,24 @@ public class GraphBuildingHandler extends DefaultHandler {
             remember whether this way is valid or not. */
 
         } else if (activeState.equals("way") && qName.equals("tag")) {
-            /* While looking at a way, we found a <tag...> tag. */
+            /* <tag> represents important information about the way like whether it is a valid way
+            in the content of this program, speed, name, etc. k is the key, v is the value. */
+
             String k = attributes.getValue("k");
             String v = attributes.getValue("v");
             if (k.equals("maxspeed")) {
                 //System.out.println("Max Speed: " + v);
                 /* TODO set the max speed of the "current way" here. */
+
             } else if (k.equals("highway")) {
-                //System.out.println("Highway type: " + v);
+                System.out.println("Highway type: " + v);
                 /* TODO Figure out whether this way and its connections are valid. */
                 /* Hint: Setting a "flag" is good enough! */
+
             } else if (k.equals("name")) {
-                //System.out.println("Way Name: " + v);
+                System.out.println("Way Name: " + v);
             }
-//            System.out.println("Tag with k=" + k + ", v=" + v + ".");
+            System.out.println("Tag with k=" + k + ", v=" + v + ".");
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
             /* While looking at a node, we found a <tag...> with k="name". */
@@ -113,7 +118,7 @@ public class GraphBuildingHandler extends DefaultHandler {
             /* Hint: Since we found this <tag...> INSIDE a node, we should probably remember which
             node this tag belongs to. Remember XML is parsed top-to-bottom, so probably it's the
             last node that you looked at (check the first if-case). */
-//            System.out.println("Node's name: " + attributes.getValue("v"));
+            System.out.println("Node's name: " + attributes.getValue("v"));
         }
     }
 
