@@ -8,6 +8,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Graph for storing all of the intersection (vertex) and road (edge) information.
@@ -19,15 +21,14 @@ import java.util.HashMap;
  * @author Alan Yao, Josh Hug
  */
 public class GraphDB {
-    /* Your instance variables for storing the graph. You should consider
-     * creating helper classes, e.g. Node, Edge, etc. */
+    /* Instance variables for storing the graph.
+    *  */
 
     public static class Node {
         double latitude;
         double longitude;
         String name;
         ArrayList<Long> adjacent;
-        long way;
 
         Node(double lat, double lon, String name) {
             this.latitude = lat;
@@ -40,13 +41,16 @@ public class GraphDB {
     public static class Edge {
         ArrayList<Long> nodes;
         String name;
-        String maxSpeed;
+
+        Edge(String name) {
+            this.name = name;
+        }
     }
 
     // mapping node/way ids to an object that contains all relevant info about the node/way
     HashMap<Long, Node> nodes;
     HashMap<Long, Edge> edges;
-    ArrayList<Long> nodeStaging;
+    Queue<Long> nodeStaging;
 
     /**
      * Example constructor shows how to create and start an XML parser.
@@ -56,7 +60,7 @@ public class GraphDB {
     public GraphDB(String dbPath) {
         this.nodes = new HashMap<>();
         this.edges = new HashMap<>();
-        this.nodeStaging = new ArrayList<>();
+        this.nodeStaging = new LinkedList<>();
 
         try {
             File inputFile = new File(dbPath);
@@ -65,11 +69,16 @@ public class GraphDB {
 
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
+
+            // Graph building logic is within below GraphBuildingHandler class.
+            // GraphBuildingHandler has an instance of a GraphDB object,
+            // which is the underlying implementation of the graph.
             GraphBuildingHandler gbh = new GraphBuildingHandler(this);
             saxParser.parse(inputStream, gbh);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
+        // final step of graph creation is to destroy all nodes that are disconnected
         clean();
     }
 

@@ -85,13 +85,6 @@ public class GraphBuildingHandler extends DefaultHandler {
             /* While looking at a way, we found a <nd...> tag. */
             System.out.println("Id of a node in this way: " + attributes.getValue("ref"));
 
-            /* TODO Use the above id to make "possible" connections between the nodes in this way */
-
-            /* Hint2: Not all ways are valid. So, directly connecting the nodes here would be
-            cumbersome since you might have to remove the connections if you later see a tag that
-            makes this way invalid. Instead, think of keeping a list of possible connections and
-            remember whether this way is valid or not. */
-
             /* Add to g.nodeStaging, a temporary list of nodes that is kept track of in the case
             that the way is highway AND is one of the valid types */
             Long id = Long.parseLong(attributes.getValue("ref"));
@@ -99,17 +92,29 @@ public class GraphBuildingHandler extends DefaultHandler {
 
         } else if (activeState.equals("way") && qName.equals("tag")) {
             /* <tag> represents important information about the way like whether it is a valid way
-            in the content of this program, speed, name, etc. k is the key, v is the value. */
-
-            //
+            in the context of this program, speed, name, etc. k is the key, v is the value. */
 
             String k = attributes.getValue("k");
             String v = attributes.getValue("v");
-            if (k.equals("highway")) {
-                System.out.println("Highway type: " + v);
+            if (k.equals("highway") && ALLOWED_HIGHWAY_TYPES.contains(v)) {
+                Long currNode = g.nodeStaging.poll();
+
+                // while queue is not empty
+                while (g.nodeStaging.peek() != null) {
+                    Long nextNode = g.nodeStaging.peek();
+                    // draw edge between curr and next
+                    // Recall: all ways MUST have nodes as part of their implementation
+
+                    GraphDB.Node n = g.nodes.get(currNode);
+
+                }
+
                 /* TODO Figure out whether this way and its connections are valid. */
                 /* Hint: Setting a "flag" is good enough! */
+                // Purpose of flag?
+
             } else if (k.equals("name")) {
+                g.
                 System.out.println("Way Name: " + v);
             }
             System.out.println("Tag with k=" + k + ", v=" + v + ".");
