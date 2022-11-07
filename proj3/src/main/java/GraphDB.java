@@ -6,10 +6,7 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * Graph for storing all of the intersection (vertex) and road (edge) information.
@@ -21,8 +18,7 @@ import java.util.Queue;
  * @author Alan Yao, Josh Hug
  */
 public class GraphDB {
-    /* Instance variables for storing the graph.
-    *  */
+    /* Instance variables for storing the graph. */
 
     public static class Node {
         double latitude;
@@ -42,6 +38,7 @@ public class GraphDB {
     public static class Edge {
         ArrayList<Long> nodes;
         String name;
+        int numNodes;
 
         Edge(String name) {
             this.name = name;
@@ -52,6 +49,7 @@ public class GraphDB {
     HashMap<Long, Node> nodes;
     HashMap<Long, Edge> edges;
     Queue<Long> nodeStaging;
+    HashSet<Long> uncleanedNodes;
 
     /**
      * Example constructor shows how to create and start an XML parser.
@@ -62,6 +60,7 @@ public class GraphDB {
         this.nodes = new HashMap<>();
         this.edges = new HashMap<>();
         this.nodeStaging = new LinkedList<>();
+        this.uncleanedNodes = new HashSet<>();
 
         try {
             File inputFile = new File(dbPath);
@@ -96,10 +95,16 @@ public class GraphDB {
      *  Remove nodes with no connections from the graph.
      *  While this does not guarantee that any two nodes in the remaining graph are connected,
      *  we can reasonably assume this since typically roads are connected.
+     *
+     *  Runs in theta(n) time, n is number of nodes currently stored.
      */
     private void clean() {
-        // TODO: Your code here.
-        // Iterate through hashmap, remove nodes that don't have neighbours or names?
+        for (Long nodeID : uncleanedNodes) {
+            Node nodeObj = nodes.get(nodeID);
+            if (!nodeObj.isLocation && nodeObj.adjacent.isEmpty()) {
+                nodes.remove(nodeID);
+            }
+        }
     }
 
     /**
@@ -107,8 +112,7 @@ public class GraphDB {
      * @return An iterable of id's of all vertices in the graph.
      */
     Iterable<Long> vertices() {
-        //YOUR CODE HERE, this currently returns only an empty list.
-        return new ArrayList<Long>();
+        return nodes.keySet();
     }
 
     /**

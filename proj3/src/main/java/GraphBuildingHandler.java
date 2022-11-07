@@ -80,6 +80,7 @@ public class GraphBuildingHandler extends DefaultHandler {
             double lat = Double.parseDouble(attributes.getValue("lat"));
             String name = attributes.getValue("name");
             g.nodes.put(nodeID, new GraphDB.Node(lat, lon, name));
+            g.uncleanedNodes.add(nodeID);
         }
         else if (qName.equals("way")) {
             /* Encountered a new <way...> tag, which is found at the beginning of a way block. */
@@ -104,6 +105,8 @@ public class GraphBuildingHandler extends DefaultHandler {
                 All ways MUST have nodes as part of their implementation.
                 Thus, g.nodes.get() always returns non null. */
 
+                g.edges.get(wayID).numNodes = g.nodeStaging.size();
+
                 isValidWay = true;
                 Long currNode = g.nodeStaging.poll();
                 while (g.nodeStaging.peek() != null) {
@@ -116,10 +119,10 @@ public class GraphBuildingHandler extends DefaultHandler {
                     // Set new value for currNode for next iteration
                     currNode = g.nodeStaging.poll();
                 }
+
             } else if (k.equals("name")) {
                 g.edges.put(wayID, new GraphDB.Edge(v));
             }
-
         }
         else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
