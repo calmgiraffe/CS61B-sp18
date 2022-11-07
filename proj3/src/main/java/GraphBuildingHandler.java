@@ -38,7 +38,9 @@ public class GraphBuildingHandler extends DefaultHandler {
                     "residential", "living_street", "motorway_link", "trunk_link", "primary_link",
                     "secondary_link", "tertiary_link"));
     private String activeState = "";
+    private Long nodeID;
     private Long wayID;
+    boolean isValidWay;
     private final GraphDB g;
 
     /**
@@ -69,68 +71,62 @@ public class GraphBuildingHandler extends DefaultHandler {
             throws SAXException {
 
         if (qName.equals("node")) {
-            /* Encountered a new <node...> tag */
+            /* Encountered a new <node...> tag. */
             activeState = "node";
+            nodeID = Long.parseLong(attributes.getValue("id"));
 
-            Long id = Long.parseLong(attributes.getValue("id"));
+            /* Add the node to the HashMap of nodes in g. */
             double lon = Double.parseDouble(attributes.getValue("lon"));
             double lat = Double.parseDouble(attributes.getValue("lat"));
             String name = attributes.getValue("name");
-            g.nodes.put(id, new GraphDB.Node(lat, lon, name));
-
-
-
-        } else if (qName.equals("way")) {
+            g.nodes.put(nodeID, new GraphDB.Node(lat, lon, name));
+        }
+        else if (qName.equals("way")) {
             /* Encountered a new <way...> tag, which is found at the beginning of a way block. */
             activeState = "way";
             wayID = Long.parseLong(attributes.getValue("id"));
-
-        } else if (activeState.equals("way") && qName.equals("nd")) {
-            /* Found an <nd...> tag within a way black. */
-
-            /* Add node to g.nodeStaging, a queue of nodes that is kept track of in the case
+        }
+        else if (activeState.equals("way") && qName.equals("nd")) {
+            /* Found a node within a way black.
+            Add node to g.nodeStaging, a queue of nodes that is kept track of in the case
             that the way is highway AND is one of the valid types, as will be determined later. */
             Long id = Long.parseLong(attributes.getValue("ref"));
             g.nodeStaging.add(id);
-
-        } else if (activeState.equals("way") && qName.equals("tag")) {
+        }
+        else if (activeState.equals("way") && qName.equals("tag")) {
             /* <tag> represents important information about the way like whether it is a valid way
             in the context of this program, speed, name, etc. k is the key, v is the value. */
 
             String k = attributes.getValue("k");
             String v = attributes.getValue("v");
             if (k.equals("highway") && ALLOWED_HIGHWAY_TYPES.contains(v)) {
+                /* If way is highway AND is valid type, draw edges between its nodes.
+                All ways MUST have nodes as part of their implementation.
+                Thus, g.nodes.get() always returns non null. */
+
+                isValidWay = true;
                 Long currNode = g.nodeStaging.poll();
-
                 while (g.nodeStaging.peek() != null) {
-                    /* Draw edge between curr and next.
-                    All ways MUST have nodes as part of their implementation.
-                    Thus, g.nodes.get() always returns non null. */
                     Long nextNode = g.nodeStaging.peek();
-                    GraphDB.Node n = g.nodes.get(currNode);
-                    n.adjacent.add(nextNode);
-                    g.nodeStaging.poll();
-                }
-                /* Hint: Setting a "flag" is good enough! */
+                    GraphDB.Node currNodeObj = g.nodes.get(currNode);
+                    currNodeObj.adjacent.add(nextNode);
+                    GraphDB.Node nextNodeObj = g.nodes.get(nextNode);
+                    nextNodeObj.adjacent.add(currNode);
 
+                    // Set new value for currNode for next iteration
+                    currNode = g.nodeStaging.poll();
+                }
             } else if (k.equals("name")) {
                 g.edges.put(wayID, new GraphDB.Edge(v));
-                System.out.println("Way Name: " + v);
             }
-            System.out.println("Tag with k=" + k + ", v=" + v + ".");
 
-
-
-        } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
+        }
+        else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
-            /* While looking at a node, we found a <tag...> with k="name". */
-            /* TODO Create a location. */
-            /* Hint: Since we found this <tag...> INSIDE a node, we should probably remember which
-            node this tag belongs to. Remember XML is parsed top-to-bottom, so probably it's the
-            last node that you looked at (check the first if-case). */
-
-
-            System.out.println("Node's name: " + attributes.getValue("v"));
+            /* While looking at a node, we found a <tag...> with k="name".
+            Set the node's isLocation flag to true. */
+            g.nodes.get(nodeID).isLocation = true;
+            g.nodes.get(nodeID).name = attributes.getValue("v");
         }
     }
 
@@ -149,10 +145,11 @@ public class GraphBuildingHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equals("way")) {
-            /* We are done looking at a way. (We finished looking at the nodes, speeds, etc...)*/
-            /* Hint1: If you have stored the possible connections for this way, here's your
-            chance to actually connect the nodes together if the way is valid. */
-            //System.out.println("Finishing a way...");
+            if (!isValidWay) {
+                g.nodeStaging.clear();
+            } else {
+                isValidWay = false;
+            }
         }
     }
 

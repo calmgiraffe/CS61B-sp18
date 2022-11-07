@@ -28,6 +28,7 @@ public class GraphDB {
         double latitude;
         double longitude;
         String name;
+        boolean isLocation;
         ArrayList<Long> adjacent;
 
         Node(double lat, double lon, String name) {
@@ -98,7 +99,7 @@ public class GraphDB {
      */
     private void clean() {
         // TODO: Your code here.
-        // Iterate through hashmap, remove nodes that don't have neighbours
+        // Iterate through hashmap, remove nodes that don't have neighbours or names?
     }
 
     /**
