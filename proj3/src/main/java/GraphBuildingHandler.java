@@ -38,6 +38,7 @@ public class GraphBuildingHandler extends DefaultHandler {
                     "residential", "living_street", "motorway_link", "trunk_link", "primary_link",
                     "secondary_link", "tertiary_link"));
     private String activeState = "";
+    private Long wayID;
     private final GraphDB g;
 
     /**
@@ -77,16 +78,18 @@ public class GraphBuildingHandler extends DefaultHandler {
             String name = attributes.getValue("name");
             g.nodes.put(id, new GraphDB.Node(lat, lon, name));
 
+
+
         } else if (qName.equals("way")) {
-            /* Encountered a new <way...> tag. */
+            /* Encountered a new <way...> tag, which is found at the beginning of a way block. */
             activeState = "way";
+            wayID = Long.parseLong(attributes.getValue("id"));
 
         } else if (activeState.equals("way") && qName.equals("nd")) {
-            /* While looking at a way, we found a <nd...> tag. */
-            System.out.println("Id of a node in this way: " + attributes.getValue("ref"));
+            /* Found an <nd...> tag within a way black. */
 
-            /* Add to g.nodeStaging, a temporary list of nodes that is kept track of in the case
-            that the way is highway AND is one of the valid types */
+            /* Add node to g.nodeStaging, a queue of nodes that is kept track of in the case
+            that the way is highway AND is one of the valid types, as will be determined later. */
             Long id = Long.parseLong(attributes.getValue("ref"));
             g.nodeStaging.add(id);
 
@@ -99,25 +102,24 @@ public class GraphBuildingHandler extends DefaultHandler {
             if (k.equals("highway") && ALLOWED_HIGHWAY_TYPES.contains(v)) {
                 Long currNode = g.nodeStaging.poll();
 
-                // while queue is not empty
                 while (g.nodeStaging.peek() != null) {
+                    /* Draw edge between curr and next.
+                    All ways MUST have nodes as part of their implementation.
+                    Thus, g.nodes.get() always returns non null. */
                     Long nextNode = g.nodeStaging.peek();
-                    // draw edge between curr and next
-                    // Recall: all ways MUST have nodes as part of their implementation
-
                     GraphDB.Node n = g.nodes.get(currNode);
-
+                    n.adjacent.add(nextNode);
+                    g.nodeStaging.poll();
                 }
-
-                /* TODO Figure out whether this way and its connections are valid. */
                 /* Hint: Setting a "flag" is good enough! */
-                // Purpose of flag?
 
             } else if (k.equals("name")) {
-                g.
+                g.edges.put(wayID, new GraphDB.Edge(v));
                 System.out.println("Way Name: " + v);
             }
             System.out.println("Tag with k=" + k + ", v=" + v + ".");
+
+
 
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
@@ -126,6 +128,8 @@ public class GraphBuildingHandler extends DefaultHandler {
             /* Hint: Since we found this <tag...> INSIDE a node, we should probably remember which
             node this tag belongs to. Remember XML is parsed top-to-bottom, so probably it's the
             last node that you looked at (check the first if-case). */
+
+
             System.out.println("Node's name: " + attributes.getValue("v"));
         }
     }

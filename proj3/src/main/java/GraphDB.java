@@ -98,7 +98,6 @@ public class GraphDB {
      */
     private void clean() {
         // TODO: Your code here.
-
         // Iterate through hashmap, remove nodes that don't have neighbours
     }
 
