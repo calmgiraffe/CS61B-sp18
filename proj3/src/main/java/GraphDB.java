@@ -48,6 +48,7 @@ public class GraphDB {
 
     // Instance variables for storing the graph
     HashMap<Long, Node> nodes;
+    HashMap<Long, Node> locations;
     HashMap<Long, Way> ways;
     HashSet<Long> uncleanedNodes;
     KDTree kdTree;
@@ -65,6 +66,7 @@ public class GraphDB {
      */
     public GraphDB(String dbPath) {
         this.nodes = new HashMap<>();
+        this.locations = new HashMap<>();
         this.ways = new HashMap<>();
         this.uncleanedNodes = new HashSet<>();
 
@@ -108,9 +110,12 @@ public class GraphDB {
      *  Runs in theta(n) time, n is number of nodes currently stored.
      */
     private void clean() {
-        for (Long nodeID : uncleanedNodes) {
+        for (Long nodeID : uncleanedNodes) { // uncleanedNodes is correct size
             Node nodeObj = nodes.get(nodeID);
-            if (!nodeObj.isLocation && nodeObj.adjacent.isEmpty()) {
+            if (nodeObj.isLocation) {
+                locations.put(nodeID, nodeObj);
+            }
+            if (nodeObj.adjacent.isEmpty()) {
                 nodes.remove(nodeID);
             }
         }

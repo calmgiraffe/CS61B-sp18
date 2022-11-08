@@ -36,14 +36,13 @@ public class KDTree {
     private Node root;
     private double bestDistance;
     private final ArrayList<Long> nodeIDs;
-    private final ArrayList<Integer> nodesIndexes;
     private final HashMap<Long, GraphDB.Node> nodesMap;
 
     public KDTree(HashMap<Long, GraphDB.Node> nodesMap) {
         this.bestDistance = Double.MAX_VALUE;
         this.nodeIDs = new ArrayList<>();
-        this.nodesIndexes = new ArrayList<>();
         this.nodesMap = nodesMap;
+        ArrayList<Integer> nodesIndexes = new ArrayList<>();
 
         // Create a list of all nodeIDs
         nodeIDs.addAll(nodesMap.keySet());
