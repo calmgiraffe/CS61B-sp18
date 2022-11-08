@@ -19,13 +19,14 @@ import java.util.*;
  */
 public class GraphDB {
 
+    // Inner class for object representing the information associated with a nodeID
     public static class Node {
         double latitude;
         double longitude;
         String name;
         boolean isLocation;
         ArrayList<Long> adjacent;
-        long edge;
+        long way;
 
         Node(double lat, double lon) {
             this.latitude = lat;
@@ -34,21 +35,22 @@ public class GraphDB {
         }
     }
 
-    public static class Edge {
+    // Inner class for object representing the information associated with a wayID
+    public static class Way {
         String name;
         int numNodes;
 
-        Edge(String name, int numNodes) {
+        Way(String name, int numNodes) {
             this.name = name;
             this.numNodes = numNodes;
         }
     }
 
-    /* Instance variables for storing the graph. */
-    // mapping node/way ids to an object that contains all relevant info about the node/way
+    // Instance variables for storing the graph
     HashMap<Long, Node> nodes;
-    HashMap<Long, Edge> edges;
+    HashMap<Long, Way> ways;
     HashSet<Long> uncleanedNodes;
+    KDTree kdTree;
 
     // map node id to array index?
     // arraylist of Node objects
@@ -63,7 +65,7 @@ public class GraphDB {
      */
     public GraphDB(String dbPath) {
         this.nodes = new HashMap<>();
-        this.edges = new HashMap<>();
+        this.ways = new HashMap<>();
         this.uncleanedNodes = new HashSet<>();
 
         try {
@@ -84,6 +86,9 @@ public class GraphDB {
         }
         // final step is to destroy all disconnected nodes or those that are not a location
         clean();
+
+        // After cleaning, make KDTree of nodes for nearest node searching
+        this.kdTree = new KDTree(nodes.keySet(), nodes);
     }
 
     /**

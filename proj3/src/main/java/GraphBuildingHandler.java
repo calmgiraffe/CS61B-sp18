@@ -39,10 +39,10 @@ public class GraphBuildingHandler extends DefaultHandler {
     //  flags and GraphDB info that will be added at the </way> tag
     private String activeState = "";
     private Long nodeID;
-    private Queue<Long> nodeStaging;
+    private final Queue<Long> nodeStaging;
 
     private Long wayID;
-    private String edgeName;
+    private String wayName;
 
     private boolean isValidWay;
     private final GraphDB g;
@@ -105,12 +105,12 @@ public class GraphBuildingHandler extends DefaultHandler {
             String k = attributes.getValue("k");
             String v = attributes.getValue("v");
             if (k.equals("highway") && ALLOWED_HIGHWAY_TYPES.contains(v)) {
-                // Set isValidWay flag to edge drawing & queue clearing at end.
+                // Set isValidWay flag for edge drawing & queue clearing at end.
                 isValidWay = true;
 
             } else if (k.equals("name")) {
                 // Note: not every way has a name
-                edgeName = v;
+                wayName = v;
             }
         }
         else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
@@ -143,7 +143,7 @@ public class GraphBuildingHandler extends DefaultHandler {
                 /* Connect current and next node both ways, updating curr and next pointers
                 each iteration, until staging queue is empty. */
                 Long currNode = nodeStaging.poll();
-                g.nodes.get(currNode).edge = wayID;
+                g.nodes.get(currNode).way = wayID;
                 while (nodeStaging.peek() != null) {
                     Long nextNode = nodeStaging.peek();
                     g.nodes.get(currNode).adjacent.add(nextNode);
@@ -151,11 +151,11 @@ public class GraphBuildingHandler extends DefaultHandler {
 
                     // Set new value for currNode for next iteration
                     currNode = nodeStaging.poll();
-                    g.nodes.get(currNode).edge = wayID;
+                    g.nodes.get(currNode).way = wayID;
                 }
-                // Add edge to g.edges HashMap
-                GraphDB.Edge newEdge = new GraphDB.Edge(edgeName, numNodes);
-                g.edges.put(wayID, newEdge);
+                // Add way to g.way HashMap
+                GraphDB.Way newWay = new GraphDB.Way(wayName, numNodes);
+                g.ways.put(wayID, newWay);
 
                 // Reset isValidWay flag
                 isValidWay = false;
