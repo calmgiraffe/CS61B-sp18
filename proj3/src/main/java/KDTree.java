@@ -38,6 +38,7 @@ public class KDTree {
     private final ArrayList<Long> nodeIDs;
     private final HashMap<Long, GraphDB.Node> nodesMap;
 
+    // Constructor
     public KDTree(HashMap<Long, GraphDB.Node> nodesMap) {
         this.bestDistance = Double.MAX_VALUE;
         this.nodeIDs = new ArrayList<>();
