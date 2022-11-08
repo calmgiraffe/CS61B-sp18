@@ -83,7 +83,7 @@ public class GraphBuildingHandler extends DefaultHandler {
             /* Add the node to the HashMap of nodes found in GraphDB g. */
             double lon = Double.parseDouble(attributes.getValue("lon"));
             double lat = Double.parseDouble(attributes.getValue("lat"));
-            g.nodes.put(nodeID, new GraphDB.Node(lat, lon));
+            g.nodes.put(nodeID, new GraphDB.Node(lon, lat));
             g.uncleanedNodes.add(nodeID);
         }
         else if (qName.equals("way")) {

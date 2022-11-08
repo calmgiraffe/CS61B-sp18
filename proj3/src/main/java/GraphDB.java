@@ -21,16 +21,16 @@ public class GraphDB {
 
     // Inner class for object representing the information associated with a nodeID
     public static class Node {
-        double latitude;
-        double longitude;
+        double lon;
+        double lat;
         String name;
         boolean isLocation;
         ArrayList<Long> adjacent;
         long way;
 
-        Node(double lat, double lon) {
-            this.latitude = lat;
-            this.longitude = lon;
+        Node(double lon, double lat) {
+            this.lon = lon;
+            this.lat = lat;
             this.adjacent = new ArrayList<>();
         }
     }
@@ -194,7 +194,7 @@ public class GraphDB {
      * @return The id of the node in the graph closest to the target.
      */
     long closest(double lon, double lat) {
-        return 0;
+        return kdTree.nearest(lon, lat);
     }
 
     /**
@@ -204,7 +204,7 @@ public class GraphDB {
      * @return The longitude of the vertex.
      */
     double lon(long v) {
-        return nodes.get(v).longitude;
+        return nodes.get(v).lon;
     }
 
     /**
@@ -214,6 +214,6 @@ public class GraphDB {
      * @return The latitude of the vertex.
      */
     double lat(long v) {
-        return nodes.get(v).latitude;
+        return nodes.get(v).lat;
     }
 }

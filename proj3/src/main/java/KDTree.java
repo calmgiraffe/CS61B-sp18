@@ -6,12 +6,12 @@ public class KDTree {
 
     // Inner class for x-y coordinate
     public static class Point {
-        double lat;
         double lon;
+        double lat;
 
-        Point(double lat, double lon) {
-            this.lat = lat;
+        Point(double lon, double lat) {
             this.lon = lon;
+            this.lat = lat;
         }
     }
 
@@ -23,8 +23,9 @@ public class KDTree {
         boolean leftIsGoodSide;
         int depth;
 
-        Node(Point point) {
+        Node(Point point, int depth) {
             this.point = point;
+            this.depth = depth;
         }
     }
 
@@ -48,41 +49,40 @@ public class KDTree {
         }
         Collections.shuffle(nodesIndexes);
 
-        // Generate the KDTree by iterating through nodeIndexes, adding to the tree
+        // Generate the KDTree by iterating through nodeIndexes, adding randomly to the tree
         for (int i : nodesIndexes) {
             GraphDB.Node n = nodesHashMap.get(nodes.get(i));
-            Node newNode = new Node(new Point(n.latitude, n.longitude));
-            insert(newNode);
+            insert(n);
         }
+
+        //printTree();
     }
 
-    // implementation:
-    // for updating best, use great circle distance
-    // pruning rule: use straight line distance instead; this is greater than great circle, but faster to compute
-
-    // insertion: do randomly
-    // If N distinct keys are inserted in random order, expected tree height is ~ 4.311 ln N
-    private void insertHelper(Node n, int depth, Node curr) {
+    private Node insertHelper(GraphDB.Node n, int depth, Node curr) {
 
         if (curr == null) { // create a new node at curr from info in n
-            curr = n;
+            return new Node(new Point(n.lon, n.lat), depth);
+
         } else if (depth % 2 == 0) { // if depth is even, compare longitude
-            if (n.point.lon < curr.point.lon) {
-                insertHelper(n, depth + 1, curr.left);
+            if (n.lon < curr.point.lon) {
+                curr.left = insertHelper(n, depth + 1, curr.left);
             } else {
-                insertHelper(n, depth + 1, curr.right);
+                curr.right = insertHelper(n, depth + 1, curr.right);
             }
+
         } else { // if depth is odd, compare latitude
-            if (n.point.lat < curr.point.lat) {
-                insertHelper(n, depth + 1, curr.left);
+            if (n.lat < curr.point.lat) {
+                curr.left = insertHelper(n, depth + 1, curr.left);
             } else {
-                insertHelper(n, depth + 1, curr.right);
+                curr.right = insertHelper(n, depth + 1, curr.right);
             }
         }
+        return curr;
     }
 
-    public void insert(Node n) {
-        insertHelper(n, 0, root);
+    /** Inserts a node into its proper position in the tree. */
+    public void insert(GraphDB.Node n) {
+        root = insertHelper(n, 0, root);
     }
 
     private Node nearestHelper(Node n, Point goal, Node best) {
@@ -91,12 +91,29 @@ public class KDTree {
 
     /**
      * Returns the nodeID of the node that is closest to inputted latitude and longitude.
+     * Implementation:
+     * for updating best, use great circle distance
+     * pruning rule: use straight line distance; greater than great circle, but faster to compute
      *
      * @param lat goal latitude
      * @param lon goal longitude
      * @return id of the closest node
      */
-    public long nearest(double lat, double lon) {
+    public long nearest(double lon, double lat) {
         return 0;
+    }
+
+    private void printHelper(Node n, String indent, String prefix) {
+        if (n == null) { // if leaf
+            return;
+        }
+        System.out.println(prefix + n.depth + indent + " (" + n.point.lon + ", "+  n.point.lat + ")");
+        printHelper(n.left, indent + "    ", "L");
+        printHelper(n.right, indent + "    ", "R");
+    }
+
+    /** Debugging tool to view tree structure */
+    public void printTree() {
+        printHelper(root, "", "0");
     }
 }
