@@ -2,9 +2,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  *  Parses OSM XML files using an XML SAX parser. Used to construct the graph of roads for
@@ -37,10 +35,16 @@ public class GraphBuildingHandler extends DefaultHandler {
             ("motorway", "trunk", "primary", "secondary", "tertiary", "unclassified",
                     "residential", "living_street", "motorway_link", "trunk_link", "primary_link",
                     "secondary_link", "tertiary_link"));
+
+    //  flags and GraphDB info that will be added at the </way> tag
     private String activeState = "";
     private Long nodeID;
+    private Queue<Long> nodeStaging;
+
     private Long wayID;
-    boolean isValidWay;
+    private String edgeName;
+
+    private boolean isValidWay;
     private final GraphDB g;
 
     /**
@@ -49,6 +53,7 @@ public class GraphBuildingHandler extends DefaultHandler {
      */
     public GraphBuildingHandler(GraphDB g) {
         this.g = g;
+        this.nodeStaging = new LinkedList<>();
     }
 
     /**
@@ -75,11 +80,10 @@ public class GraphBuildingHandler extends DefaultHandler {
             activeState = "node";
             nodeID = Long.parseLong(attributes.getValue("id"));
 
-            /* Add the node to the HashMap of nodes in g. */
+            /* Add the node to the HashMap of nodes found in GraphDB g. */
             double lon = Double.parseDouble(attributes.getValue("lon"));
             double lat = Double.parseDouble(attributes.getValue("lat"));
-            String name = attributes.getValue("name");
-            g.nodes.put(nodeID, new GraphDB.Node(lat, lon, name));
+            g.nodes.put(nodeID, new GraphDB.Node(lat, lon));
             g.uncleanedNodes.add(nodeID);
         }
         else if (qName.equals("way")) {
@@ -88,11 +92,11 @@ public class GraphBuildingHandler extends DefaultHandler {
             wayID = Long.parseLong(attributes.getValue("id"));
         }
         else if (activeState.equals("way") && qName.equals("nd")) {
-            /* Found a node within a way black.
+            /* Found a node within a way block.
             Add node to g.nodeStaging, a queue of nodes that is kept track of in the case
             that the way is highway AND is one of the valid types, as will be determined later. */
             Long id = Long.parseLong(attributes.getValue("ref"));
-            g.nodeStaging.add(id);
+            nodeStaging.add(id);
         }
         else if (activeState.equals("way") && qName.equals("tag")) {
             /* <tag> represents important information about the way like whether it is a valid way
@@ -101,33 +105,18 @@ public class GraphBuildingHandler extends DefaultHandler {
             String k = attributes.getValue("k");
             String v = attributes.getValue("v");
             if (k.equals("highway") && ALLOWED_HIGHWAY_TYPES.contains(v)) {
-                /* If way is highway AND is valid type, draw edges between its nodes.
-                All ways MUST have nodes as part of their implementation.
-                Thus, g.nodes.get() always returns non null. */
-
-                g.edges.get(wayID).numNodes = g.nodeStaging.size();
-
+                // Set isValidWay flag to edge drawing & queue clearing at end.
                 isValidWay = true;
-                Long currNode = g.nodeStaging.poll();
-                while (g.nodeStaging.peek() != null) {
-                    Long nextNode = g.nodeStaging.peek();
-                    GraphDB.Node currNodeObj = g.nodes.get(currNode);
-                    currNodeObj.adjacent.add(nextNode);
-                    GraphDB.Node nextNodeObj = g.nodes.get(nextNode);
-                    nextNodeObj.adjacent.add(currNode);
-
-                    // Set new value for currNode for next iteration
-                    currNode = g.nodeStaging.poll();
-                }
 
             } else if (k.equals("name")) {
-                g.edges.put(wayID, new GraphDB.Edge(v));
+                // Note: not every way has a name
+                edgeName = v;
             }
         }
         else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
             /* While looking at a node, we found a <tag...> with k="name".
-            Set the node's isLocation flag to true. */
+            Set the node's isLocation flag to true and update its name. */
             g.nodes.get(nodeID).isLocation = true;
             g.nodes.get(nodeID).name = attributes.getValue("v");
         }
@@ -148,10 +137,30 @@ public class GraphBuildingHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equals("way")) {
-            if (!isValidWay) {
-                g.nodeStaging.clear();
-            } else {
+            if (isValidWay) {
+                int numNodes = nodeStaging.size();
+
+                /* Connect current and next node both ways, updating curr and next pointers
+                each iteration, until staging queue is empty. */
+                Long currNode = nodeStaging.poll();
+                g.nodes.get(currNode).edge = wayID;
+                while (nodeStaging.peek() != null) {
+                    Long nextNode = nodeStaging.peek();
+                    g.nodes.get(currNode).adjacent.add(nextNode);
+                    g.nodes.get(nextNode).adjacent.add(currNode);
+
+                    // Set new value for currNode for next iteration
+                    currNode = nodeStaging.poll();
+                    g.nodes.get(currNode).edge = wayID;
+                }
+                // Add edge to g.edges HashMap
+                GraphDB.Edge newEdge = new GraphDB.Edge(edgeName, numNodes);
+                g.edges.put(wayID, newEdge);
+
+                // Reset isValidWay flag
                 isValidWay = false;
+            } else {
+                nodeStaging.clear();
             }
         }
     }

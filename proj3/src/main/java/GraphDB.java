@@ -18,7 +18,6 @@ import java.util.*;
  * @author Alan Yao, Josh Hug
  */
 public class GraphDB {
-    /* Instance variables for storing the graph. */
 
     public static class Node {
         double latitude;
@@ -26,40 +25,45 @@ public class GraphDB {
         String name;
         boolean isLocation;
         ArrayList<Long> adjacent;
+        long edge;
 
-        Node(double lat, double lon, String name) {
+        Node(double lat, double lon) {
             this.latitude = lat;
             this.longitude = lon;
-            this.name = name;
             this.adjacent = new ArrayList<>();
         }
     }
 
     public static class Edge {
-        ArrayList<Long> nodes;
         String name;
         int numNodes;
 
-        Edge(String name) {
+        Edge(String name, int numNodes) {
             this.name = name;
+            this.numNodes = numNodes;
         }
     }
 
+    /* Instance variables for storing the graph. */
     // mapping node/way ids to an object that contains all relevant info about the node/way
     HashMap<Long, Node> nodes;
     HashMap<Long, Edge> edges;
-    Queue<Long> nodeStaging;
     HashSet<Long> uncleanedNodes;
+
+    // map node id to array index?
+    // arraylist of Node objects
+    // Then kdtree makes graph from arraylist
+    // nodes should have edges id and name associated with them
 
     /**
      * Example constructor shows how to create and start an XML parser.
      * You do not need to modify this constructor, but you're welcome to do so.
+     *
      * @param dbPath Path to the XML file to be parsed.
      */
     public GraphDB(String dbPath) {
         this.nodes = new HashMap<>();
         this.edges = new HashMap<>();
-        this.nodeStaging = new LinkedList<>();
         this.uncleanedNodes = new HashSet<>();
 
         try {
@@ -78,12 +82,13 @@ public class GraphDB {
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
-        // final step of graph creation is to destroy all nodes that are disconnected
+        // final step is to destroy all disconnected nodes or those that are not a location
         clean();
     }
 
     /**
      * Helper to process strings into their "cleaned" form, ignoring punctuation and capitalization.
+     *
      * @param s Input string.
      * @return Cleaned string.
      */
@@ -108,7 +113,6 @@ public class GraphDB {
 
     /**
      * Returns an iterable of all vertex IDs in the graph.
-     *
      * @return An iterable of id's of all vertices in the graph.
      */
     Iterable<Long> vertices() {
@@ -117,7 +121,6 @@ public class GraphDB {
 
     /**
      * Returns ids of all vertices adjacent to v.
-     *
      * @param v The id of the vertex we are looking adjacent to.
      * @return An iterable of the ids of the neighbors of v.
      */
