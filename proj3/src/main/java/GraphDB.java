@@ -88,7 +88,7 @@ public class GraphDB {
         clean();
 
         // After cleaning, make KDTree of nodes for nearest node searching
-        this.kdTree = new KDTree(nodes.keySet(), nodes);
+        this.kdTree = new KDTree(nodes);
     }
 
     /**

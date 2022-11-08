@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * GraphDB in isolation from all the rest of the parts of this assignment.
  */
 public class GraphDBLauncher {
-    private static final String OSM_DB_PATH = "../library-sp18/data/berkeley-2018-small.osm.xml";
+    private static final String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
 
     public static void main(String[] args) {
         GraphDB g = new GraphDB(OSM_DB_PATH);
@@ -31,9 +31,10 @@ public class GraphDBLauncher {
         }
 
         long v = g.closest(-122.258207, 37.875352);
-        System.out.print("The vertex number closest to -122.258207, 37.875352 is " + v + ", which");
+        long vNaive = g.kdTree.nearestNaive(-122.258207, 37.875352);
+        System.out.print("Vertex number closest to -122.258207, 37.875352 is " + v + ", which");
         System.out.println(" has longitude, latitude of: " + g.lon(v) + ", " + g.lat(v));
-
-        System.out.println("To get started, uncomment print statements in GraphBuildingHandler.");
+        System.out.print("Vertex number closest to -122.258207, 37.875352 using naive search is "
+                + vNaive);
     }
 }
