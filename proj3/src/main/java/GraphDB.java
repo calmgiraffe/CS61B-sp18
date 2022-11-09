@@ -227,4 +227,16 @@ public class GraphDB {
         }
         return N;
     }
+
+    /**
+     * Return euclidian distance between two nodes.
+     * @param v node1
+     * @param w node2
+     * @return euclidian distance
+     */
+    double euclidian(long v, long w) {
+        double londiff = lon(v) - lon(w);
+        double latdiff = lat(v) - lat(w);
+        return Math.sqrt(Math.pow(londiff, 2) + Math.pow(latdiff, 2));
+    }
 }

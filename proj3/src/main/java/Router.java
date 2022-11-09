@@ -85,7 +85,8 @@ public class Router {
                     edgeTo.put(p, q);
 
                     // Add neighbour q to fringe, with heuristic distance factored in
-                    Node n = new Node(q, distTo.get(q) + g.distance(q, destID));
+                    //Node n = new Node(q, distTo.get(q) + g.distance(q, destID));
+                    Node n = new Node(q, distTo.get(q));
                     fringe.add(n);
                 }
                 if (q == destID) {
