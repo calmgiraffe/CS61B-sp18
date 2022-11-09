@@ -8,13 +8,13 @@ import java.util.Map;
  * not draw the output correctly.
  */
 public class Rasterer {
-    double ftPerDeg;
-    double lowestRes;
-    double latDiff;
-    double lonDiff;
+    final double ftPerDeg;
+    final double lowestRes;
+    final double latDiff;
+    final double lonDiff;
     // mapping depths to double[] representing lats and longs of partitions
-    double[][] latCache;
-    double[][] lonCache;
+    final double[][] latCache;
+    final double[][] lonCache;
 
     public Rasterer() {
         this.ftPerDeg = 288200.0;
@@ -103,10 +103,10 @@ public class Rasterer {
         /*
         Use binary search on cache to determine index of the closest partition, given min/max x/y,
         which represent the lowest and highest x/y values to use when generating the filenames. */
-        int minX = binarySearch(lonCache[depth], 0, lonCache[depth].length, ULLon);
-        int maxX = binarySearch(lonCache[depth], 0, lonCache[depth].length, LRLon);
-        int minY = binarySearch(latCache[depth], 0, latCache[depth].length, -ULLat);
-        int maxY = binarySearch(latCache[depth], 0, latCache[depth].length, -LRLat);
+        int minX = binarySearch(lonCache, depth, ULLon);
+        int maxX = binarySearch(lonCache, depth, LRLon);
+        int minY = binarySearch(latCache, depth, -ULLat);
+        int maxY = binarySearch(latCache, depth, -LRLat);
 
         results.put("render_grid", generateRenderGrid(minX, maxX, minY, maxY, depth));
         results.put("raster_ul_lon", MapServer.ROOT_ULLON + minX * lonDiff / divisions);
@@ -172,7 +172,7 @@ public class Rasterer {
      * For example, start and end are initially 0 and 8 for an array of length 8.
      * When end - start = 1, the sub array currently looked at is of length 1.
      */
-    public int binarySearch(double[] cache, int start, int end, double desired) {
+    public int binarySearchHelper(double[] cache, int start, int end, double desired) {
         // Base case
         if (end - start == 1) {
             return start;
@@ -182,9 +182,13 @@ public class Rasterer {
         if (desired == cache[mid]) {
             return mid;
         } else if (desired > cache[mid]) {
-            return binarySearch(cache, mid, end, desired);
+            return binarySearchHelper(cache, mid, end, desired);
         } else {
-            return binarySearch(cache, start, mid, desired);
+            return binarySearchHelper(cache, start, mid, desired);
         }
+    }
+
+    public int binarySearch(double[][] cache, int depth, double desired) {
+        return binarySearchHelper(cache[depth], 0, cache[depth].length, desired);
     }
 }

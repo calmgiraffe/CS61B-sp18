@@ -1,5 +1,4 @@
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,10 +11,41 @@ import java.util.regex.Pattern;
  * down to the priority you use to order your vertices.
  */
 public class Router {
+
+    /** Private class to represent a vertex-distance pair in the pQueue. */
+    private static class Node {
+        long nodeID;
+        double distance;
+
+        Node(long nodeID, double distance) {
+            this.nodeID = nodeID;
+            this.distance = distance;
+        }
+    }
+
+    private static class DistanceComparator implements Comparator<Node> {
+        @Override
+        public int compare(Node a, Node b) {
+            if (a.distance - b.distance < 0) {
+                return -1;
+            } else if (a.distance - b.distance > 0) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
+    /** Return a Comparator for comparing priority of two Nodes in the PQ */
+    private static Comparator<Node> getDistanceComparator() {
+        return new DistanceComparator();
+    }
+
     /**
      * Return a List of longs representing the shortest path from the node
      * closest to a start location and the node closest to the destination
      * location.
+     *
      * @param g The graph to use.
      * @param stlon The longitude of the start location.
      * @param stlat The latitude of the start location.
@@ -25,11 +55,58 @@ public class Router {
      */
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        return null; // FIXME
+
+        // Below is the implementation of a*
+        PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
+        HashMap<Long, Long> edgeTo = new HashMap<>(g.size());
+        HashMap<Long, Double> distTo = new HashMap<>(g.size());
+
+        // Find the closest nodes to start and dest coordinates
+        long startID = g.closest(stlon, stlat);
+        long destID = g.closest(destlon, destlat);
+
+        // Fill distTo with infinity for all nodes except start node
+        for (long nodeID : g.vertices()) {
+            distTo.put(nodeID, Double.MAX_VALUE);
+        }
+        distTo.put(startID, 0.0);
+
+        // Initially add start to PQ, then remove node until target found or fringe.size = 0
+        fringe.add(new Node(startID, 0.0));
+        boolean targetFound = false;
+        while (fringe.size() > 0 && !targetFound) {
+            long p = fringe.poll().nodeID;
+            for (long q : g.adjacent(p)) {
+
+                // If new distance < old distance, update distTo and edgeTo
+                double weight = g.distance(p, q);
+                if (distTo.get(p) + weight < distTo.get(q)) {
+                    distTo.put(q, distTo.get(p) + weight);
+                    edgeTo.put(p, q);
+
+                    // Add neighbour q to fringe, with heuristic distance factored in
+                    Node n = new Node(q, distTo.get(q) + g.distance(q, destID));
+                    fringe.add(n);
+                }
+                if (q == destID) {
+                    targetFound = true;
+                }
+            }
+        }
+
+        // Generate list of nodes corresponding to the shortest path
+        ArrayList<Long> path = new ArrayList<>();
+        Long curr = startID;
+        while (curr != null) {
+            path.add(curr);
+            curr = edgeTo.get(curr);
+        }
+        return path;
     }
 
     /**
      * Create the list of directions corresponding to a route on the graph.
+     *
      * @param g The graph to use.
      * @param route The route to translate into directions. Each element
      *              corresponds to a node from the graph in the route.
@@ -39,7 +116,6 @@ public class Router {
     public static List<NavigationDirection> routeDirections(GraphDB g, List<Long> route) {
         return null; // FIXME
     }
-
 
     /**
      * Class to represent a navigation direction, which consists of 3 attributes:
@@ -102,6 +178,7 @@ public class Router {
         /**
          * Takes the string representation of a navigation direction and converts it into
          * a Navigation Direction object.
+         *
          * @param dirAsString The string representation of the NavigationDirection.
          * @return A NavigationDirection object representing the input string.
          */

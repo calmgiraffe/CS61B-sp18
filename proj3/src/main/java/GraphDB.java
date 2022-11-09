@@ -53,11 +53,6 @@ public class GraphDB {
     HashSet<Long> uncleanedNodes;
     KDTree kdTree;
 
-    // map node id to array index?
-    // arraylist of Node objects
-    // Then kdtree makes graph from arraylist
-    // nodes should have edges id and name associated with them
-
     /**
      * Example constructor shows how to create and start an XML parser.
      * You do not need to modify this constructor, but you're welcome to do so.
@@ -220,5 +215,16 @@ public class GraphDB {
      */
     double lat(long v) {
         return nodes.get(v).lat;
+    }
+
+    /**
+     * Returns the number of vertices in the graph.
+     */
+    int size() {
+        int N = 0;
+        for (Long id : nodes.keySet()) {
+            N += 1;
+        }
+        return N;
     }
 }

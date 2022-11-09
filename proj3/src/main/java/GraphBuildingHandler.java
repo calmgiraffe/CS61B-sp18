@@ -53,7 +53,7 @@ public class GraphBuildingHandler extends DefaultHandler {
      */
     public GraphBuildingHandler(GraphDB g) {
         this.g = g;
-        this.nodeStaging = new LinkedList<>();
+        this.nodeStaging = new ArrayDeque<>();
     }
 
     /**
