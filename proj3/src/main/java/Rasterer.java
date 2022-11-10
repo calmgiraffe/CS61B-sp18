@@ -140,11 +140,8 @@ public class Rasterer {
             return false;
         } else if (lowerRightLon < MapServer.ROOT_ULLON || upperLeftLon > MapServer.ROOT_LRLON) {
             return false;
-        } else if (lowerRightLat > MapServer.ROOT_ULLAT || upperLeftLat < MapServer.ROOT_LRLAT) {
-            return false;
-        } else {
-            return true;
-        }
+        } else return !(lowerRightLat > MapServer.ROOT_ULLAT)
+                && !(upperLeftLat < MapServer.ROOT_LRLAT);
     }
 
     /**
@@ -155,14 +152,14 @@ public class Rasterer {
         int numRows = maxY - minY + 1; // ex: 6-4 + 1 = 3 for 4, 5, 6
         int numCols = maxX - minX + 1;
         String prefix = "d" + depth;
-        String[][] render_grid = new String[numRows][numCols];
+        String[][] renderGrid = new String[numRows][numCols];
 
         for (int row = minY; row <= maxY; row += 1) {
             for (int col = minX; col <= maxX; col += 1) {
-                render_grid[row - minY][col - minX] = prefix + "_x" + col + "_y" + row + ".png";
+                renderGrid[row - minY][col - minX] = prefix + "_x" + col + "_y" + row + ".png";
             }
         }
-        return render_grid;
+        return renderGrid;
     }
 
     /**

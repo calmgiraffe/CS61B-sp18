@@ -34,13 +34,11 @@ public class KDTree {
 
     // kd tree instance variables
     private Node root;
-    private double bestDistance;
     private final ArrayList<Long> nodeIDs;
     private final HashMap<Long, GraphDB.Node> nodesMap;
 
     // Constructor
     public KDTree(HashMap<Long, GraphDB.Node> nodesMap) {
-        this.bestDistance = Double.MAX_VALUE;
         this.nodeIDs = new ArrayList<>();
         this.nodesMap = nodesMap;
         ArrayList<Integer> nodesIndexes = new ArrayList<>();
@@ -71,7 +69,7 @@ public class KDTree {
 
         } else if (depth % 2 == 0) { // if depth is even, compare longitude
             if (n.lon < curr.point.lon) {
-                curr.left = insertHelper(id ,n, depth + 1, curr.left);
+                curr.left = insertHelper(id, n, depth + 1, curr.left);
             } else {
                 curr.right = insertHelper(id, n, depth + 1, curr.right);
             }
@@ -100,7 +98,7 @@ public class KDTree {
         double bestDistance = GraphDB.distance(best.point.lon, best.point.lat, goal.lon, goal.lat);
         if (currDistance < bestDistance) {
             best = curr;
-            this.bestDistance = currDistance;
+            bestDistance = currDistance;
         }
         // Determine whether to compare lon or lat based on depth
         double currDimension;
@@ -123,7 +121,7 @@ public class KDTree {
         // Search good branch then bad side, if possible closer node could exist there
         // Pruning rule: is straight line distance to split line is less than bestDistance?
         best = nearestHelper(curr.goodSide, goal, best);
-        if (Math.pow(goalDimension - currDimension, 2) < Math.pow(this.bestDistance, 2)) {
+        if (Math.pow(goalDimension - currDimension, 2) < Math.pow(bestDistance, 2)) {
             best = nearestHelper(curr.badSide, goal, best);
         }
         return best;
@@ -140,7 +138,6 @@ public class KDTree {
      * @return id of the closest node
      */
     public long nearest(double lon, double lat) {
-        this.bestDistance = Double.MAX_VALUE;
         Node sentinel = new Node((long) -1, new Point(0, 0), -1);
         Node nearest = nearestHelper(root, new Point(lon, lat), sentinel);
         return nearest.id;
