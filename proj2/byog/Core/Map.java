@@ -17,12 +17,11 @@ public class Map implements Serializable {
     private final boolean enableFOV;
     protected static RandomExtra r;
     private final TETile[][] map;
-    private final TETile[][] FOVmap;
+    private final TETile[][] fovmap;
     protected final int width;
     protected final int height;
     protected final int oneDlength;
     private final Partition partition;
-    private final ArrayList<Room> rooms = new ArrayList<>();
     private final PlayerMover playerMover;
 
     /**
@@ -32,7 +31,7 @@ public class Map implements Serializable {
         this.enableFOV = enableFOV;
         r = new RandomExtra(seed);
         this.map = new TETile[width][height];
-        this.FOVmap = new TETile[width][height];
+        this.fovmap = new TETile[width][height];
         this.width = width;
         this.height = height;
         this.oneDlength = width * height;
@@ -49,7 +48,7 @@ public class Map implements Serializable {
         Partition.splitAndConnect(this.partition, this);
 
         // traverse partition tree and add leafs to rooms array
-        Partition.addRooms(rooms, this.partition);
+        ArrayList<Room> rooms = Partition.returnRooms(this.partition);
 
         for (Room r : rooms) {
             r.drawRoom(this);
@@ -81,9 +80,9 @@ public class Map implements Serializable {
             playerMover.movePlayer(direction);
         }
         if (enableFOV) {
-            fill(FOVmap, Tileset.NOTHING);
+            fill(fovmap, Tileset.NOTHING);
             for (Position p : playerMover.getFOV()) {
-                placeTile(FOVmap, p.x, p.y, peek(p));
+                placeTile(fovmap, p.x, p.y, peek(p));
             }
         }
     }
@@ -203,7 +202,7 @@ public class Map implements Serializable {
      */
     public TETile[][] getMap() {
         if (enableFOV) {
-            return FOVmap;
+            return fovmap;
         }
         return map;
     }

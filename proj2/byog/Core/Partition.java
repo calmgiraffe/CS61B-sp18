@@ -134,16 +134,22 @@ public class Partition implements Serializable {
         minLeft.room.astar(minRight.room, map);
     }
 
-    /**
-     * Given an ArrayList and a Partition tree p, traverses tree and adds all leafs to the array.
-     */
-    public static void addRooms(ArrayList<Room> rooms, Partition p) {
+    private static void returnRoomsHelper(ArrayList<Room> rooms, Partition p) {
         if (p.left == null && p.right == null) {
             rooms.add(p.room);
         } else {
-            addRooms(rooms, p.left);
-            addRooms(rooms, p.right);
+            returnRoomsHelper(rooms, p.left);
+            returnRoomsHelper(rooms, p.right);
         }
+    }
+
+    /**
+     * Given some root, traverses tree and returns list of all leafs.
+     */
+    public static ArrayList<Room> returnRooms(Partition p) {
+        ArrayList<Room> rooms = new ArrayList<>();
+        returnRoomsHelper(rooms, p);
+        return rooms;
     }
 
     /**

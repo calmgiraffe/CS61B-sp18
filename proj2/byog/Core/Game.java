@@ -23,7 +23,7 @@ public class Game implements Serializable {
     private long seed;
     private int level = 1;
     private StringBuilder commands;
-    private boolean enableFOV = true;
+    private boolean enableFOV = false;
     private boolean quitMenu = false;
     private boolean quitGame = false;
 
