@@ -15,7 +15,7 @@ public class Map implements Serializable {
      * Map instance variables
      */
     private final boolean enableFOV;
-    private final RandomExtra random;
+    protected static RandomExtra r;
     private final TETile[][] map;
     private final TETile[][] FOVmap;
     protected final int width;
@@ -30,7 +30,7 @@ public class Map implements Serializable {
      */
     Map(int width, int height, long seed, boolean enableFOV) {
         this.enableFOV = enableFOV;
-        this.random = new RandomExtra(seed);
+        r = new RandomExtra(seed);
         this.map = new TETile[width][height];
         this.FOVmap = new TETile[width][height];
         this.width = width;
@@ -46,25 +46,25 @@ public class Map implements Serializable {
      */
     public void generateWorld() {
         // make binary tree of partitions and draw hallways, making a connected graph
-        Partition.splitAndConnect(partition, random, this);
+        Partition.splitAndConnect(this.partition, this);
 
         // traverse partition tree and add leafs to rooms array
-        Partition.addRooms(rooms, partition);
+        Partition.addRooms(rooms, this.partition);
 
         for (Room r : rooms) {
             r.drawRoom(this);
 
-            if (random.nextIntInclusive(1, 100) < 50) { // 50% chance
-                int size = random.nextIntInclusive(5, 8);
+            if (Map.r.nextIntInclusive(1, 100) < 50) { // 50% chance
+                int size = Map.r.nextIntInclusive(5, 8);
                 r.drawIrregular(size, r.randomPosition(0), this);
             }
-            if (random.nextIntInclusive(1, 100) < 60) { // 60% chance
-                int size = random.nextIntInclusive(5, 7);
+            if (Map.r.nextIntInclusive(1, 100) < 60) { // 60% chance
+                int size = Map.r.nextIntInclusive(5, 7);
                 r.drawIrregularGrass(size, r.randomPosition(1), this);
             }
         }
         // Pick a room and place character in center
-        int i = random.nextIntInclusive(0, rooms.size() - 1);
+        int i = r.nextIntInclusive(0, rooms.size() - 1);
         Position playerPos = rooms.get(i).randomPosition(1);
         playerMover.setPosition(playerPos);
 
@@ -100,8 +100,7 @@ public class Map implements Serializable {
     }
 
     /**
-     * Draws the specified tile at the specified x & y. If x or y out of range, prints a message
-     * indicating the type of tile and location a placement was attempted.
+     * Draws the specified tile at the specified x & y.
      * Use this method so you don't get IndexErrors.
      */
     public static void placeTile(TETile[][] map, int x, int y, TETile tile) {
@@ -111,8 +110,7 @@ public class Map implements Serializable {
     }
 
     /**
-     * Draws the specified tile at the specified x & y. If x or y out of range, prints a message
-     * indicating the type of tile and location a placement was attempted.
+     * Draws the specified tile at the specified x & y.
      * Use this method so you don't get IndexErrors.
      */
     public void placeTile(int x, int y, TETile tile) {

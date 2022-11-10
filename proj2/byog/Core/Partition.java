@@ -65,39 +65,39 @@ public class Partition implements Serializable {
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as
      * the branches of the current partition. Finally, method traverses the newly created branches.
      */
-    public static void splitAndConnect(Partition p, RandomExtra r, Map map) {
+    public static void splitAndConnect(Partition p, Map map) {
         if (p.width > MAX || p.height > MAX) {
 
             if (p.width <= MAX) {
-                int border = r.nextIntInclusive(MIN, p.height - MIN);
+                int border = Map.r.nextIntInclusive(MIN, p.height - MIN);
                 p.left = splitVertically(p, border);
                 p.right = new Partition(p.position, p.width, border);
 
             } else if (p.height <= MAX) {
-                int border = r.nextIntInclusive(MIN, p.width - MIN);
+                int border = Map.r.nextIntInclusive(MIN, p.width - MIN);
                 p.left = splitHorizontally(p, border);
                 p.right = new Partition(p.position, border, p.height);
 
             } else {
-                int choice = r.nextIntInclusive(1);
+                int choice = Map.r.nextIntInclusive(1);
                 if (choice == 0) {
-                    int border = r.nextIntInclusive(MIN, p.height - MIN);
+                    int border = Map.r.nextIntInclusive(MIN, p.height - MIN);
                     p.left = splitVertically(p, border);
                     p.right = new Partition(p.position, p.width, border);
 
                 } else {
-                    int border = r.nextIntInclusive(MIN, p.width - MIN);
+                    int border = Map.r.nextIntInclusive(MIN, p.width - MIN);
                     p.left = splitHorizontally(p, border);
                     p.right = new Partition(p.position, border, p.height);
                 }
             }
-            splitAndConnect(p.left, r, map);
-            splitAndConnect(p.right, r, map);
+            splitAndConnect(p.left, map);
+            splitAndConnect(p.right, map);
             connectLeftAndRight(p, map);
 
         } else { // if leaf
             // generate room
-            p.generateRandomRoom(r);
+            p.generateRandomRoom();
 
             // make new PQ, add partition to it
             p.pQueue = new PriorityQueue<>(getDistanceComparator());
@@ -151,9 +151,9 @@ public class Partition implements Serializable {
      * exact dimensions of the partition area. A Room is an abstract object consisting of two
      * Positions representing the bottom left and top right corner, a floor type, etc
      */
-    private void generateRandomRoom(RandomExtra r) {
-        int lowerLeftX = r.nextIntInclusive(width - MIN);
-        int lowerLeftY = r.nextIntInclusive(height - MIN);
+    private void generateRandomRoom() {
+        int lowerLeftX = Map.r.nextIntInclusive(width - MIN);
+        int lowerLeftY = Map.r.nextIntInclusive(height - MIN);
         Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
 
         int minX = lowerLeft.x + MINROOM - 1;
@@ -161,11 +161,11 @@ public class Partition implements Serializable {
         int minY = lowerLeft.y + MINROOM - 1;
         int maxY = Math.min(lowerLeft.y + MAXROOM - 1, position.y + height - 1);
 
-        int upperRightX = r.nextIntInclusive(minX, maxX);
-        int upperRightY = r.nextIntInclusive(minY, maxY);
+        int upperRightX = Map.r.nextIntInclusive(minX, maxX);
+        int upperRightY = Map.r.nextIntInclusive(minY, maxY);
         Position upperRight = new Position(upperRightX, upperRightY);
 
-        this.room = new Room(lowerLeft, upperRight, r);
+        this.room = new Room(lowerLeft, upperRight);
     }
 
     /**

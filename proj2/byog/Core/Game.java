@@ -110,7 +110,7 @@ public class Game implements Serializable {
             // reset everything to black
             StdDraw.clear(Color.BLACK);
 
-            // Get the next commond (keyboard or string) and render updated map
+            // Get the next command (keyboard or string) and render updated map
             char next = getNextCommand();
             if (next == ':') {
                 colonPressed = true;
@@ -230,7 +230,8 @@ public class Game implements Serializable {
                 commands.deleteCharAt(0);
                 return next;
             }
-            return '~'; // Need some arbitrary value
+            // Need some arbitrary value
+            return '~';
         }
     }
 

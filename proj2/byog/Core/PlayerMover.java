@@ -38,10 +38,18 @@ public class PlayerMover implements Serializable {
      */
     public void movePlayer(char direction) {
         switch (direction) {
-            case 'w' -> newPos = new Position(pos.x, pos.y + 1);
-            case 'd' -> newPos = new Position(pos.x + 1, pos.y);
-            case 's' -> newPos = new Position(pos.x, pos.y - 1);
-            case 'a' -> newPos = new Position(pos.x - 1, pos.y);
+            case 'w':
+                newPos = new Position(pos.x, pos.y + 1);
+                break;
+            case 'd':
+                newPos = new Position(pos.x + 1, pos.y);
+                break;
+            case 's':
+                newPos = new Position(pos.x, pos.y - 1);
+                break;
+            case 'a':
+                newPos = new Position(pos.x - 1, pos.y);
+                break;
         }
         if (map.peek(newPos).character() != '#') {
             map.placeTile(pos.x, pos.y, prevTile);
