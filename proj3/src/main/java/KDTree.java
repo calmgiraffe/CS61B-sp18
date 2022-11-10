@@ -140,7 +140,8 @@ public class KDTree {
      * @return id of the closest node
      */
     public long nearest(double lon, double lat) {
-        Node sentinel = new Node((long) -1, new Point(lon + 180, -lat), -1);
+        this.bestDistance = Double.MAX_VALUE;
+        Node sentinel = new Node((long) -1, new Point(0, 0), -1);
         Node nearest = nearestHelper(root, new Point(lon, lat), sentinel);
         return nearest.id;
     }

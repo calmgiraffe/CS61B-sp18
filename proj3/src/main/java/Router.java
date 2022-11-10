@@ -82,26 +82,27 @@ public class Router {
                 double weight = g.distance(p, q);
                 if (distTo.get(p) + weight < distTo.get(q)) {
                     distTo.put(q, distTo.get(p) + weight);
-                    edgeTo.put(p, q);
+                    edgeTo.put(q, p); // has to be q, p
 
                     // Add neighbour q to fringe, with heuristic distance factored in
-                    //Node n = new Node(q, distTo.get(q) + g.distance(q, destID));
-                    Node n = new Node(q, distTo.get(q));
+                    Node n = new Node(q, distTo.get(p) + weight + g.distance(q, destID));
                     fringe.add(n);
                 }
                 if (q == destID) {
                     targetFound = true;
+                    break;
                 }
             }
         }
 
         // Generate list of nodes corresponding to the shortest path
         ArrayList<Long> path = new ArrayList<>();
-        Long curr = startID;
+        Long curr = destID;
         while (curr != null) {
             path.add(curr);
             curr = edgeTo.get(curr);
         }
+        Collections.reverse(path);
         return path;
     }
 
@@ -111,8 +112,7 @@ public class Router {
      * @param g The graph to use.
      * @param route The route to translate into directions. Each element
      *              corresponds to a node from the graph in the route.
-     * @return A list of NavigatiionDirection objects corresponding to the input
-     * route.
+     * @return A list of NavigatiionDirection objects corresponding to the input route.
      */
     public static List<NavigationDirection> routeDirections(GraphDB g, List<Long> route) {
         return null; // FIXME
