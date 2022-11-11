@@ -52,6 +52,7 @@ public class GraphDB {
     HashMap<Long, Way> ways;
     HashSet<Long> uncleanedNodes;
     KDTree kdTree;
+    protected Trie trie;
 
     /**
      * Example constructor shows how to create and start an XML parser.
@@ -86,6 +87,7 @@ public class GraphDB {
 
         // After cleaning, make KDTree of nodes for nearest node searching
         this.kdTree = new KDTree(nodes);
+        this.trie = buildTrie();
     }
 
     /**
@@ -98,6 +100,17 @@ public class GraphDB {
         return s.replaceAll("[^a-zA-Z ]", "").toLowerCase();
     }
 
+    /** Builds and returns a trie for the location names of this graph. */
+    private Trie buildTrie() {
+        Trie tr = new Trie();
+        for (long id : locations.keySet()) {
+            String name = locations.get(id).name;
+            tr.add(name);
+        }
+        return tr;
+    }
+
+
     /**
      *  Remove nodes with no connections from the graph.
      *  While this does not guarantee that any two nodes in the remaining graph are connected,
@@ -109,6 +122,7 @@ public class GraphDB {
             Node nodeObj = nodes.get(nodeID);
             if (nodeObj.isLocation) {
                 locations.put(nodeID, nodeObj);
+                // System.out.println(cleanString(locations.get(nodeID).name));
             }
             if (nodeObj.adjacent.isEmpty()) {
                 nodes.remove(nodeID);

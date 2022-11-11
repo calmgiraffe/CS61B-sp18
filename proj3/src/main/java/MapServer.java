@@ -287,7 +287,7 @@ public class MapServer {
      * cleaned <code>prefix</code>.
      */
     public static List<String> getLocationsByPrefix(String prefix) {
-        return new LinkedList<>();
+        return graph.trie.keysWithPrefix(prefix);
     }
 
     /**
