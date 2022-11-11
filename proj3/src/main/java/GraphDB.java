@@ -27,7 +27,7 @@ public class GraphDB {
         boolean isLocation;
         ArrayList<Long> adjacent;
         long way;
-        long thisID;
+        long id;
 
         Node(double lon, double lat) {
             this.lon = lon;
@@ -49,9 +49,10 @@ public class GraphDB {
 
     // Instance variables for storing the graph
     HashMap<Long, Node> nodes;
-    HashMap<String, Node> locations;
+    HashMap<String, List<Map<String, Object>>> locations;
+    HashMap<String, String> fullToCleanedName;
     HashMap<Long, Way> ways;
-    HashSet<Long> uncleanedNodes;
+    Set<Long> uncleanedNodes;
     KDTree kdTree;
     protected Trie trie;
 
@@ -64,6 +65,7 @@ public class GraphDB {
     public GraphDB(String dbPath) {
         this.nodes = new HashMap<>();
         this.locations = new HashMap<>();
+        this.fullToCleanedName = new HashMap<>();
         this.ways = new HashMap<>();
         this.uncleanedNodes = new HashSet<>();
 
@@ -104,8 +106,7 @@ public class GraphDB {
     /** Builds and returns a trie for the location names of this graph. */
     private Trie buildTrie() {
         Trie tr = new Trie();
-        for (String id : locations.keySet()) {
-            String name = locations.get(id).name; // Todo: refactor
+        for (String name : fullToCleanedName.keySet()) {
             tr.add(name);
         }
         return tr;
@@ -120,17 +121,25 @@ public class GraphDB {
      */
     private void clean() {
         for (Long nodeID : uncleanedNodes) { // uncleanedNodes is correct size
-            Node nodeObj = nodes.get(nodeID);
+            Node node = nodes.get(nodeID);
 
-            if (nodeObj.isLocation && cleanString(nodeObj.name).length() > 0) {
-                Node newLocNode = new Node(nodeObj.lon, nodeObj.lat);
-                newLocNode.name = nodeObj.name;
-                newLocNode.thisID = nodeID;
+            if (node.isLocation) {
+                String cleanedName = cleanString(node.name);
+                fullToCleanedName.put(node.name, cleanedName);
 
-                locations.put(cleanString(nodeObj.name), newLocNode);
+                // Map a new list to the cleaned name if no mapping currently exists
+                // list of Maps (full name to Node)
+                locations.computeIfAbsent(cleanedName, k -> new ArrayList<>());
+
+                HashMap<String, Object> mapping = new HashMap<>();
+                Node n = new Node(node.lon, node.lat);
+                n.name = node.name;
+                n.id = nodeID;
+                mapping.put(cleanedName, n);
+                locations.get(cleanedName).add(mapping);
                 // System.out.println(cleanString(locations.get(nodeID).name));
             }
-            if (nodeObj.adjacent.isEmpty()) {
+            if (node.adjacent.isEmpty()) {
                 nodes.remove(nodeID);
             }
         }

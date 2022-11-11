@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 public class KDTree {
 
@@ -35,10 +36,10 @@ public class KDTree {
     // kd tree instance variables
     private Node root;
     private final ArrayList<Long> nodeIDs;
-    private final HashMap<Long, GraphDB.Node> nodesMap;
+    private final Map<Long, GraphDB.Node> nodesMap;
 
     // Constructor
-    public KDTree(HashMap<Long, GraphDB.Node> nodesMap) {
+    public KDTree(Map<Long, GraphDB.Node> nodesMap) {
         this.nodeIDs = new ArrayList<>();
         this.nodesMap = nodesMap;
         ArrayList<Integer> nodesIndexes = new ArrayList<>();

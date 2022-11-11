@@ -276,7 +276,7 @@ public class MapServer {
 
     /**
      * In linear time, collect all the names of OSM locations that prefix-match the query string.
-     * 
+     *
      * @param prefix Prefix string to be searched for. Could be any case, with our without
      *               punctuation.
      * @return A <code>List</code> of the full names of locations whose cleaned name matches the
@@ -300,7 +300,11 @@ public class MapServer {
      * "id" : Number, The id of the node. <br>
      */
     public static List<Map<String, Object>> getLocations(String locationName) {
-        return new LinkedList<>();
+
+        String cleanedName = graph.fullToCleanedName.get(locationName);
+        return graph.locations.get(cleanedName);
+
+        //return new ArrayList<>();
     }
 
     /**
