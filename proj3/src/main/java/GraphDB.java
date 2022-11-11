@@ -27,6 +27,7 @@ public class GraphDB {
         boolean isLocation;
         ArrayList<Long> adjacent;
         long way;
+        long thisID;
 
         Node(double lon, double lat) {
             this.lon = lon;
@@ -48,7 +49,7 @@ public class GraphDB {
 
     // Instance variables for storing the graph
     HashMap<Long, Node> nodes;
-    HashMap<Long, Node> locations;
+    HashMap<String, Node> locations;
     HashMap<Long, Way> ways;
     HashSet<Long> uncleanedNodes;
     KDTree kdTree;
@@ -103,8 +104,8 @@ public class GraphDB {
     /** Builds and returns a trie for the location names of this graph. */
     private Trie buildTrie() {
         Trie tr = new Trie();
-        for (long id : locations.keySet()) {
-            String name = locations.get(id).name;
+        for (String id : locations.keySet()) {
+            String name = locations.get(id).name; // Todo: refactor
             tr.add(name);
         }
         return tr;
@@ -120,8 +121,13 @@ public class GraphDB {
     private void clean() {
         for (Long nodeID : uncleanedNodes) { // uncleanedNodes is correct size
             Node nodeObj = nodes.get(nodeID);
-            if (nodeObj.isLocation) {
-                locations.put(nodeID, nodeObj);
+
+            if (nodeObj.isLocation && cleanString(nodeObj.name).length() > 0) {
+                Node newLocNode = new Node(nodeObj.lon, nodeObj.lat);
+                newLocNode.name = nodeObj.name;
+                newLocNode.thisID = nodeID;
+
+                locations.put(cleanString(nodeObj.name), newLocNode);
                 // System.out.println(cleanString(locations.get(nodeID).name));
             }
             if (nodeObj.adjacent.isEmpty()) {
