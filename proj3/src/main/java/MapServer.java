@@ -294,17 +294,16 @@ public class MapServer {
      * @return A list of locations whose cleaned name matches the
      * cleaned <code>locationName</code>, and each location is a map of parameters for the Json
      * response as specified: <br>
+     *
      * "lat" : Number, The latitude of the node. <br>
      * "lon" : Number, The longitude of the node. <br>
      * "name" : String, The actual name of the node. <br>
      * "id" : Number, The id of the node. <br>
      */
     public static List<Map<String, Object>> getLocations(String locationName) {
-
+        /* Get the cleanedName from the fullToCleanedName map. */
         String cleanedName = graph.fullToCleanedName.get(locationName);
         return graph.locations.get(cleanedName);
-
-        //return new ArrayList<>();
     }
 
     /**

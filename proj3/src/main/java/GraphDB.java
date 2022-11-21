@@ -112,7 +112,6 @@ public class GraphDB {
         return tr;
     }
 
-
     /**
      *  Remove nodes with no connections from the graph.
      *  While this does not guarantee that any two nodes in the remaining graph are connected,
@@ -120,24 +119,26 @@ public class GraphDB {
      *  Runs in theta(n) time, n is number of nodes currently stored.
      */
     private void clean() {
-        for (Long nodeID : uncleanedNodes) { // uncleanedNodes is correct size
+        for (Long nodeID : uncleanedNodes) { // Note: uncleanedNodes size is correct (passes test)
             Node node = nodes.get(nodeID);
 
             if (node.isLocation) {
+                // add to map of (full name, cleaned pair)
                 String cleanedName = cleanString(node.name);
                 fullToCleanedName.put(node.name, cleanedName);
 
-                // Map a new list to the cleaned name if no mapping currently exists
-                // list of Maps (full name to Node)
+                /* Map a new list to the cleaned name if no mapping currently exists.
+                This List object will be a list of Maps. */
                 locations.computeIfAbsent(cleanedName, k -> new ArrayList<>());
 
-                HashMap<String, Object> mapping = new HashMap<>();
-                Node n = new Node(node.lon, node.lat);
-                n.name = node.name;
-                n.id = nodeID;
-                mapping.put(cleanedName, n);
-                locations.get(cleanedName).add(mapping);
-                // System.out.println(cleanString(locations.get(nodeID).name));
+                /* For this current valid, unique location, create a new mapping where lat, lon,
+                name, and id are mapped to their respective values. */
+                HashMap<String, Object> locationInfo = new HashMap<>();
+                locationInfo.put("lat", node.lat);
+                locationInfo.put("lon", node.lon);
+                locationInfo.put("name", node.name);
+                locationInfo.put("id", node.id);
+                locations.get(cleanedName).add(locationInfo);
             }
             if (node.adjacent.isEmpty()) {
                 nodes.remove(nodeID);
@@ -161,6 +162,7 @@ public class GraphDB {
     Iterable<Long> adjacent(long v) {
         return nodes.get(v).adjacent;
     }
+
 
     /**
      * Returns the great-circle distance between vertices v and w in miles.

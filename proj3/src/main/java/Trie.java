@@ -79,7 +79,7 @@ public class Trie {
         return false;
     }
 
-
+    // Private method to add the current string
     private void collect(String s, List<String> keys, Node n) {
         if (n.isKey) {
             keys.add(s);
