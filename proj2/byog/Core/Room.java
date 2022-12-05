@@ -10,9 +10,7 @@ import java.util.PriorityQueue;
 
 public class Room implements Serializable {
 
-    /**
-     * Private class to represent a vertex-distance pair in the pQueue.
-     */
+    /* Private class to represent a vertex-distance pair in the pQueue. */
     private static class Node {
         int position;
         int distance;
@@ -23,20 +21,12 @@ public class Room implements Serializable {
         }
     }
 
-    /**
-     * Instance variables
-     */
-    private static final int UP = 0;
-    private static final int RIGHT = 1;
-    private static final int DOWN = 2;
-    private static final int LEFT = 3;
+    /* Instance variables */
     private final Position lowerLeft;
     private final Position upperRight;
     private final TETile floorType;
 
-    /**
-     * Constructor
-     */
+    /* Constructor */
     Room(Position lowerLeft, Position upperRight) {
         this.lowerLeft = lowerLeft;
         this.upperRight = upperRight;
@@ -47,30 +37,35 @@ public class Room implements Serializable {
      * Draws the three wall tiles and floor tile that must be placed when added a new floor tile
      * to a hallway. The overall method works by adding a 'room' of area 1 on a preexisting room.
      */
-    private void drawWalls(Position p, int way, Map map) {
+    private void drawWalls(Position p, char way, Map map) {
         int x = p.x;
         int y = p.y;
 
         switch (way) {
-            case UP:
+            case 'U' -> {
                 x -= 1;
                 y += 1;
-                break;
-            case RIGHT:
+            }
+            case 'R' -> {
                 x += 1;
                 y -= 1;
-                break;
-            default:
+            }
+            default -> {
                 x -= 1;
                 y -= 1;
-                break;
+            }
         }
-        for (int i = 0; i < 3; i++) {
-            if (map.peek(x + i, y) != floorType && (way == UP || way == DOWN)) {
-                map.placeTile(x + i, y, Tileset.colorVariantWall(Map.r));
-
-            } else if (map.peek(x, y + i) != floorType && (way == LEFT || way == RIGHT)) {
-                map.placeTile(x, y + i, Tileset.colorVariantWall(Map.r));
+        if (way == 'U' || way == 'D') {
+            for (int i = 0; i < 3; i += 1) {
+                if (map.peek(x + i, y) != floorType) {
+                    map.placeTile(x + i, y, Tileset.colorVariantWall(Map.rand));
+                }
+            }
+        } else if (way == 'L' || way == 'R') {
+            for (int i = 0; i < 3; i += 1) {
+                if (map.peek(x, y + i) != floorType) {
+                    map.placeTile(x, y + i, Tileset.colorVariantWall(Map.rand));
+                }
             }
         }
     }
@@ -82,20 +77,20 @@ public class Room implements Serializable {
     private void drawPath(int[] edgeTo, int start, int end, Map map) {
         int curr = edgeTo[end];
         int prev = end;
-        int direction = -1;
+        char direction = '~';
 
         while (curr != start) {
             if (curr == prev + map.width) {
-                direction = UP;
+                direction = 'U';
 
             } else if (curr == prev + 1) {
-                direction = RIGHT;
+                direction = 'R';
 
             } else if (curr == prev - map.width) {
-                direction = DOWN;
+                direction = 'D';
 
             } else if (curr == prev - 1) {
-                direction = LEFT;
+                direction = 'L';
             }
             Position currentPos = map.oneDToPos(curr);
             map.placeTile(currentPos.x, currentPos.y, floorType);
@@ -114,8 +109,8 @@ public class Room implements Serializable {
         int target = map.posToOneD(room.randomPosition(1));
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
-        int[] edgeTo = new int[map.oneDlength];
-        int[] distTo = new int[map.oneDlength];
+        int[] edgeTo = new int[map.numTiles];
+        int[] distTo = new int[map.numTiles];
         Arrays.fill(distTo, Integer.MAX_VALUE);
         distTo[start] = 0;
 
@@ -154,19 +149,19 @@ public class Room implements Serializable {
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
             if (map.peek(x, startY) == Tileset.NOTHING) {
-                map.placeTile(x, startY, Tileset.colorVariantWall(Map.r));
+                map.placeTile(x, startY, Tileset.colorVariantWall(Map.rand));
             }
             if (map.peek(x, endY) == Tileset.NOTHING) {
-                map.placeTile(x, endY, Tileset.colorVariantWall(Map.r));
+                map.placeTile(x, endY, Tileset.colorVariantWall(Map.rand));
             }
         }
         // Draw left and right walls
         for (int y = startY; y <= endY; y++) {
             if (map.peek(startX, y) == Tileset.NOTHING) {
-                map.placeTile(startX, y, Tileset.colorVariantWall(Map.r));
+                map.placeTile(startX, y, Tileset.colorVariantWall(Map.rand));
             }
             if (map.peek(endX, y) == Tileset.NOTHING) {
-                map.placeTile(endX, y, Tileset.colorVariantWall(Map.r));
+                map.placeTile(endX, y, Tileset.colorVariantWall(Map.rand));
             }
         }
         // Draw interior
@@ -182,38 +177,55 @@ public class Room implements Serializable {
      * and left of said position, then applying the recursive method on those four new positions.
      * Depending on the location and the count, either a FLOOR or WALL tile is drawn.
      */
-    public void drawIrregular(int count, Position p, Map map) {
+    public void drawIrregular(int count, int x, int y, Map map) {
         // Base case: count is 0 and able to place a tile on NOTHING
+        if (!map.isValid(x, y)) {
+            return;
+        }
         if (count <= 0) {
-            if (map.peek(p) == Tileset.NOTHING) {
-                map.placeTile(p.x, p.y, Tileset.colorVariantWall(Map.r));
+            if (map.peek(x, y) == Tileset.NOTHING) {
+                map.placeTile(x, y, Tileset.colorVariantWall(Map.rand));
             }
         } else {
-            if (map.onEdge(p)) {
-                map.placeTile(p.x, p.y, Tileset.colorVariantWall(Map.r));
+            if (map.onEdge(x, y)) {
+                map.placeTile(x, y, Tileset.colorVariantWall(Map.rand));
             } else {
-                map.placeTile(p.x, p.y, floorType);
+                map.placeTile(x, y, floorType);
             }
-            for (Position a : map.adjacent(p)) {
-                drawIrregular(count - Map.r.nextIntInclusive(1, 3), a, map);
-            }
+            int up = count - Map.rand.nextIntInclusive(1, 3);
+            int down = count - Map.rand.nextIntInclusive(1, 3);
+            int left = count - Map.rand.nextIntInclusive(1, 3);
+            int right = count - Map.rand.nextIntInclusive(1, 3);
+
+            drawIrregular(up, x, y + 1, map);
+            drawIrregular(down, x, y - 1, map);
+            drawIrregular(left, x - 1, y, map);
+            drawIrregular(right, x + 1, y, map);
         }
     }
 
     /**
      * Same as above but with grass and flowers.
      */
-    public void drawIrregularGrass(int count, Position p, Map map) {
-        if (map.peek(p) == floorType && count > 0) {
-
-            if (Map.r.nextIntInclusive(0, 100) <= 10) {
-                map.placeTile(p.x, p.y, Tileset.randomColorFlower(Map.r));
+    public void drawIrregularGrass(int count, int x, int y, Map map) {
+        if (!map.isValid(x, y)) {
+            return;
+        }
+        if (map.peek(x, y) == floorType && count > 0) {
+            if (Map.rand.nextIntInclusive(100) <= 10) {
+                map.placeTile(x, y, Tileset.randomColorFlower(Map.rand));
             } else {
-                map.placeTile(p.x, p.y, Tileset.colorVariantGrass(Map.r));
+                map.placeTile(x, y, Tileset.colorVariantGrass(Map.rand));
             }
-            for (Position a : map.adjacent(p)) {
-                drawIrregularGrass(count - Map.r.nextIntInclusive(1, 2), a, map);
-            }
+            int up = count - Map.rand.nextIntInclusive(1, 2);
+            int down = count - Map.rand.nextIntInclusive(1, 2);
+            int left = count - Map.rand.nextIntInclusive(1, 2);
+            int right = count - Map.rand.nextIntInclusive(1, 2);
+
+            drawIrregularGrass(up, x, y + 1, map);
+            drawIrregularGrass(down, x, y - 1, map);
+            drawIrregularGrass(left, x - 1, y, map);
+            drawIrregularGrass(right, x + 1, y, map);
         }
     }
 
@@ -227,8 +239,8 @@ public class Room implements Serializable {
         int yUpper = upperRight.y - buffer;
 
         return new Position(
-                Map.r.nextIntInclusive(xLower, xUpper),
-                Map.r.nextIntInclusive(yLower, yUpper));
+                Map.rand.nextIntInclusive(xLower, xUpper),
+                Map.rand.nextIntInclusive(yLower, yUpper));
     }
 
     private static class DistanceComparator implements Comparator<Node> {

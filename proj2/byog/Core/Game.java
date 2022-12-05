@@ -12,12 +12,13 @@ import static byog.Core.GUI.*;
 public class Game implements Serializable {
     private static final int BACKSPACE = 8;
     private static final TERenderer ter = new TERenderer();
+    static boolean enableFOV = false;
 
+    /* Instance variables */
     private Map map;
     private long seed;
     private int level = 1;
     private StringBuilder commands;
-    private boolean enableFOV = true;
     private boolean quitMenu = false;
     private boolean quitGame = false;
     private boolean colonPressed = false;
@@ -114,7 +115,7 @@ public class Game implements Serializable {
             } else if (next == 'q' && colonPressed) {
                 saveGame();
                 quitGame = true;
-            } else if (next == 'w' || next == 'a' || next == 's' || next == 'd') {
+            } else if ("wasd".indexOf(next) != -1) {
                 colonPressed = false;
                 map.updatePlayer(next);
             }
@@ -159,25 +160,23 @@ public class Game implements Serializable {
      * the hovered tile in the HUD as well as the current level.
      */
     private void showHUD(int x, int y) {
-        // If mouse within the game area, show the name of the current tile in the upper left
-        if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
-            StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(HUDFONT);
-            String description = map.peek(x, y).description();
-            StdDraw.textLeft(2 * WIDTH / 60.0, 48 * HEIGHT / 50.0, description);
-        }
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.setFont(HUDFONT);
-        String centerText;
 
+        // If mouse within the game area, show the name of the current tile in the upper left
+        if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
+            String description = map.peek(x, y).description();
+            StdDraw.textLeft(0.04 * WIDTH, 0.96 * HEIGHT, description);
+        }
         // Determine which text to show depending on flag value
+        String centerText;
         if (colonPressed) {
             centerText = "Press q to quit";
         } else {
             centerText = "Seed: " + seed;
         }
-        StdDraw.text(WIDTHCENTRE, 48 * HEIGHT / 50.0, centerText);
-        StdDraw.textRight(58 * WIDTH / 60.0, 48 * HEIGHT / 50.0, "Level " + level);
+        StdDraw.text(WIDTHCENTRE, 0.96 * HEIGHT, centerText);
+        StdDraw.textRight(0.96 * WIDTH, 0.96 * HEIGHT, "Level " + level);
         StdDraw.show();
     }
 
@@ -247,7 +246,7 @@ public class Game implements Serializable {
      */
     private void generateWorld(String seed) {
         this.seed = Long.parseLong(seed);
-        map = new Map(WIDTH, HEIGHT - HUDHEIGHT, this.seed, enableFOV);
+        map = new Map(WIDTH, HEIGHT - HUDHEIGHT, this.seed);
         map.generateWorld();
         ter.renderFrame(map.getMap());
     }

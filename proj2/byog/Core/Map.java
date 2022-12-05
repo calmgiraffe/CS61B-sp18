@@ -14,27 +14,25 @@ public class Map implements Serializable {
     /**
      * Map instance variables
      */
-    private final boolean enableFOV;
-    protected static RandomExtra r;
+    protected static RandInclusive rand;
     private final TETile[][] map;
     private final TETile[][] fovmap;
     protected final int width;
     protected final int height;
-    protected final int oneDlength;
+    protected final int numTiles;
     private final Partition partition;
     private final PlayerMover playerMover;
 
     /**
      * Map constructor
      */
-    Map(int width, int height, long seed, boolean enableFOV) {
-        this.enableFOV = enableFOV;
-        r = new RandomExtra(seed);
+    Map(int width, int height, long seed) {
+        rand = new RandInclusive(seed);
         this.map = new TETile[width][height];
         this.fovmap = new TETile[width][height];
         this.width = width;
         this.height = height;
-        this.oneDlength = width * height;
+        this.numTiles = width * height;
         this.partition = new Partition(new Position(0, 0), width, height);
         this.playerMover = new PlayerMover(this);
         fill(map, Tileset.NOTHING);
@@ -53,17 +51,21 @@ public class Map implements Serializable {
         for (Room r : rooms) {
             r.drawRoom(this);
 
-            if (Map.r.nextIntInclusive(1, 100) < 50) { // 50% chance
-                int size = Map.r.nextIntInclusive(5, 8);
-                r.drawIrregular(size, r.randomPosition(0), this);
+            // 50% chance of drawing an irregular room
+            if (Map.rand.nextIntInclusive(100) < 50) {
+                int size = Map.rand.nextIntInclusive(5, 8);
+                Position randPos = r.randomPosition(0);
+                r.drawIrregular(size, randPos.x, randPos.y, this);
             }
-            if (Map.r.nextIntInclusive(1, 100) < 60) { // 60% chance
-                int size = Map.r.nextIntInclusive(5, 7);
-                r.drawIrregularGrass(size, r.randomPosition(1), this);
+            // 70% chance of drawing grass in the room
+            if (Map.rand.nextIntInclusive(100) < 70) {
+                int size = Map.rand.nextIntInclusive(5, 7);
+                Position randPos = r.randomPosition(1);
+                r.drawIrregularGrass(size, randPos.x, randPos.y, this);
             }
         }
         // Pick a room and place character in center
-        int i = r.nextIntInclusive(0, rooms.size() - 1);
+        int i = rand.nextIntInclusive(rooms.size() - 1);
         Position playerPos = rooms.get(i).randomPosition(1);
         playerMover.setPosition(playerPos);
 
@@ -76,13 +78,13 @@ public class Map implements Serializable {
      * @param direction any char
      */
     public void updatePlayer(char direction) {
-        if (direction == 'w' || direction == 'a' || direction == 's' || direction == 'd') {
+        if ("wasd".indexOf(direction) != -1) {
             playerMover.movePlayer(direction);
         }
-        if (enableFOV) {
+        if (Game.enableFOV) {
             fill(fovmap, Tileset.NOTHING);
             for (Position p : playerMover.getFOV()) {
-                placeTile(fovmap, p.x, p.y, peek(p));
+                placeTile(fovmap, p.x, p.y, peek(p.x, p.y));
             }
         }
     }
@@ -152,59 +154,42 @@ public class Map implements Serializable {
     /**
      * Returns true if the given position is on the map edge, false otherwise.
      */
-    public boolean onEdge(Position p) {
-        return p.x == 0 || p.x == width - 1 || p.y == 0 || p.y == height - 1;
+    public boolean onEdge(int x, int y) {
+        return x == 0 || x == width - 1 || y == 0 || y == height - 1;
     }
 
     /**
-     * Given a 1D position on a map, returns the adjacent (up, right, down, left) nodes
+     * Given a 1D position on a map, returns the adjacent (up, right, down, left) 1D positions
      */
     public ArrayList<Integer> adjacent(int p) {
-        ArrayList<Position> tmp = adjacent(oneDToPos(p));
-        ArrayList<Integer> adjacents = new ArrayList<>();
-
-        for (Position pos : tmp) {
-            adjacents.add(posToOneD(pos));
-        }
-        return adjacents;
-    }
-
-    /**
-     * Given a Position on a map, returns the adjacent (up, right, down, left) nodes
-     */
-    public ArrayList<Position> adjacent(Position p) {
-        Position pUp = new Position(p.x, p.y + 1);
-        Position pRight = new Position(p.x + 1, p.y);
-        Position pDown = new Position(p.x, p.y - 1);
-        Position pLeft = new Position(p.x - 1, p.y);
+        Position currPos = oneDToPos(p);
+        int currX = currPos.x;
+        int currY = currPos.y;
 
         ArrayList<Position> tmp = new ArrayList<>();
-        tmp.add(pUp);
-        tmp.add(pRight);
-        tmp.add(pDown);
-        tmp.add(pLeft);
+        tmp.add(new Position(currX, currY + 1));
+        tmp.add(new Position(currX, currY - 1));
+        tmp.add(new Position(currX + 1, currY));
+        tmp.add(new Position(currX - 1, currY));
 
-        ArrayList<Position> adjacent = new ArrayList<>();
-        for (Position pos: tmp) {
+        ArrayList<Integer> adjacent = new ArrayList<>();
+        for (Position pos : tmp) {
             if (isValid(pos.x, pos.y)) {
-                adjacent.add(pos);
+                adjacent.add(posToOneD(pos));
             }
         }
         return adjacent;
     }
 
-    /*
-     * Getter methods
-     */
-
     /**
      * Returns the TETile[][] associated with this object that is to be rendered.
      */
     public TETile[][] getMap() {
-        if (enableFOV) {
+        if (Game.enableFOV) {
             return fovmap;
+        } else {
+            return map;
         }
-        return map;
     }
 
     /**
@@ -214,18 +199,6 @@ public class Map implements Serializable {
     public TETile peek(int x, int y) {
         if (isValid(x, y)) {
             return map[x][y];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Returns the tile at specified Position on the map, but does not remove the tile.
-     * If out of bounds, returns null.
-     */
-    public TETile peek(Position p) {
-        if (isValid(p.x, p.y)) {
-            return map[p.x][p.y];
         } else {
             return null;
         }

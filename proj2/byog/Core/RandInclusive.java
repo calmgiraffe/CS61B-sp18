@@ -5,10 +5,10 @@ import java.util.Random;
 /**
  * Made this because the built-in Random made code hard to read
  */
-public class RandomExtra extends Random {
+public class RandInclusive extends Random {
     private final Random r;
 
-    public RandomExtra(long seed) {
+    public RandInclusive(long seed) {
         r = new Random(seed);
     }
 

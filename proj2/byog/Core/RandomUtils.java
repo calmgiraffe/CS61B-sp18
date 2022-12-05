@@ -37,7 +37,6 @@ public class RandomUtils {
         return random.nextInt(n);
     }
 
-
     /**
      * Returns a random long integer uniformly in [0, n).
      *
@@ -71,7 +70,6 @@ public class RandomUtils {
     //  STATIC METHODS BELOW RELY ON JAVA.UTIL.RANDOM ONLY INDIRECTLY VIA
     //  THE STATIC METHODS ABOVE.
     ///////////////////////////////////////////////////////////////////////////
-
 
     /**
      * Returns a random integer uniformly in [a, b).

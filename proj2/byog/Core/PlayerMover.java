@@ -24,9 +24,9 @@ public class PlayerMover implements Serializable {
      */
     public void setPosition(Position p) {
         pos = p;
-        prevTile = map.peek(p);
+        prevTile = map.peek(p.x, p.y);
         map.placeTile(p.x, p.y, Tileset.PLAYER);
-        updateFOV(FOVRANGE, pos);
+        updateFOV(FOVRANGE, p.x, p.y);
     }
 
     /**
@@ -38,42 +38,39 @@ public class PlayerMover implements Serializable {
      */
     public void movePlayer(char direction) {
         switch (direction) {
-            case 'w':
-                newPos = new Position(pos.x, pos.y + 1);
-                break;
-            case 'd':
-                newPos = new Position(pos.x + 1, pos.y);
-                break;
-            case 's':
-                newPos = new Position(pos.x, pos.y - 1);
-                break;
-            case 'a':
-                newPos = new Position(pos.x - 1, pos.y);
-                break;
+            case 'w' -> newPos = new Position(pos.x, pos.y + 1);
+            case 'd' -> newPos = new Position(pos.x + 1, pos.y);
+            case 's' -> newPos = new Position(pos.x, pos.y - 1);
+            case 'a' -> newPos = new Position(pos.x - 1, pos.y);
         }
-        if (map.peek(newPos).character() != '#') {
+        if (map.peek(newPos.x, newPos.y).character() != '#') {
             map.placeTile(pos.x, pos.y, prevTile);
-            prevTile = map.peek(newPos);
+            prevTile = map.peek(newPos.x, newPos.y);
+
             map.placeTile(newPos.x, newPos.y, Tileset.PLAYER);
             pos = newPos;
 
             fov.clear();
-            updateFOV(FOVRANGE, newPos);
+            updateFOV(FOVRANGE, newPos.x, newPos.y);
         }
     }
 
     /**
      * Updates the list of points that make up the current FOV of the player.
      * Todo: change to Dijkstra's allowing diagonal
-     * I guess I can use BFS here but the performance gain is minimal
      */
-    private void updateFOV(int count, Position p) {
-        fov.add(p);
-        if (!(map.peek(p).character() == '#') && count > 0) {
-            for (Position pos : map.adjacent(p)) {
-                updateFOV(count - 1, pos);
-            }
-
+    private void updateFOV(int count, int x, int y) {
+        if (count < 0) {
+            return;
+        } else if (!map.isValid(x, y)) {
+            return;
+        }
+        fov.add(new Position(x, y));
+        if (!(map.peek(x, y).character() == '#')) {
+            updateFOV(count - 1, x, y + 1);
+            updateFOV(count - 1, x, y - 1);
+            updateFOV(count - 1, x + 1, y);
+            updateFOV(count - 1, x - 1, y);
         }
     }
 

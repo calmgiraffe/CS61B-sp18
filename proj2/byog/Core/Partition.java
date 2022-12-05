@@ -69,24 +69,24 @@ public class Partition implements Serializable {
         if (p.width > MAX || p.height > MAX) {
 
             if (p.width <= MAX) {
-                int border = Map.r.nextIntInclusive(MIN, p.height - MIN);
+                int border = Map.rand.nextIntInclusive(MIN, p.height - MIN);
                 p.left = splitVertically(p, border);
                 p.right = new Partition(p.position, p.width, border);
 
             } else if (p.height <= MAX) {
-                int border = Map.r.nextIntInclusive(MIN, p.width - MIN);
+                int border = Map.rand.nextIntInclusive(MIN, p.width - MIN);
                 p.left = splitHorizontally(p, border);
                 p.right = new Partition(p.position, border, p.height);
 
             } else {
-                int choice = Map.r.nextIntInclusive(1);
+                int choice = Map.rand.nextIntInclusive(1);
                 if (choice == 0) {
-                    int border = Map.r.nextIntInclusive(MIN, p.height - MIN);
+                    int border = Map.rand.nextIntInclusive(MIN, p.height - MIN);
                     p.left = splitVertically(p, border);
                     p.right = new Partition(p.position, p.width, border);
 
                 } else {
-                    int border = Map.r.nextIntInclusive(MIN, p.width - MIN);
+                    int border = Map.rand.nextIntInclusive(MIN, p.width - MIN);
                     p.left = splitHorizontally(p, border);
                     p.right = new Partition(p.position, border, p.height);
                 }
@@ -158,8 +158,8 @@ public class Partition implements Serializable {
      * Positions representing the bottom left and top right corner, a floor type, etc
      */
     private void generateRandomRoom() {
-        int lowerLeftX = Map.r.nextIntInclusive(width - MIN);
-        int lowerLeftY = Map.r.nextIntInclusive(height - MIN);
+        int lowerLeftX = Map.rand.nextIntInclusive(width - MIN);
+        int lowerLeftY = Map.rand.nextIntInclusive(height - MIN);
         Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
 
         int minX = lowerLeft.x + MINROOM - 1;
@@ -167,8 +167,8 @@ public class Partition implements Serializable {
         int minY = lowerLeft.y + MINROOM - 1;
         int maxY = Math.min(lowerLeft.y + MAXROOM - 1, position.y + height - 1);
 
-        int upperRightX = Map.r.nextIntInclusive(minX, maxX);
-        int upperRightY = Map.r.nextIntInclusive(minY, maxY);
+        int upperRightX = Map.rand.nextIntInclusive(minX, maxX);
+        int upperRightY = Map.rand.nextIntInclusive(minY, maxY);
         Position upperRight = new Position(upperRightX, upperRightY);
 
         this.room = new Room(lowerLeft, upperRight);
