@@ -3,6 +3,7 @@ package byog.Core;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 
+import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
 import java.awt.Color;
 import java.io.*;
@@ -118,6 +119,15 @@ public class Game implements Serializable {
             } else if ("wasd".indexOf(next) != -1) {
                 colonPressed = false;
                 map.updatePlayer(next);
+
+            }
+            // System.out.println(map.peek(currPos.x, currPos.y).character());
+            // If character moves to open door, generate next level
+            TETile currentTile = map.playerMover.prevTile();
+            if (currentTile.character() == '▢') {
+                map.clear();
+                map.generateWorld();
+                level += 1;
             }
             ter.renderFrame(map.getMap());
 

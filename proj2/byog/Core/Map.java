@@ -21,7 +21,7 @@ public class Map implements Serializable {
     protected final int height;
     protected final int numTiles;
     private final Partition partition;
-    private final PlayerMover playerMover;
+    protected final PlayerMover playerMover;
 
     /**
      * Map constructor
@@ -35,7 +35,7 @@ public class Map implements Serializable {
         this.numTiles = width * height;
         this.partition = new Partition(new Position(0, 0), width, height);
         this.playerMover = new PlayerMover(this);
-        fill(map, Tileset.NOTHING);
+        this.clear();
     }
 
     /**
@@ -64,10 +64,16 @@ public class Map implements Serializable {
                 r.drawIrregularGrass(size, randPos.x, randPos.y, this);
             }
         }
-        // Pick a room and place character in center
+        // Pick a room and place character in it
         int i = rand.nextIntInclusive(rooms.size() - 1);
         Position playerPos = rooms.get(i).randomPosition(1);
         playerMover.setPosition(playerPos);
+
+        // Pick a room and place door in it
+        i = rand.nextIntInclusive(rooms.size() - 1);
+        Position doorPos = rooms.get(i).randomPosition(1);
+        placeTile(map, doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR);
+        placeTile(fovmap, doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR);
 
         // Update the player
         updatePlayer('~');
@@ -98,6 +104,12 @@ public class Map implements Serializable {
                 map[x][y] = tile;
             }
         }
+    }
+
+    public void clear() {
+        fill(map, Tileset.NOTHING);
+        fill(fovmap, Tileset.NOTHING);
+        playerMover.clear();
     }
 
     /**

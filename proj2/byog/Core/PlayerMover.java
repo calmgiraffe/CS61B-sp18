@@ -10,7 +10,6 @@ public class PlayerMover implements Serializable {
     private final Map map;
     private final ArrayList<Position> fov;
     private Position pos;
-    private Position newPos;
     private TETile prevTile;
 
     public PlayerMover(Map map) {
@@ -37,6 +36,7 @@ public class PlayerMover implements Serializable {
      * @param direction one of 'wasd', representing direction to move in
      */
     public void movePlayer(char direction) {
+        Position newPos = pos;
         switch (direction) {
             case 'w' -> newPos = new Position(pos.x, pos.y + 1);
             case 'd' -> newPos = new Position(pos.x + 1, pos.y);
@@ -44,14 +44,17 @@ public class PlayerMover implements Serializable {
             case 'a' -> newPos = new Position(pos.x - 1, pos.y);
         }
         if (map.peek(newPos.x, newPos.y).character() != '#') {
+            // At where the character currently is, place the tile that was previously there
+            // Then, update prevTile to the tile where the player will move
             map.placeTile(pos.x, pos.y, prevTile);
             prevTile = map.peek(newPos.x, newPos.y);
 
+            // At where the character is to move, place the player cursor and update this.pos
             map.placeTile(newPos.x, newPos.y, Tileset.PLAYER);
             pos = newPos;
 
-            fov.clear();
-            updateFOV(FOVRANGE, newPos.x, newPos.y);
+            this.clear();
+            updateFOV(FOVRANGE, pos.x, pos.y);
         }
     }
 
@@ -74,10 +77,19 @@ public class PlayerMover implements Serializable {
         }
     }
 
+    /* Empty the fov Arraylist */
+    public void clear() {
+        fov.clear();
+    }
+
     /**
      * Returns the list of points that comprise the FOV.
      */
     public ArrayList<Position> getFOV() {
         return fov;
+    }
+
+    public TETile prevTile() {
+        return prevTile;
     }
 }
