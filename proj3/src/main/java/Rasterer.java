@@ -74,7 +74,7 @@ public class Rasterer {
      *                    forget to set this to true on success! <br>
      */
     public Map<String, Object> getMapRaster(Map<String, Double> params) {
-        System.out.println(params); // for debugging
+        // System.out.println(params); // for debugging
         Map<String, Object> results = new HashMap<>();
 
         if (!isValidParams(params)) {

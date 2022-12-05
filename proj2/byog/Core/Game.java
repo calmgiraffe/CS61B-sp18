@@ -7,15 +7,9 @@ import edu.princeton.cs.introcs.StdDraw;
 import java.awt.Color;
 import java.io.*;
 
+import static byog.Core.GUI.*;
+
 public class Game implements Serializable {
-    private static final int WIDTH = 60;
-    private static final int HEIGHT = 50;
-    private static final int HUDHEIGHT = 4;
-    private static final double WIDTHCENTRE = WIDTH / 2.0;
-    private static final double HEADER = 26 * HEIGHT / 40.0;
-    private static final double ROW1 = 18 * HEIGHT / 40.0;
-    private static final double ROW2 = 16 * HEIGHT / 40.0;
-    private static final double ROW3 = 14 * HEIGHT / 40.0;
     private static final int BACKSPACE = 8;
     private static final TERenderer ter = new TERenderer();
 
@@ -23,9 +17,10 @@ public class Game implements Serializable {
     private long seed;
     private int level = 1;
     private StringBuilder commands;
-    private boolean enableFOV = false;
+    private boolean enableFOV = true;
     private boolean quitMenu = false;
     private boolean quitGame = false;
+    private boolean colonPressed = false;
 
     /**
      * Method used for playing a fresh game using the keyboard.
@@ -42,12 +37,12 @@ public class Game implements Serializable {
         ter.initialize(WIDTH, HEIGHT);
 
         while (!quitMenu) {
+            // Draw title screen
             StdDraw.clear(Color.BLACK);
             StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(FontSet.TITLE);
+            StdDraw.setFont(TITLE);
             StdDraw.text(WIDTHCENTRE, HEADER, "CS61B: The Game");
-
-            StdDraw.setFont(FontSet.OPTION);
+            StdDraw.setFont(OPTION);
             StdDraw.text(WIDTHCENTRE, ROW1, "New Game (N)");
             StdDraw.text(WIDTHCENTRE, ROW2, "Load Game (L)");
             StdDraw.text(WIDTHCENTRE, ROW3, "Quit (Q)");
@@ -76,12 +71,12 @@ public class Game implements Serializable {
         StringBuilder seed = new StringBuilder();
 
         while (true) {
+            // Show seed input screen
             StdDraw.clear(Color.BLACK);
             StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(FontSet.TITLE);
+            StdDraw.setFont(TITLE);
             StdDraw.text(WIDTHCENTRE, HEADER, "CS61B: The Game");
-
-            StdDraw.setFont(FontSet.OPTION);
+            StdDraw.setFont(OPTION);
             StdDraw.text(WIDTHCENTRE, ROW1, "(s to submit, b to go back)");
             StdDraw.text(WIDTHCENTRE, ROW3, "Seed: " + seed);
             StdDraw.show();
@@ -105,12 +100,14 @@ public class Game implements Serializable {
      * Game loop, runs in real time
      */
     public void playGame() {
-        boolean colonPressed = false;
         while (!quitGame) {
             // reset everything to black
             StdDraw.clear(Color.BLACK);
 
             // Get the next command (keyboard or string) and render updated map
+            // If ':' pressed, raise flag
+            // Else if flag raised and q is pressed, save and quit
+            // Reset flag if q is not pressed
             char next = getNextCommand();
             if (next == ':') {
                 colonPressed = true;
@@ -162,15 +159,24 @@ public class Game implements Serializable {
      * the hovered tile in the HUD as well as the current level.
      */
     private void showHUD(int x, int y) {
+        // If mouse within the game area, show the name of the current tile in the upper left
         if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
             StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(FontSet.HUDFONT);
+            StdDraw.setFont(HUDFONT);
             String description = map.peek(x, y).description();
             StdDraw.textLeft(2 * WIDTH / 60.0, 48 * HEIGHT / 50.0, description);
         }
         StdDraw.setPenColor(Color.WHITE);
-        StdDraw.setFont(FontSet.HUDFONT);
-        StdDraw.text(WIDTHCENTRE, 48 * HEIGHT / 50.0, "Seed: " + seed);
+        StdDraw.setFont(HUDFONT);
+        String centerText;
+
+        // Determine which text to show depending on flag value
+        if (colonPressed) {
+            centerText = "Press q to quit";
+        } else {
+            centerText = "Seed: " + seed;
+        }
+        StdDraw.text(WIDTHCENTRE, 48 * HEIGHT / 50.0, centerText);
         StdDraw.textRight(58 * WIDTH / 60.0, 48 * HEIGHT / 50.0, "Level " + level);
         StdDraw.show();
     }
@@ -230,7 +236,7 @@ public class Game implements Serializable {
                 commands.deleteCharAt(0);
                 return next;
             }
-            // Need some arbitrary value
+            // Need some arbitrary value to return
             return '~';
         }
     }

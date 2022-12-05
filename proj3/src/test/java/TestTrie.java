@@ -3,7 +3,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class TestTrie {
-    private static final String OSM_DB_PATH = "../library-sp18/data/berkeley-2018.osm.xml";
+    private static final String OSM_DB_PATH = "data/berkeley-2018.osm.xml";
     private static GraphDB graph;
 
     @Before

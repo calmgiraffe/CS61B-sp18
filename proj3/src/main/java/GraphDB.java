@@ -70,8 +70,8 @@ public class GraphDB {
         this.uncleanedNodes = new HashSet<>();
 
         try {
-            File inputFile = new File(dbPath);
-            FileInputStream inputStream = new FileInputStream(inputFile);
+            // File inputFile = new File(dbPath);
+            // FileInputStream inputStream = new FileInputStream(inputFile);
             // GZIPInputStream stream = new GZIPInputStream(inputStream);
 
             SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -81,7 +81,8 @@ public class GraphDB {
             // GraphBuildingHandler has an instance of a GraphDB object,
             // which is the underlying implementation of the graph.
             GraphBuildingHandler gbh = new GraphBuildingHandler(this);
-            saxParser.parse(inputStream, gbh);
+            saxParser.parse(Thread.currentThread().getContextClassLoader().getResourceAsStream(dbPath), gbh);
+
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
