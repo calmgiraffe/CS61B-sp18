@@ -24,12 +24,50 @@ public class Game implements Serializable {
     private boolean quitGame = false;
     private boolean colonPressed = false;
 
-    /**
-     * Method used for playing a fresh game using the keyboard.
-     */
+    /** Method for playing a fresh game using the keyboard. */
     public void playWithKeyboard() {
         mainMenu();
         System.exit(0);
+    }
+
+    /** Game loop, runs in real time */
+    private void playGame() {
+        while (!quitGame) {
+            // reset everything to black
+            StdDraw.clear(Color.BLACK);
+
+            // Get the next command (keyboard or string) and render updated map
+            // If ':' pressed, raise flag
+            // Else if flag raised and q is pressed, save and quit
+            // Reset flag if q is not pressed
+            char next = getNextCommand();
+            if (next == ':') {
+                colonPressed = true;
+            } else if (next == 'q' && colonPressed) {
+                saveGame();
+                quitGame = true;
+            } else if ("wasd".indexOf(next) != -1) {
+                colonPressed = false;
+                map.updatePlayer(next);
+
+            }
+            // System.out.println(map.peek(currPos.x, currPos.y).character());
+            // If character moves to open door, generate next level
+            TETile currentTile = map.playerMover.prevTile();
+            if (currentTile.character() == '▢') {
+                map.clear();
+                map.generateWorld();
+                level += 1;
+            }
+            ter.renderFrame(map.getMap());
+
+            // Build and show the HUD
+            double rawMouseX = StdDraw.mouseX();
+            double rawMouseY = StdDraw.mouseY();
+            long x = Math.round(Math.floor(rawMouseX));
+            long y = Math.round(Math.floor(rawMouseY));
+            showHUD((int) x, (int) y);
+        }
     }
 
     /**
@@ -95,48 +133,6 @@ public class Game implements Serializable {
             } else if (c == 'b') {
                 break;
             }
-        }
-    }
-
-    /**
-     * Game loop, runs in real time
-     */
-    public void playGame() {
-        while (!quitGame) {
-            // reset everything to black
-            StdDraw.clear(Color.BLACK);
-
-            // Get the next command (keyboard or string) and render updated map
-            // If ':' pressed, raise flag
-            // Else if flag raised and q is pressed, save and quit
-            // Reset flag if q is not pressed
-            char next = getNextCommand();
-            if (next == ':') {
-                colonPressed = true;
-            } else if (next == 'q' && colonPressed) {
-                saveGame();
-                quitGame = true;
-            } else if ("wasd".indexOf(next) != -1) {
-                colonPressed = false;
-                map.updatePlayer(next);
-
-            }
-            // System.out.println(map.peek(currPos.x, currPos.y).character());
-            // If character moves to open door, generate next level
-            TETile currentTile = map.playerMover.prevTile();
-            if (currentTile.character() == '▢') {
-                map.clear();
-                map.generateWorld();
-                level += 1;
-            }
-            ter.renderFrame(map.getMap());
-
-            // Build and show the HUD
-            double rawMouseX = StdDraw.mouseX();
-            double rawMouseY = StdDraw.mouseY();
-            long x = Math.round(Math.floor(rawMouseX));
-            long y = Math.round(Math.floor(rawMouseY));
-            showHUD((int) x, (int) y);
         }
     }
 
@@ -232,7 +228,7 @@ public class Game implements Serializable {
     /**
      * Parse the next command (char) from the user. Works for both keyboard and string modes.
      */
-    public char getNextCommand() {
+    private char getNextCommand() {
         if (commands == null) {
             // Returns the pressed key, otherwise returns ~
             if (StdDraw.hasNextKeyTyped()) {
