@@ -24,11 +24,6 @@ public class Game implements Serializable {
 
     /** Game loop, runs in real time */
     private void playGame() {
-        // Generate a new world (TETile[][] matrix), then render this world
-        map = new Map(WIDTH, HEIGHT - HUDHEIGHT, this.seed);
-        map.generateWorld();
-        ter.renderFrame(map.getMap());
-
         boolean colonPressed = false;
         while (true) {
             // Reset screen to black
@@ -71,7 +66,7 @@ public class Game implements Serializable {
                 String description = map.peek(x, y).description();
                 StdDraw.textLeft(0.04 * WIDTH, 0.96 * HEIGHT, description);
             }
-            // Determine which text to show depending on flag value
+            // Determine which text to show in HUD depending on flag value
             String centerText;
             if (colonPressed) {
                 centerText = "Press q to quit";
@@ -137,6 +132,10 @@ public class Game implements Serializable {
                 seed.append(c);
             } else if (c == 's' && seed.length() > 0) { // start
                 this.seed = Long.parseLong(seed.toString());
+                // Generate a new world (TETile[][] matrix), then render this world
+                map = new Map(WIDTH, HEIGHT - HUDHEIGHT, this.seed);
+                map.generateWorld();
+                ter.renderFrame(map.getMap());
                 playGame();
             } else if (c == 'b') { // go back
                 break;
@@ -162,14 +161,12 @@ public class Game implements Serializable {
          */
         commands = new StringBuilder();
         commands.append(input.toLowerCase());
-
         mainMenu();
         return map.getMap();
     }
 
     /** Serializes the current Game object and saves to txt file. */
     private void saveGame() {
-        // todo: fix saving (does not save state correctly)
         try {
             FileOutputStream fileOut = new FileOutputStream("savefile.txt");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -196,9 +193,11 @@ public class Game implements Serializable {
             this.level = g.level;
         } catch (IOException i) {
             i.printStackTrace();
+            exit(1);
         } catch (ClassNotFoundException c) {
             System.out.println("Game class not found");
             c.printStackTrace();
+            exit(1);
         }
     }
 
