@@ -14,10 +14,10 @@ public class Main {
         } else if (args.length == 1) {
             Game game = new Game();
             TETile[][] worldState = game.playWithInputString(args[0]);
-            System.out.println(TETile.toString(worldState));
+            System.out.println(TETile.toString(worldState)); // autograder uses this for grading
         } else {
             Game game = new Game();
-            game.playWithKeyboard();
+            game.mainMenu();
         }
     }
 }

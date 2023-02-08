@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.io.*;
 
 import static byog.Core.GUI.*;
+import static java.lang.System.exit;
 
 public class Game implements Serializable {
     private static final int BACKSPACE = 8;
@@ -20,38 +21,33 @@ public class Game implements Serializable {
     private long seed;
     private int level = 1;
     private StringBuilder commands;
-    private boolean quitMenu = false;
-    private boolean quitGame = false;
-    private boolean colonPressed = false;
-
-    /** Method for playing a fresh game using the keyboard. */
-    public void playWithKeyboard() {
-        mainMenu();
-        System.exit(0);
-    }
 
     /** Game loop, runs in real time */
     private void playGame() {
-        while (!quitGame) {
-            // reset everything to black
+        // Generate a new world (TETile[][] matrix), then render this world
+        map = new Map(WIDTH, HEIGHT - HUDHEIGHT, this.seed);
+        map.generateWorld();
+        ter.renderFrame(map.getMap());
+
+        boolean colonPressed = false;
+        while (true) {
+            // Reset screen to black
             StdDraw.clear(Color.BLACK);
 
-            // Get the next command (keyboard or string) and render updated map
-            // If ':' pressed, raise flag
-            // Else if flag raised and q is pressed, save and quit
-            // Reset flag if q is not pressed
+            /* Get the next command (keyboard or string) and render updated map
+            If ':' pressed, raise flag
+            Else if flag raised and q is pressed, save and quit
+            Reset flag if q is not pressed */
             char next = getNextCommand();
             if (next == ':') {
                 colonPressed = true;
             } else if (next == 'q' && colonPressed) {
                 saveGame();
-                quitGame = true;
+                exit(0);
             } else if ("wasd".indexOf(next) != -1) {
                 colonPressed = false;
                 map.updatePlayer(next);
-
             }
-            // System.out.println(map.peek(currPos.x, currPos.y).character());
             // If character moves to open door, generate next level
             TETile currentTile = map.playerMover.prevTile();
             if (currentTile.character() == '▢') {
@@ -61,22 +57,38 @@ public class Game implements Serializable {
             }
             ter.renderFrame(map.getMap());
 
+            /* HUD logic */
             // Build and show the HUD
             double rawMouseX = StdDraw.mouseX();
             double rawMouseY = StdDraw.mouseY();
-            long x = Math.round(Math.floor(rawMouseX));
-            long y = Math.round(Math.floor(rawMouseY));
-            showHUD((int) x, (int) y);
+            int x = Math.round((float) Math.floor(rawMouseX));
+            int y = Math.round((float) Math.floor(rawMouseY));
+            StdDraw.setPenColor(Color.WHITE);
+            StdDraw.setFont(HUDFONT);
+
+            // If mouse within the game area, show the name of the current tile in the upper left
+            if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
+                String description = map.peek(x, y).description();
+                StdDraw.textLeft(0.04 * WIDTH, 0.96 * HEIGHT, description);
+            }
+            // Determine which text to show depending on flag value
+            String centerText;
+            if (colonPressed) {
+                centerText = "Press q to quit";
+            } else {
+                centerText = "Seed: " + seed;
+            }
+            StdDraw.text(WIDTHCENTRE, 0.96 * HEIGHT, centerText);
+            StdDraw.textRight(0.96 * WIDTH, 0.96 * HEIGHT, "Level " + level);
+            StdDraw.show();
         }
     }
 
-    /**
-     * Shows the main menu on the screen. Loops until proper input is received
-     */
-    private void mainMenu() {
+    /** Shows the main menu on the screen. Loops until proper input is received */
+    public void mainMenu() {
         ter.initialize(WIDTH, HEIGHT);
 
-        while (!quitMenu) {
+        while (true) {
             // Draw title screen
             StdDraw.clear(Color.BLACK);
             StdDraw.setPenColor(Color.WHITE);
@@ -92,15 +104,12 @@ public class Game implements Serializable {
             if (next == 'n') {
                 inputSeed();
             } else if (next == 'l') {
-                quitMenu = true;
                 loadGame();
+                playGame();
             } else if (next == 'q') {
-                quitMenu = true;
-                quitGame = true;
-                break;
+                exit(0);
             }
         }
-        playGame();
     }
 
     /**
@@ -111,7 +120,7 @@ public class Game implements Serializable {
         StringBuilder seed = new StringBuilder();
 
         while (true) {
-            // Show seed input screen
+            /* Show seed input screen & show current built seed string */
             StdDraw.clear(Color.BLACK);
             StdDraw.setPenColor(Color.WHITE);
             StdDraw.setFont(TITLE);
@@ -124,20 +133,18 @@ public class Game implements Serializable {
             char c = getNextCommand();
             if ((int) c == BACKSPACE && seed.length() > 0) {
                 seed.deleteCharAt(seed.length() - 1);
-            } else if (seed.length() < 16 && Character.isDigit(c)) {
+            } else if (seed.length() < 18 && Character.isDigit(c)) { // max seed length is 18
                 seed.append(c);
-            } else if (c == 's' && seed.length() > 0) {
-                generateWorld(seed.toString());
-                quitMenu = true;
-                break;
-            } else if (c == 'b') {
+            } else if (c == 's' && seed.length() > 0) { // start
+                this.seed = Long.parseLong(seed.toString());
+                playGame();
+            } else if (c == 'b') { // go back
                 break;
             }
         }
     }
 
-    /**
-     * Method used for autograding and testing the game code. The input string will be a series
+    /** Method used for autograding and testing the game code. The input string will be a series
      * of characters (for example, "n123sswwdasdassadwas", "n123sss:q", "lwww". The game should
      * behave exactly as if the user typed these characters into the game after playing
      * playWithKeyboard. If the string ends in ":q", the same world should be returned as if the
@@ -146,8 +153,7 @@ public class Game implements Serializable {
      * should save, and thus if we then called playWithInputString with the string "l", we'd expect
      * to get the exact same world back again, since this corresponds to loading the saved game.
      * @param input the input string to feed to your program
-     * @return the 2D TETile[][] representing the state of the world
-     */
+     * @return the 2D TETile[][] representing the state of the world */
     public TETile[][] playWithInputString(String input) {
         /*
          * Fill out this method to run the game using the input passed in,
@@ -161,55 +167,26 @@ public class Game implements Serializable {
         return map.getMap();
     }
 
-    /**
-     * Given an x and y coordinate corresponding to TETile[x][y], displays the description of
-     * the hovered tile in the HUD as well as the current level.
-     */
-    private void showHUD(int x, int y) {
-        StdDraw.setPenColor(Color.WHITE);
-        StdDraw.setFont(HUDFONT);
-
-        // If mouse within the game area, show the name of the current tile in the upper left
-        if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
-            String description = map.peek(x, y).description();
-            StdDraw.textLeft(0.04 * WIDTH, 0.96 * HEIGHT, description);
-        }
-        // Determine which text to show depending on flag value
-        String centerText;
-        if (colonPressed) {
-            centerText = "Press q to quit";
-        } else {
-            centerText = "Seed: " + seed;
-        }
-        StdDraw.text(WIDTHCENTRE, 0.96 * HEIGHT, centerText);
-        StdDraw.textRight(0.96 * WIDTH, 0.96 * HEIGHT, "Level " + level);
-        StdDraw.show();
-    }
-
-    /**
-     * Serializes the current Game object and saves to txt file.
-     */
+    /** Serializes the current Game object and saves to txt file. */
     private void saveGame() {
+        // todo: fix saving (does not save state correctly)
         try {
-            FileOutputStream fileOut = new FileOutputStream("./byog/savefile.txt");
-            // FileOutputStream fileOut = new FileOutputStream("savefile.txt");
+            FileOutputStream fileOut = new FileOutputStream("savefile.txt");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(this);
             out.close();
             fileOut.close();
         } catch (IOException i)  {
             i.printStackTrace();
+            exit(1);
         }
     }
 
-    /**
-     * Load a game from the stored save file, then sets map and level to the saved objects values.
-     */
+    /** Load a game from stored save file, then sets map and level to the saved objects values. */
     private void loadGame() {
         Game g;
         try {
-            FileInputStream fileIn = new FileInputStream("./byog/savefile.txt");
-            // FileInputStream fileIn = new FileInputStream("savefile.txt");
+            FileInputStream fileIn = new FileInputStream("savefile.txt");
             ObjectInputStream in = new ObjectInputStream(fileIn);
             g = (Game) in.readObject();
             in.close();
@@ -225,9 +202,8 @@ public class Game implements Serializable {
         }
     }
 
-    /**
-     * Parse the next command (char) from the user. Works for both keyboard and string modes.
-     */
+    /** Parse the next command (char) from the user. Works for both keyboard and string modes.
+     *  Returns '~' on no keyboard input or no more commands. */
     private char getNextCommand() {
         if (commands == null) {
             // Returns the pressed key, otherwise returns ~
@@ -243,19 +219,8 @@ public class Game implements Serializable {
                 commands.deleteCharAt(0);
                 return next;
             }
-            // Need some arbitrary value to return
+            // Likewise, need some arbitrary value to return
             return '~';
         }
-    }
-
-    /**
-     * Given a seed String, creates new map object, makes this object generate a new TETile[][]
-     * matrix, then renders the world, displaying this on the screen
-     */
-    private void generateWorld(String seed) {
-        this.seed = Long.parseLong(seed);
-        map = new Map(WIDTH, HEIGHT - HUDHEIGHT, this.seed);
-        map.generateWorld();
-        ter.renderFrame(map.getMap());
     }
 }
