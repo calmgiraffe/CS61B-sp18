@@ -11,13 +11,9 @@ public class Main {
         if (args.length > 1) {
             System.out.println("Can only have one argument - the input string");
             System.exit(0);
-        } else if (args.length == 1) {
-            Game game = new Game();
-            TETile[][] worldState = game.playWithInputString(args[0]);
-            System.out.println(TETile.toString(worldState)); // autograder uses this for grading
-        } else {
-            Game game = new Game();
-            game.mainMenu();
         }
+        Game game = new Game();
+        String cmdString = (args.length == 1) ? args[0] : null;
+        game.mainMenu(cmdString);
     }
 }

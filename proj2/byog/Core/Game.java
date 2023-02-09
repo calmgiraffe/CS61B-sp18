@@ -22,6 +22,82 @@ public class Game implements Serializable {
     private int level = 1;
     private StringBuilder commands;
 
+    /**
+     * Shows the main menu on the screen. Loops until proper input is received.
+     * Method also used for autograding and testing the game code. The input string will be a series
+     * of characters (for example, "n123sswwdasdassadwas", "n123sss:q", "lwww". The game should
+     * behave exactly as if the user typed these characters into the game after playing
+     * playWithKeyboard. If the string ends in ":q", the same world should be returned as if the
+     * string did not end with q. For example "n123sss" and "n123sss:q" should return the same
+     * world. However, the behavior is slightly different. After playing with "n123sss:q", the game
+     * should save, and thus if we then called playWithInputString with the string "l", we'd expect
+     * to get the exact same world back again, since this corresponds to loading the saved game.
+     */
+    public void mainMenu(String cmdString) {
+        if (cmdString != null) {
+            commands = new StringBuilder();
+            commands.append(cmdString.toLowerCase());
+        }
+        ter.initialize(WIDTH, HEIGHT);
+
+        while (true) {
+            // Draw title screen
+            StdDraw.clear(Color.BLACK);
+            StdDraw.setPenColor(Color.WHITE);
+            StdDraw.setFont(TITLE);
+            StdDraw.text(WIDTHCENTRE, HEADER, "CS61B: The Game");
+            StdDraw.setFont(OPTION);
+            StdDraw.text(WIDTHCENTRE, ROW1, "New Game (N)");
+            StdDraw.text(WIDTHCENTRE, ROW2, "Load Game (L)");
+            StdDraw.text(WIDTHCENTRE, ROW3, "Quit (Q)");
+            StdDraw.show();
+
+            char next = getNextCommand();
+            if (next == 'n') {
+                inputSeed();
+            } else if (next == 'l') {
+                loadGame();
+                playGame();
+            } else if (next == 'q') {
+                exit(0);
+            }
+        }
+    }
+
+    /** Displays the seed input screen; s to submit the seed and generate a new map.
+     * Can only put in numbers for a seed. */
+    private void inputSeed() {
+        StringBuilder seed = new StringBuilder();
+
+        while (true) {
+            /* Show seed input screen & show current built seed string */
+            StdDraw.clear(Color.BLACK);
+            StdDraw.setPenColor(Color.WHITE);
+            StdDraw.setFont(TITLE);
+            StdDraw.text(WIDTHCENTRE, HEADER, "CS61B: The Game");
+            StdDraw.setFont(OPTION);
+            StdDraw.text(WIDTHCENTRE, ROW1, "(s to submit, b to go back)");
+            StdDraw.text(WIDTHCENTRE, ROW3, "Seed: " + seed);
+            StdDraw.show();
+
+            char c = getNextCommand();
+            if ((int) c == BACKSPACE && seed.length() > 0) {
+                seed.deleteCharAt(seed.length() - 1);
+            } else if (seed.length() < 18 && Character.isDigit(c)) { // max seed length is 18
+                seed.append(c);
+            } else if (c == 's' && seed.length() > 0) { // start
+                this.seed = Long.parseLong(seed.toString());
+                // Generate a new world (TETile[][] matrix), then render this world
+                map = new Map(WIDTH, HEIGHT - HUDHEIGHT, this.seed);
+                map.generateWorld();
+                ter.renderFrame(map.getMap());
+                playGame();
+            } else if (c == 'b') { // go back
+                break;
+            }
+        }
+    }
+
     /** Game loop, runs in real time */
     private void playGame() {
         boolean colonPressed = false;
@@ -79,92 +155,6 @@ public class Game implements Serializable {
         }
     }
 
-    /** Shows the main menu on the screen. Loops until proper input is received */
-    public void mainMenu() {
-        ter.initialize(WIDTH, HEIGHT);
-
-        while (true) {
-            // Draw title screen
-            StdDraw.clear(Color.BLACK);
-            StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(TITLE);
-            StdDraw.text(WIDTHCENTRE, HEADER, "CS61B: The Game");
-            StdDraw.setFont(OPTION);
-            StdDraw.text(WIDTHCENTRE, ROW1, "New Game (N)");
-            StdDraw.text(WIDTHCENTRE, ROW2, "Load Game (L)");
-            StdDraw.text(WIDTHCENTRE, ROW3, "Quit (Q)");
-            StdDraw.show();
-
-            char next = getNextCommand();
-            if (next == 'n') {
-                inputSeed();
-            } else if (next == 'l') {
-                loadGame();
-                playGame();
-            } else if (next == 'q') {
-                exit(0);
-            }
-        }
-    }
-
-    /**
-     * Displays the seed input screen; s to submit the seed and generate a new map.
-     * Can only put in numbers for a seed.
-     */
-    private void inputSeed() {
-        StringBuilder seed = new StringBuilder();
-
-        while (true) {
-            /* Show seed input screen & show current built seed string */
-            StdDraw.clear(Color.BLACK);
-            StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(TITLE);
-            StdDraw.text(WIDTHCENTRE, HEADER, "CS61B: The Game");
-            StdDraw.setFont(OPTION);
-            StdDraw.text(WIDTHCENTRE, ROW1, "(s to submit, b to go back)");
-            StdDraw.text(WIDTHCENTRE, ROW3, "Seed: " + seed);
-            StdDraw.show();
-
-            char c = getNextCommand();
-            if ((int) c == BACKSPACE && seed.length() > 0) {
-                seed.deleteCharAt(seed.length() - 1);
-            } else if (seed.length() < 18 && Character.isDigit(c)) { // max seed length is 18
-                seed.append(c);
-            } else if (c == 's' && seed.length() > 0) { // start
-                this.seed = Long.parseLong(seed.toString());
-                // Generate a new world (TETile[][] matrix), then render this world
-                map = new Map(WIDTH, HEIGHT - HUDHEIGHT, this.seed);
-                map.generateWorld();
-                ter.renderFrame(map.getMap());
-                playGame();
-            } else if (c == 'b') { // go back
-                break;
-            }
-        }
-    }
-
-    /** Method used for autograding and testing the game code. The input string will be a series
-     * of characters (for example, "n123sswwdasdassadwas", "n123sss:q", "lwww". The game should
-     * behave exactly as if the user typed these characters into the game after playing
-     * playWithKeyboard. If the string ends in ":q", the same world should be returned as if the
-     * string did not end with q. For example "n123sss" and "n123sss:q" should return the same
-     * world. However, the behavior is slightly different. After playing with "n123sss:q", the game
-     * should save, and thus if we then called playWithInputString with the string "l", we'd expect
-     * to get the exact same world back again, since this corresponds to loading the saved game.
-     * @param input the input string to feed to your program
-     * @return the 2D TETile[][] representing the state of the world */
-    public TETile[][] playWithInputString(String input) {
-        /*
-         * Fill out this method to run the game using the input passed in,
-         * and return a 2D tile representation of the world that would have been
-         * drawn if the same inputs had been given to playWithKeyboard().
-         */
-        commands = new StringBuilder();
-        commands.append(input.toLowerCase());
-        mainMenu();
-        return map.getMap();
-    }
-
     /** Serializes the current Game object and saves to txt file. */
     private void saveGame() {
         try {
@@ -219,7 +209,16 @@ public class Game implements Serializable {
                 return next;
             }
             // Likewise, need some arbitrary value to return
-            return '~';
+            exit(0);
         }
+        return '~';
+    }
+
+    /** Quit and close the game. Wrapper for System.exit() */
+    private void exit(int status) {
+        if (commands != null) {
+            System.out.println(TETile.toString(map.getMap()));
+        }
+        System.exit(status);
     }
 }
