@@ -3,24 +3,25 @@ package byog.Core;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 
-import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
 import java.awt.Color;
 import java.io.*;
 
 import static byog.Core.GUI.*;
-import static java.lang.System.exit;
 
 public class Game implements Serializable {
+    protected static RandInclusive rand;
     private static final int BACKSPACE = 8;
     private static final TERenderer ter = new TERenderer();
-    static boolean enableFOV = false;
+    static boolean enableFOV = true;
 
     /* Instance variables */
     private Map map;
     private long seed;
     private int level = 1;
     private StringBuilder commands;
+
+    /* Public API */
 
     /**
      * Shows the main menu on the screen. Loops until proper input is received.
@@ -33,7 +34,7 @@ public class Game implements Serializable {
      * should save, and thus if we then called playWithInputString with the string "l", we'd expect
      * to get the exact same world back again, since this corresponds to loading the saved game.
      */
-    public void mainMenu(String cmdString) {
+    public void start(String cmdString) {
         if (cmdString != null) {
             commands = new StringBuilder();
             commands.append(cmdString.toLowerCase());
@@ -45,11 +46,11 @@ public class Game implements Serializable {
             StdDraw.clear(Color.BLACK);
             StdDraw.setPenColor(Color.WHITE);
             StdDraw.setFont(TITLE);
-            StdDraw.text(WIDTHCENTRE, HEADER, "CS61B: The Game");
+            StdDraw.text(WIDTH_CENTRE, HEADER, "CS61B: The Game");
             StdDraw.setFont(OPTION);
-            StdDraw.text(WIDTHCENTRE, ROW1, "New Game (N)");
-            StdDraw.text(WIDTHCENTRE, ROW2, "Load Game (L)");
-            StdDraw.text(WIDTHCENTRE, ROW3, "Quit (Q)");
+            StdDraw.text(WIDTH_CENTRE, ROW1, "New Game (N)");
+            StdDraw.text(WIDTH_CENTRE, ROW2, "Load Game (L)");
+            StdDraw.text(WIDTH_CENTRE, ROW3, "Quit (Q)");
             StdDraw.show();
 
             char next = getNextCommand();
@@ -64,6 +65,8 @@ public class Game implements Serializable {
         }
     }
 
+    /* Private internal methods */
+
     /** Displays the seed input screen; s to submit the seed and generate a new map.
      * Can only put in numbers for a seed. */
     private void inputSeed() {
@@ -74,10 +77,10 @@ public class Game implements Serializable {
             StdDraw.clear(Color.BLACK);
             StdDraw.setPenColor(Color.WHITE);
             StdDraw.setFont(TITLE);
-            StdDraw.text(WIDTHCENTRE, HEADER, "CS61B: The Game");
+            StdDraw.text(WIDTH_CENTRE, HEADER, "CS61B: The Game");
             StdDraw.setFont(OPTION);
-            StdDraw.text(WIDTHCENTRE, ROW1, "(s to submit, b to go back)");
-            StdDraw.text(WIDTHCENTRE, ROW3, "Seed: " + seed);
+            StdDraw.text(WIDTH_CENTRE, ROW1, "(s to submit, b to go back)");
+            StdDraw.text(WIDTH_CENTRE, ROW3, "Seed: " + seed);
             StdDraw.show();
 
             char c = getNextCommand();
@@ -87,8 +90,9 @@ public class Game implements Serializable {
                 seed.append(c);
             } else if (c == 's' && seed.length() > 0) { // start
                 this.seed = Long.parseLong(seed.toString());
-                // Generate a new world (TETile[][] matrix), then render this world
-                map = new Map(WIDTH, HEIGHT - HUDHEIGHT, this.seed);
+                Game.rand = new RandInclusive(this.seed);
+                /* Generate a new world (TETile[][] matrix), then render this world */
+                map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
                 map.generateWorld();
                 ter.renderFrame(map.getMap());
                 playGame();
@@ -105,9 +109,12 @@ public class Game implements Serializable {
             // Reset screen to black
             StdDraw.clear(Color.BLACK);
 
+            /* Controller - accepts keyboard commands */
+            // todo: move to separate controller class?
+
             /* Get the next command (keyboard or string) and render updated map
             If ':' pressed, raise flag
-            Else if flag raised and q is pressed, save and quit
+            Elif flag raised and q is pressed, save and quit
             Reset flag if q is not pressed */
             char next = getNextCommand();
             if (next == ':') {
@@ -122,7 +129,6 @@ public class Game implements Serializable {
             // If character moves to open door, generate next level
             TETile currentTile = map.playerMover.prevTile();
             if (currentTile.character() == '▢') {
-                map.clear();
                 map.generateWorld();
                 level += 1;
             }
@@ -135,7 +141,7 @@ public class Game implements Serializable {
             int x = Math.round((float) Math.floor(rawMouseX));
             int y = Math.round((float) Math.floor(rawMouseY));
             StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(HUDFONT);
+            StdDraw.setFont(HUD_FONT);
 
             // If mouse within the game area, show the name of the current tile in the upper left
             if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
@@ -149,7 +155,7 @@ public class Game implements Serializable {
             } else {
                 centerText = "Seed: " + seed;
             }
-            StdDraw.text(WIDTHCENTRE, 0.96 * HEIGHT, centerText);
+            StdDraw.text(WIDTH_CENTRE, 0.96 * HEIGHT, centerText);
             StdDraw.textRight(0.96 * WIDTH, 0.96 * HEIGHT, "Level " + level);
             StdDraw.show();
         }

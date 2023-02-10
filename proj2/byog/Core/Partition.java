@@ -31,9 +31,7 @@ public class Partition implements Serializable {
     private Partition right;
     private PriorityQueue<Partition> pQueue;
 
-    /**
-     * Partition constructor
-     */
+    /** Partition constructor */
     Partition(Position p, int width, int height) {
         this.position = p;
         this.width = width;
@@ -41,17 +39,15 @@ public class Partition implements Serializable {
         this.centre = new Position(position.x + width / 2, position.y + height / 2);
     }
 
-    /**
-     * Makes another partition at a point about border, which is approximately in
+    /** Makes another partition at a point about border, which is approximately in
      * the middle of the current partition's width so that both partitions are within bounds.
-     */
+     * */
     private static Partition splitHorizontally(Partition p, int border) {
         Position newPos = new Position(p.position.x + border, p.position.y);
         return new Partition(newPos, p.width - border, p.height);
     }
 
-    /**
-     * Makes another partition at a point about border, which is approximately in
+    /** Makes another partition at a point about border, which is approximately in
      * the middle of the current partition's height so that both partitions are within bounds.
      */
     private static Partition splitVertically(Partition p, int border) {
@@ -59,8 +55,7 @@ public class Partition implements Serializable {
         return new Partition(newPos, p.width, p.height - border);
     }
 
-    /**
-     * Examine partition and apply either their divideHorizontally or divideVertically method,
+    /** Examine partition and apply either their divideHorizontally or divideVertically method,
      * depending on their dimensions. If both dimensions are greater than MAX, either vertical
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as
      * the branches of the current partition. Finally, method traverses the newly created branches.
@@ -69,24 +64,24 @@ public class Partition implements Serializable {
         if (p.width > MAX || p.height > MAX) {
 
             if (p.width <= MAX) {
-                int border = Map.rand.nextIntInclusive(MIN, p.height - MIN);
+                int border = Game.rand.nextIntInclusive(MIN, p.height - MIN);
                 p.left = splitVertically(p, border);
                 p.right = new Partition(p.position, p.width, border);
 
             } else if (p.height <= MAX) {
-                int border = Map.rand.nextIntInclusive(MIN, p.width - MIN);
+                int border = Game.rand.nextIntInclusive(MIN, p.width - MIN);
                 p.left = splitHorizontally(p, border);
                 p.right = new Partition(p.position, border, p.height);
 
             } else {
-                int choice = Map.rand.nextIntInclusive(1);
+                int choice = Game.rand.nextIntInclusive(1);
                 if (choice == 0) {
-                    int border = Map.rand.nextIntInclusive(MIN, p.height - MIN);
+                    int border = Game.rand.nextIntInclusive(MIN, p.height - MIN);
                     p.left = splitVertically(p, border);
                     p.right = new Partition(p.position, p.width, border);
 
                 } else {
-                    int border = Map.rand.nextIntInclusive(MIN, p.width - MIN);
+                    int border = Game.rand.nextIntInclusive(MIN, p.width - MIN);
                     p.left = splitHorizontally(p, border);
                     p.right = new Partition(p.position, border, p.height);
                 }
@@ -106,8 +101,7 @@ public class Partition implements Serializable {
         }
     }
 
-    /**
-     * Select two partitions, one from the left and right branch respectively,
+    /** Select two partitions, one from the left and right branch respectively,
      * as stored in the left and rightt pQueues, then draws a path between their centres,
      * thereby connecting them and ensuring a complete graph.
      */
@@ -143,23 +137,20 @@ public class Partition implements Serializable {
         }
     }
 
-    /**
-     * Given some root, traverses tree and returns list of all leafs.
-     */
+    /** Given some root, traverses tree and returns list of all leafs. */
     public static ArrayList<Room> returnRooms(Partition p) {
         ArrayList<Room> rooms = new ArrayList<>();
         returnRoomsHelper(rooms, p);
         return rooms;
     }
 
-    /**
-     * Generates a rectangular Room inside the partition whose area is between MIN x MIN and the
+    /** Generates a rectangular Room inside the partition whose area is between MIN x MIN and the
      * exact dimensions of the partition area. A Room is an abstract object consisting of two
      * Positions representing the bottom left and top right corner, a floor type, etc
      */
     private void generateRandomRoom() {
-        int lowerLeftX = Map.rand.nextIntInclusive(width - MIN);
-        int lowerLeftY = Map.rand.nextIntInclusive(height - MIN);
+        int lowerLeftX = Game.rand.nextIntInclusive(width - MIN);
+        int lowerLeftY = Game.rand.nextIntInclusive(height - MIN);
         Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
 
         int minX = lowerLeft.x + MINROOM - 1;
@@ -167,15 +158,14 @@ public class Partition implements Serializable {
         int minY = lowerLeft.y + MINROOM - 1;
         int maxY = Math.min(lowerLeft.y + MAXROOM - 1, position.y + height - 1);
 
-        int upperRightX = Map.rand.nextIntInclusive(minX, maxX);
-        int upperRightY = Map.rand.nextIntInclusive(minY, maxY);
+        int upperRightX = Game.rand.nextIntInclusive(minX, maxX);
+        int upperRightY = Game.rand.nextIntInclusive(minY, maxY);
         Position upperRight = new Position(upperRightX, upperRightY);
 
         this.room = new Room(lowerLeft, upperRight);
     }
 
-    /**
-     * Comparator based on the difference between the two partitions distanceToParent.
+    /** Comparator based on the difference between the two partitions distanceToParent.
      * Returns 1, 0, or -1 because distanceToParent is a double.
      */
     private static class DistanceComparator implements Comparator<Partition>, Serializable {
@@ -190,9 +180,7 @@ public class Partition implements Serializable {
         }
     }
 
-    /**
-     * Returns new instance of DistanceComparator.
-     */
+    /** Returns new instance of DistanceComparator. */
     public static Comparator<Partition> getDistanceComparator() {
         return new DistanceComparator();
     }

@@ -11,37 +11,34 @@ import java.util.ArrayList;
  */
 public class Map implements Serializable {
 
-    /**
-     * Map instance variables
-     */
-    protected static RandInclusive rand;
-    private final TETile[][] map;
-    private final TETile[][] fovmap;
+    /** Public variables */
     protected final int width;
     protected final int height;
-    protected final int numTiles;
-    private final Partition partition;
     protected final PlayerMover playerMover;
+    /* Private variables */
+    private final TETile[][] map;
+    private final TETile[][] fovmap;
+    private final Partition partition;
 
-    /**
-     * Map constructor
-     */
-    Map(int width, int height, long seed) {
-        rand = new RandInclusive(seed);
+    /** Map constructor */
+    Map(int width, int height) {
         this.map = new TETile[width][height];
         this.fovmap = new TETile[width][height];
         this.width = width;
         this.height = height;
-        this.numTiles = width * height;
         this.partition = new Partition(new Position(0, 0), width, height);
         this.playerMover = new PlayerMover(this);
-        this.clear();
     }
 
     /**
      * Randomly generates a complete world
      */
     public void generateWorld() {
+        /* Initially clear Map */
+        fill(map, Tileset.NOTHING);
+        fill(fovmap, Tileset.NOTHING);
+        playerMover.clear();
+
         // make binary tree of partitions and draw hallways, making a connected graph
         Partition.splitAndConnect(this.partition, this);
 
@@ -52,25 +49,25 @@ public class Map implements Serializable {
             r.drawRoom(this);
 
             // 50% chance of drawing an irregular room
-            if (Map.rand.nextIntInclusive(100) < 50) {
-                int size = Map.rand.nextIntInclusive(5, 8);
+            if (Game.rand.nextIntInclusive(100) < 50) {
+                int size = Game.rand.nextIntInclusive(5, 8);
                 Position randPos = r.randomPosition(0);
                 r.drawIrregular(size, randPos.x, randPos.y, this);
             }
             // 70% chance of drawing grass in the room
-            if (Map.rand.nextIntInclusive(100) < 70) {
-                int size = Map.rand.nextIntInclusive(5, 7);
+            if (Game.rand.nextIntInclusive(100) < 70) {
+                int size = Game.rand.nextIntInclusive(5, 7);
                 Position randPos = r.randomPosition(1);
                 r.drawIrregularGrass(size, randPos.x, randPos.y, this);
             }
         }
         // Pick a room and place character in it
-        int i = rand.nextIntInclusive(rooms.size() - 1);
+        int i = Game.rand.nextIntInclusive(rooms.size() - 1);
         Position playerPos = rooms.get(i).randomPosition(1);
         playerMover.setPosition(playerPos);
 
         // Pick a room and place door in it
-        i = rand.nextIntInclusive(rooms.size() - 1);
+        i = Game.rand.nextIntInclusive(rooms.size() - 1);
         Position doorPos = rooms.get(i).randomPosition(1);
         placeTile(map, doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR);
         placeTile(fovmap, doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR);
@@ -104,12 +101,6 @@ public class Map implements Serializable {
                 map[x][y] = tile;
             }
         }
-    }
-
-    public void clear() {
-        fill(map, Tileset.NOTHING);
-        fill(fovmap, Tileset.NOTHING);
-        playerMover.clear();
     }
 
     /**

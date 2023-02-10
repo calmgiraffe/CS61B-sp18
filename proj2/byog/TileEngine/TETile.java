@@ -93,7 +93,7 @@ public class TETile implements Serializable {
                 // and just use the character and background color for the tile.
             }
         }
-        StdDraw.setFont(GUI.TILEFONT);
+        StdDraw.setFont(GUI.TILE_FONT);
         StdDraw.setPenColor(backgroundColor);
         StdDraw.filledSquare(x + 0.5, y + 0.5, 0.5);
         StdDraw.setPenColor(textColor);

@@ -15,7 +15,7 @@ public class UnitTests {
 
     @Test
     public void positionToOneDimensional() {
-        Map map = new Map(8, 8, 2130);
+        Map map = new Map(8, 8);
         Position p1 = new Position(7, 7);
         Position p2 = new Position(5, 3);
         Position p3 = new Position(3, 3);
@@ -26,7 +26,7 @@ public class UnitTests {
 
     @Test
     public void OneDimensionalToPosition() {
-        Map map = new Map(10, 8, 2130);
+        Map map = new Map(10, 8);
         int p1 = 32;
         int p2 = 67;
         assertEquals(map.oneDToPos(p1).x, 2);
@@ -37,7 +37,7 @@ public class UnitTests {
 
     @Test
     public void adjacentTest() {
-        Map map = new Map(8, 8, 999);
+        Map map = new Map(8, 8);
         int p1 = map.posToOneD(new Position(7, 7)); // corner
         int p2 = map.posToOneD(new Position(7, 4)); // edge
         int p3 = map.posToOneD(new Position(4, 4)); // middle
