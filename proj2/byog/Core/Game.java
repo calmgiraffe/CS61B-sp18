@@ -61,7 +61,7 @@ public class Game implements Serializable {
             if (next == 'n') {
                 inputSeed();
             } else if (next == 'l') {
-                loadGame();
+                load();
             } else if (next == 'q') {
                 exit(0);
             }
@@ -101,7 +101,7 @@ public class Game implements Serializable {
                 Game.map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
                 map.generateWorld();
                 this.controller = new PlayerMover();
-                playGame();
+                play();
 
             } else if (c == 'b') { // go back
                 break;
@@ -110,7 +110,7 @@ public class Game implements Serializable {
     }
 
     /** Game loop, runs in real time */
-    private void playGame() {
+    private void play() {
         boolean colonPressed = false;
         while (true) {
             StdDraw.clear(Color.BLACK);
@@ -123,7 +123,7 @@ public class Game implements Serializable {
             if (next == ':') {
                 colonPressed = true;
             } else if (next == 'q' && colonPressed) {
-                saveGame();
+                save();
             } else if ("wasd".indexOf(next) != -1) {
                 colonPressed = false;
                 controller.parseCommand(next); // controller manipulates Map
@@ -153,7 +153,7 @@ public class Game implements Serializable {
     }
 
     /** Serializes the current Game object and saves to txt file. Exits with error code (0 or 1). */
-    private void saveGame() {
+    private void save() {
         try {
             m = map;
             r = rand;
@@ -169,9 +169,9 @@ public class Game implements Serializable {
         }
     }
 
-    /** Load a game from stored save file, then sets map and level to the saved objects values.
+    /** Load a game from stored save file, restores previous state, and starts play() loop.
      * Exits with error code 1 upon unsuccessful load. */
-    private void loadGame() {
+    private void load() {
         Game g;
         try {
             FileInputStream fileIn = new FileInputStream("savefile.txt");
@@ -183,7 +183,7 @@ public class Game implements Serializable {
             this.controller = g.controller; // similarly
             rand = g.r;
             map = g.m;
-            playGame();
+            play();
         } catch (IOException i) {
             i.printStackTrace();
             exit(1);
