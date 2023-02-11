@@ -43,10 +43,10 @@ public class Map implements Serializable {
             }
         }
         /* Make binary tree of partitions and draw hallways, making a connected graph */
-        Partition.splitAndConnect(this.partition);
+        partition.splitAndConnect();
 
         /* Traverse partition tree and add leafs to rooms array */
-        this.rooms = Partition.returnRooms(this.partition);
+        this.rooms = partition.returnRooms();
 
         for (Room r : rooms) {
             r.drawRoom();

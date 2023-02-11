@@ -123,7 +123,7 @@ public class Room implements Serializable {
                 if (distTo[p] + 1 < distTo[q]) {
                     distTo[q] = distTo[p] + 1;
                     edgeTo[q] = p;
-                    Node n = new Node(q, distTo[q] + Position.manhattan(q, target, Game.map));
+                    Node n = new Node(q, distTo[q] + Position.manhattan(q, target));
                     fringe.add(n);
                 }
                 if (q == target) {

@@ -34,9 +34,9 @@ public class Position implements Serializable {
      * Given two 1D positions v1 & v2 on an x-y plane,
      * calculate the absolute distance between the two.
      */
-    public static int euclidean(int v1, int v2, Map map) {
-        Position a = map.oneDToPos(v1);
-        Position b = map.oneDToPos(v2);
+    public static int euclidean(int v1, int v2) {
+        Position a = Game.map.oneDToPos(v1);
+        Position b = Game.map.oneDToPos(v2);
         return euclidean(a, b);
     }
 
@@ -52,9 +52,9 @@ public class Position implements Serializable {
      * Given two 1D positions v1 & v2 on an x-y plane,
      * calculate the manhattan distance between the two.
      */
-    public static int manhattan(int v1, int v2, Map map) {
-        Position a = map.oneDToPos(v1);
-        Position b = map.oneDToPos(v2);
+    public static int manhattan(int v1, int v2) {
+        Position a = Game.map.oneDToPos(v1);
+        Position b = Game.map.oneDToPos(v2);
         return manhattan(a, b);
     }
 }

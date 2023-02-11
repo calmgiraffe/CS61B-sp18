@@ -29,7 +29,6 @@ public class Partition implements Serializable {
     private Partition right;
     private PriorityQueue<Partition> pQueue;
 
-    /** Constructor for subpartitions */
     Partition(Position p, int width, int height) {
         this.position = p;
         this.width = width;
@@ -40,17 +39,17 @@ public class Partition implements Serializable {
     /* Makes another partition at a point about border, which is approximately in
      * the middle of the current partition's width so that both partitions are within bounds.
      * */
-    private static Partition splitHorizontally(Partition p, int border) {
-        Position newPos = new Position(p.position.x + border, p.position.y);
-        return new Partition(newPos, p.width - border, p.height);
+    private Partition splitHorizontally(int border) {
+        Position newPos = new Position(position.x + border, position.y);
+        return new Partition(newPos, width - border, height);
     }
 
     /* Makes another partition at a point about border, which is approximately in
      * the middle of the current partition's height so that both partitions are within bounds.
      */
-    private static Partition splitVertically(Partition p, int border) {
-        Position newPos = new Position(p.position.x, p.position.y + border);
-        return new Partition(newPos, p.width, p.height - border);
+    private Partition splitVertically(int border) {
+        Position newPos = new Position(position.x, position.y + border);
+        return new Partition(newPos, width, height - border);
     }
 
     /** Examine partition and apply either their divideHorizontally or divideVertically method,
@@ -58,44 +57,44 @@ public class Partition implements Serializable {
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as
      * the branches of the current partition. Finally, method traverses the newly created branches.
      */
-    public static void splitAndConnect(Partition p) {
-        if (p.width > MAX || p.height > MAX) {
+    public void splitAndConnect() {
+        if (width > MAX || height > MAX) {
 
-            if (p.width <= MAX) {
-                int border = Game.rand.nextIntInclusive(MIN, p.height - MIN);
-                p.left = splitVertically(p, border);
-                p.right = new Partition(p.position, p.width, border);
+            if (width <= MAX) {
+                int border = Game.rand.nextIntInclusive(MIN, height - MIN);
+                left = splitVertically(border);
+                right = new Partition(position, width, border);
 
-            } else if (p.height <= MAX) {
-                int border = Game.rand.nextIntInclusive(MIN, p.width - MIN);
-                p.left = splitHorizontally(p, border);
-                p.right = new Partition(p.position, border, p.height);
+            } else if (height <= MAX) {
+                int border = Game.rand.nextIntInclusive(MIN, width - MIN);
+                left = splitHorizontally(border);
+                right = new Partition(position, border, height);
 
             } else {
                 int choice = Game.rand.nextIntInclusive(1);
                 if (choice == 0) {
-                    int border = Game.rand.nextIntInclusive(MIN, p.height - MIN);
-                    p.left = splitVertically(p, border);
-                    p.right = new Partition(p.position, p.width, border);
+                    int border = Game.rand.nextIntInclusive(MIN, height - MIN);
+                    left = splitVertically(border);
+                    right = new Partition(position, width, border);
 
                 } else {
-                    int border = Game.rand.nextIntInclusive(MIN, p.width - MIN);
-                    p.left = splitHorizontally(p, border);
-                    p.right = new Partition(p.position, border, p.height);
+                    int border = Game.rand.nextIntInclusive(MIN, width - MIN);
+                    left = splitHorizontally(border);
+                    right = new Partition(position, border, height);
                 }
             }
-            splitAndConnect(p.left);
-            splitAndConnect(p.right);
-            connectLeftAndRight(p);
+            left.splitAndConnect();
+            right.splitAndConnect();
+            this.connectLeftAndRight();
 
         } else { // if leaf
             // generate random room
-            p.generateRandomRoom();
+            generateRandomRoom();
 
             // make new PQ, add partition to it
-            p.pQueue = new PriorityQueue<>(getDistanceComparator());
-            p.distanceToParent = 0;
-            p.pQueue.add(p);
+            this.pQueue = new PriorityQueue<>(getDistanceComparator());
+            distanceToParent = 0;
+            pQueue.add(this);
         }
     }
 
@@ -103,42 +102,42 @@ public class Partition implements Serializable {
      * as stored in the left and right pQueues, then draws a path between their centres,
      * thereby connecting them and ensuring a complete graph.
      */
-    private static void connectLeftAndRight(Partition p) {
+    private void connectLeftAndRight() {
         // Make new pQueue
-        p.pQueue = new PriorityQueue<>(getDistanceComparator());
+        this.pQueue = new PriorityQueue<>(getDistanceComparator());
 
         // At parent node, recalculate distance from parent centre to its leaf nodes' centre
         // Left branch: iterate through left PQ and recalculate distance to center
-        for (Partition par: p.left.pQueue) {
-            par.distanceToParent = Position.manhattan(par.centre, p.centre);
-            p.pQueue.add(par);
+        for (Partition par: left.pQueue) {
+            par.distanceToParent = Position.manhattan(par.centre, centre);
+            pQueue.add(par);
         }
         // Right branch: iterate through right PQ and recalculate distance to center
-        for (Partition par: p.right.pQueue) {
-            par.distanceToParent = Position.manhattan(par.centre, p.centre);
-            p.pQueue.add(par);
+        for (Partition par: right.pQueue) {
+            par.distanceToParent = Position.manhattan(par.centre, centre);
+            pQueue.add(par);
         }
         // Left branch: select partition that is closest to the centre
         // Right branch: select partition that is closest to the centre
-        Partition minLeft = p.left.pQueue.peek();
-        Partition minRight = p.right.pQueue.peek();
+        Partition minLeft = left.pQueue.peek();
+        Partition minRight = right.pQueue.peek();
 
         minLeft.room.astar(minRight.room);
     }
 
     /** Given some root, traverses tree and returns list of all leafs. */
-    public static ArrayList<Room> returnRooms(Partition p) {
+    public ArrayList<Room> returnRooms() {
         ArrayList<Room> rooms = new ArrayList<>();
-        returnRoomsHelper(rooms, p);
+        returnRoomsHelper(rooms);
         return rooms;
     }
 
-    private static void returnRoomsHelper(ArrayList<Room> rooms, Partition p) {
-        if (p.left == null && p.right == null) {
-            rooms.add(p.room);
+    private void returnRoomsHelper(ArrayList<Room> rooms) {
+        if (left == null && right == null) {
+            rooms.add(room);
         } else {
-            returnRoomsHelper(rooms, p.left);
-            returnRoomsHelper(rooms, p.right);
+            left.returnRoomsHelper(rooms);
+            right.returnRoomsHelper(rooms);
         }
     }
 
@@ -164,8 +163,7 @@ public class Partition implements Serializable {
     }
 
     /* Comparator based on the difference between the two partitions distanceToParent.
-     * Returns 1, 0, or -1 because distanceToParent is a double.
-     */
+     * Returns 1, 0, or -1 because distanceToParent is a double. */
     private static class DistanceComparator implements Comparator<Partition>, Serializable {
         public int compare(Partition a, Partition b) {
             if (a.distanceToParent - b.distanceToParent > 0) {
