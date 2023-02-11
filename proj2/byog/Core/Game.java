@@ -19,6 +19,10 @@ public class Game implements Serializable {
     /* Private variables */
     private long seed;
     private StringBuilder commands;
+    private PlayerMover controller;
+    /* temp private variables */
+    private Map m;
+    private RandInclusive r;
 
     /* Public API */
 
@@ -82,6 +86,7 @@ public class Game implements Serializable {
             StdDraw.text(WIDTH_CENTRE, ROW3, "Seed: " + seed);
             StdDraw.show();
 
+            // Todo: many lines that accept user input like this could potentially be refactored into TERenderer
             char c = getNextCommand();
             if ((int) c == BACKSPACE && seed.length() > 0) {
                 seed.deleteCharAt(seed.length() - 1);
@@ -93,6 +98,9 @@ public class Game implements Serializable {
                 // Set the seed of Game and enter play() loop
                 this.seed = Long.parseLong(seed.toString());
                 Game.rand = new RandInclusive(this.seed);
+                Game.map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
+                map.generateWorld();
+                this.controller = new PlayerMover();
                 playGame();
 
             } else if (c == 'b') { // go back
@@ -103,10 +111,6 @@ public class Game implements Serializable {
 
     /** Game loop, runs in real time */
     private void playGame() {
-        Game.map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
-        map.generateWorld();
-        PlayerMover controller = new PlayerMover();
-
         boolean colonPressed = false;
         while (true) {
             StdDraw.clear(Color.BLACK);
@@ -122,13 +126,13 @@ public class Game implements Serializable {
                 saveGame();
             } else if ("wasd".indexOf(next) != -1) {
                 colonPressed = false;
-                controller.parseCommand(next);
+                controller.parseCommand(next); // controller manipulates Map
             }
             ter.renderFrame(map.getMap());
 
             /* HUD logic */
             // Build and show the HUD
-            double rawMouseX = StdDraw.mouseX();
+            double rawMouseX = StdDraw.mouseX(); // leave this separate - could potentially use in future
             double rawMouseY = StdDraw.mouseY();
             int x = Math.round((float) Math.floor(rawMouseX));
             int y = Math.round((float) Math.floor(rawMouseY));
@@ -137,16 +141,11 @@ public class Game implements Serializable {
 
             // If mouse within the game area, show the name of the current tile in the upper left
             if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
-                String description = map.peek(x, y).description();
+                String description = map.peek(x, y, enableFOV).description();
                 StdDraw.textLeft(0.04 * WIDTH, 0.96 * HEIGHT, description);
             }
             // Determine which text to show in HUD depending on flag value
-            String centerText;
-            if (colonPressed) {
-                centerText = "Press q to quit";
-            } else {
-                centerText = "Seed: " + seed;
-            }
+            String centerText = (colonPressed) ? "Press q to quit" : "Seed: " + seed;
             StdDraw.text(WIDTH_CENTRE, 0.96 * HEIGHT, centerText);
             StdDraw.textRight(0.96 * WIDTH, 0.96 * HEIGHT, "Level " + map.level);
             StdDraw.show();
@@ -156,6 +155,8 @@ public class Game implements Serializable {
     /** Serializes the current Game object and saves to txt file. Exits with error code (0 or 1). */
     private void saveGame() {
         try {
+            m = map;
+            r = rand;
             FileOutputStream fileOut = new FileOutputStream("savefile.txt");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(this);
@@ -178,7 +179,10 @@ public class Game implements Serializable {
             g = (Game) in.readObject();
             in.close();
             fileIn.close();
-            this.seed = g.seed;
+            this.seed = g.seed; // need this or seed will not show
+            this.controller = g.controller; // similarly
+            rand = g.r;
+            map = g.m;
             playGame();
         } catch (IOException i) {
             i.printStackTrace();

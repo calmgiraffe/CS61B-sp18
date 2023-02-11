@@ -39,7 +39,7 @@ public class Map implements Serializable {
         for (int x = 0; x < map.length; x++) {
             for (int y = 0; y < map[0].length; y++) {
                 map[x][y] = Tileset.NOTHING;
-                fovmap[x][y] = Tileset.NOTHING;
+                fovmap[x][y] = Tileset.BLANK;
             }
         }
         /* Make binary tree of partitions and draw hallways, making a connected graph */
@@ -74,10 +74,11 @@ public class Map implements Serializable {
     }
 
     /** Updates fovmap with the coordinates that corespond to the field of view */
+    // Todo: can potentially remove this and move to playerMover. think about Map API, this method seems too special purpose
     public void updateFOVmap(List<Position> coordinates) {
         for (int x = 0; x < map.length; x++) { // Fill fovmap with blank tiles
             for (int y = 0; y < map[0].length; y++) {
-                fovmap[x][y] = Tileset.NOTHING;
+                fovmap[x][y] = Tileset.BLANK;
             }
         }
         for (Position pos : coordinates) { // Update fovmap
@@ -93,7 +94,7 @@ public class Map implements Serializable {
     /** Given a xy coordinate on the map (range of 0 to width-1, 0 to height-1), converts this
      * to a corresponding 1D coordinate. This process can be imagined as lining up the rows of the
      * map into one long line. */
-    public int posToOneD(Position p) {
+    public int posToOneDimension(Position p) {
         if (!isValid(p.x, p.y)) {
             throw new ArrayIndexOutOfBoundsException("Position out of bounds.");
         }
@@ -101,7 +102,7 @@ public class Map implements Serializable {
     }
 
     /** Given a 1D position on the map, converts this to a corresponding new Position. */
-    public Position oneDToPos(int position) {
+    public Position oneDimensionToPos(int position) {
         int x = position % width;
         int y = position / width;
         if (!isValid(x, y)) {
@@ -111,8 +112,9 @@ public class Map implements Serializable {
     }
 
     /** Given a 1D position on a map, returns the adjacent (up, right, down, left) 1D positions */
+    // todo: this only has 2 usages. can potentially refactor and optimize
     public ArrayList<Integer> adjacent(int p) {
-        Position currPos = oneDToPos(p);
+        Position currPos = oneDimensionToPos(p);
         int currX = currPos.x;
         int currY = currPos.y;
 
@@ -125,7 +127,7 @@ public class Map implements Serializable {
         ArrayList<Integer> adjacent = new ArrayList<>();
         for (Position pos : tmp) {
             if (isValid(pos.x, pos.y)) {
-                adjacent.add(posToOneD(pos));
+                adjacent.add(posToOneDimension(pos));
             }
         }
         return adjacent;
@@ -133,17 +135,14 @@ public class Map implements Serializable {
 
     /** Returns the TETile[][] associated with this object that is to be rendered. */
     public TETile[][] getMap() {
-        if (Game.enableFOV) {
-            return fovmap;
-        }
-        return map;
+        return (Game.enableFOV) ? fovmap : map;
     }
 
     /** Returns the tile at specified x and y coordinates on the map, but does not remove the tile.
      * If out of bounds, returns null. */
-    public TETile peek(int x, int y) {
+    public TETile peek(int x, int y, boolean getFOV) {
         if (isValid(x, y)) {
-            return map[x][y];
+            return (getFOV) ? fovmap[x][y] : map[x][y];
         }
         return null;
     }

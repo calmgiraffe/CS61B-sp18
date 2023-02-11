@@ -25,7 +25,7 @@ public class PlayerMover implements Serializable {
         Position playerPos = Game.map.rooms.get(i).randomPosition(1);
         this.currX = playerPos.x;
         this.currY = playerPos.y;
-        this.prevTile = Game.map.peek(currX, currY);
+        this.prevTile = Game.map.peek(currX, currY, false);
         Game.map.placeTile(currX, currY, Tileset.PLAYER);
 
         /* Pick a room and place door in it */
@@ -55,8 +55,8 @@ public class PlayerMover implements Serializable {
             case 's' -> newY -= 1;
             case 'a' -> newX -= 1;
         }
-        if (Game.map.peek(newX, newY).character() != '#') { // if tile to move to is not wall
-            if (Game.map.peek(newX, newY).character() == '▢') { // if next tile is door
+        if (Game.map.peek(newX, newY, false).character() != '#') { // if tile to move to is not wall
+            if (Game.map.peek(newX, newY, false).character() == '▢') { // if next tile is door
                 Game.map.generateWorld();
                 Game.map.level += 1;
                 int numRooms = Game.map.rooms.size();
@@ -67,7 +67,7 @@ public class PlayerMover implements Serializable {
                 Position playerPos = Game.map.rooms.get(i).randomPosition(1);
                 this.currX = playerPos.x;
                 this.currY = playerPos.y;
-                this.prevTile = Game.map.peek(currX, currY);
+                this.prevTile = Game.map.peek(currX, currY, false);
                 Game.map.placeTile(currX, currY, Tileset.PLAYER);
 
                 /* Pick a room and place door in it */
@@ -82,7 +82,7 @@ public class PlayerMover implements Serializable {
                 Clear FOV and remake its set of coordinates.
                 */
                 Game.map.placeTile(currX, currY, prevTile);
-                prevTile = Game.map.peek(newX, newY);
+                prevTile = Game.map.peek(newX, newY, false);
                 Game.map.placeTile(newX, newY, Tileset.PLAYER);
                 currX = newX;
                 currY = newY;
@@ -103,7 +103,7 @@ public class PlayerMover implements Serializable {
             return;
         }
         fov.add(new Position(x, y));
-        if (!(Game.map.peek(x, y).character() == '#')) {
+        if (!(Game.map.peek(x, y, false).character() == '#')) {
             getFOVPoints(count - 1, x, y + 1);
             getFOVPoints(count - 1, x, y - 1);
             getFOVPoints(count - 1, x + 1, y);

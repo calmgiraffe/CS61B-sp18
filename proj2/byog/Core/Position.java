@@ -35,8 +35,8 @@ public class Position implements Serializable {
      * calculate the absolute distance between the two.
      */
     public static int euclidean(int v1, int v2) {
-        Position a = Game.map.oneDToPos(v1);
-        Position b = Game.map.oneDToPos(v2);
+        Position a = Game.map.oneDimensionToPos(v1);
+        Position b = Game.map.oneDimensionToPos(v2);
         return euclidean(a, b);
     }
 
@@ -53,8 +53,8 @@ public class Position implements Serializable {
      * calculate the manhattan distance between the two.
      */
     public static int manhattan(int v1, int v2) {
-        Position a = Game.map.oneDToPos(v1);
-        Position b = Game.map.oneDToPos(v2);
+        Position a = Game.map.oneDimensionToPos(v1);
+        Position b = Game.map.oneDimensionToPos(v2);
         return manhattan(a, b);
     }
 }
