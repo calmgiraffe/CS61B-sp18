@@ -187,7 +187,8 @@ public class Room implements Serializable {
                 map.placeTile(x, y, Tileset.colorVariantWall(Game.rand));
             }
         } else {
-            if (map.onEdge(x, y)) {
+            boolean onEdge = (x == 0) || (x == map.width - 1) || (y == 0) || (y == map.height - 1);
+            if (onEdge) {
                 map.placeTile(x, y, Tileset.colorVariantWall(Game.rand));
             } else {
                 map.placeTile(x, y, floorType);

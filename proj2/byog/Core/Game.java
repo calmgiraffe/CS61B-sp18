@@ -15,11 +15,12 @@ public class Game implements Serializable {
     private static final TERenderer ter = new TERenderer();
     static boolean enableFOV = true;
 
-    /* Instance variables */
-    private Map map;
+    /** Public/protected variables */
+    protected Map map;
+    /* Private variables */
     private long seed;
-    private int level = 1;
     private StringBuilder commands;
+    private PlayerMover controller;
 
     /* Public API */
 
@@ -36,6 +37,7 @@ public class Game implements Serializable {
      */
     public void start(String cmdString) {
         if (cmdString != null) {
+            // Additional instructions to enable cmd string parsing
             commands = new StringBuilder();
             commands.append(cmdString.toLowerCase());
         }
@@ -58,7 +60,6 @@ public class Game implements Serializable {
                 inputSeed();
             } else if (next == 'l') {
                 loadGame();
-                playGame();
             } else if (next == 'q') {
                 exit(0);
             }
@@ -86,16 +87,16 @@ public class Game implements Serializable {
             char c = getNextCommand();
             if ((int) c == BACKSPACE && seed.length() > 0) {
                 seed.deleteCharAt(seed.length() - 1);
+
             } else if (seed.length() < 18 && Character.isDigit(c)) { // max seed length is 18
                 seed.append(c);
-            } else if (c == 's' && seed.length() > 0) { // start
+
+            } else if (c == 's' && seed.length() > 0) { // s = start
+                // Set the seed of Game and enter play() loop
                 this.seed = Long.parseLong(seed.toString());
                 Game.rand = new RandInclusive(this.seed);
-                /* Generate a new world (TETile[][] matrix), then render this world */
-                map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
-                map.generateWorld();
-                ter.renderFrame(map.getMap());
                 playGame();
+
             } else if (c == 'b') { // go back
                 break;
             }
@@ -104,33 +105,25 @@ public class Game implements Serializable {
 
     /** Game loop, runs in real time */
     private void playGame() {
+        this.map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
+        this.controller = new PlayerMover(map);
+
         boolean colonPressed = false;
         while (true) {
-            // Reset screen to black
             StdDraw.clear(Color.BLACK);
 
-            /* Controller - accepts keyboard commands */
-            // todo: move to separate controller class?
-
-            /* Get the next command (keyboard or string) and render updated map
+            /* Get the next command (keyboard or string) and render updated map.
             If ':' pressed, raise flag
-            Elif flag raised and q is pressed, save and quit
-            Reset flag if q is not pressed */
+            Elif flag raised and 'q' is pressed, save and quit
+            Reset flag if 'q' is not pressed */
             char next = getNextCommand();
             if (next == ':') {
                 colonPressed = true;
             } else if (next == 'q' && colonPressed) {
                 saveGame();
-                exit(0);
             } else if ("wasd".indexOf(next) != -1) {
                 colonPressed = false;
-                map.updatePlayer(next);
-            }
-            // If character moves to open door, generate next level
-            TETile currentTile = map.playerMover.prevTile();
-            if (currentTile.character() == '▢') {
-                map.generateWorld();
-                level += 1;
+                controller.parseCommand(next);
             }
             ter.renderFrame(map.getMap());
 
@@ -156,12 +149,12 @@ public class Game implements Serializable {
                 centerText = "Seed: " + seed;
             }
             StdDraw.text(WIDTH_CENTRE, 0.96 * HEIGHT, centerText);
-            StdDraw.textRight(0.96 * WIDTH, 0.96 * HEIGHT, "Level " + level);
+            StdDraw.textRight(0.96 * WIDTH, 0.96 * HEIGHT, "Level " + map.level);
             StdDraw.show();
         }
     }
 
-    /** Serializes the current Game object and saves to txt file. */
+    /** Serializes the current Game object and saves to txt file. Exits with error code (0 or 1). */
     private void saveGame() {
         try {
             FileOutputStream fileOut = new FileOutputStream("savefile.txt");
@@ -169,13 +162,15 @@ public class Game implements Serializable {
             out.writeObject(this);
             out.close();
             fileOut.close();
+            exit(0);
         } catch (IOException i)  {
             i.printStackTrace();
             exit(1);
         }
     }
 
-    /** Load a game from stored save file, then sets map and level to the saved objects values. */
+    /** Load a game from stored save file, then sets map and level to the saved objects values.
+     * Exits with error code 1 upon unsuccessful load. */
     private void loadGame() {
         Game g;
         try {
@@ -186,7 +181,7 @@ public class Game implements Serializable {
             fileIn.close();
             this.map = g.map;
             this.seed = g.seed;
-            this.level = g.level;
+            playGame();
         } catch (IOException i) {
             i.printStackTrace();
             exit(1);
@@ -198,7 +193,7 @@ public class Game implements Serializable {
     }
 
     /** Parse the next command (char) from the user. Works for both keyboard and string modes.
-     *  Returns '~' on no keyboard input or no more commands. */
+     * Returns '~' or exits with error code 0 upon no keyboard input or empty StringBuilder. */
     private char getNextCommand() {
         if (commands == null) {
             // Returns the pressed key, otherwise returns ~
@@ -214,7 +209,6 @@ public class Game implements Serializable {
                 commands.deleteCharAt(0);
                 return next;
             }
-            // Likewise, need some arbitrary value to return
             exit(0);
         }
         return '~';

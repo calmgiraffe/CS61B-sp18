@@ -6,26 +6,38 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class PlayerMover implements Serializable {
-    private static final int FOVRANGE = 5;
-    private final Map map;
-    private final ArrayList<Position> fov;
-    private Position pos;
-    private TETile prevTile;
+    /* Static variables */
+    private static final int FOV_RANGE = 5;
 
+    /** Public instance variables */
+    protected TETile prevTile;
+    /* Private instance variables */
+    private final Map map;
+    private final ArrayList<Position> fov = new ArrayList<>();
+    private int currX;
+    private int currY;
+
+    /** Constructor */
     public PlayerMover(Map map) {
         this.map = map;
-        this.fov = new ArrayList<>();
-    }
+        int numRooms = map.rooms.size();
 
-    /**
-     * Set the player icon to given Position p and update fov array
-     * @param p player position
-     */
-    public void setPosition(Position p) {
-        pos = p;
-        prevTile = map.peek(p.x, p.y);
-        map.placeTile(p.x, p.y, Tileset.PLAYER);
-        updateFOV(FOVRANGE, p.x, p.y);
+        /* Pick a room and place character in it */
+        int i = Game.rand.nextIntInclusive(numRooms - 1);
+        Position playerPos = map.rooms.get(i).randomPosition(1);
+        this.currX = playerPos.x;
+        this.currY = playerPos.y;
+        this.prevTile = map.peek(currX, currY);
+        map.placeTile(currX, currY, Tileset.PLAYER);
+
+        /* Pick a room and place door in it */
+        i = Game.rand.nextIntInclusive(numRooms - 1);
+        Position doorPos = map.rooms.get(i).randomPosition(1);
+        map.placeTile(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR);
+
+        fov.clear();
+        getFOVPoints(FOV_RANGE, currX, currY);
+        map.updateFOVmap(fov);
     }
 
     /**
@@ -35,61 +47,69 @@ public class PlayerMover implements Serializable {
      * once player moves out.
      * @param direction one of 'wasd', representing direction to move in
      */
-    public void movePlayer(char direction) {
-        Position newPos = pos;
+    public void parseCommand(char direction) {
+        int newX = currX;
+        int newY = currY;
+
         switch (direction) {
-            case 'w' -> newPos = new Position(pos.x, pos.y + 1);
-            case 'd' -> newPos = new Position(pos.x + 1, pos.y);
-            case 's' -> newPos = new Position(pos.x, pos.y - 1);
-            case 'a' -> newPos = new Position(pos.x - 1, pos.y);
+            case 'w' -> newY += 1;
+            case 'd' -> newX += 1;
+            case 's' -> newY -= 1;
+            case 'a' -> newX -= 1;
         }
-        if (map.peek(newPos.x, newPos.y).character() != '#') {
-            // At where the character currently is, place the tile that was previously there
-            // Then, update prevTile to the tile where the player will move
-            map.placeTile(pos.x, pos.y, prevTile);
-            prevTile = map.peek(newPos.x, newPos.y);
+        if (map.peek(newX, newY).character() != '#') { // if tile to move to is not wall
+            if (map.peek(newX, newY).character() == '▢') { // if next tile is door
+                map.generateWorld();
+                map.level += 1;
+                int numRooms = map.rooms.size();
 
-            // At where the character is to move, place the player cursor and update this.pos
-            map.placeTile(newPos.x, newPos.y, Tileset.PLAYER);
-            pos = newPos;
+                /* Todo: Duplicate of constructor code - could put in separate method? */
+                /* Pick a room and place character in it */
+                int i = Game.rand.nextIntInclusive(numRooms - 1);
+                Position playerPos = map.rooms.get(i).randomPosition(1);
+                this.currX = playerPos.x;
+                this.currY = playerPos.y;
+                this.prevTile = map.peek(currX, currY);
+                map.placeTile(currX, currY, Tileset.PLAYER);
 
-            this.clear();
-            updateFOV(FOVRANGE, pos.x, pos.y);
+                /* Pick a room and place door in it */
+                i = Game.rand.nextIntInclusive(numRooms - 1);
+                Position doorPos = map.rooms.get(i).randomPosition(1);
+                map.placeTile(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR);
+            } else {
+                /*
+                At where the character currently is, place the tile that was previously there.
+                Update prevTile to the tile where the player will move.
+                At where the character is to move, place the player and update currX, currY.
+                Clear FOV and remake its set of coordinates.
+                */
+                map.placeTile(currX, currY, prevTile);
+                prevTile = map.peek(newX, newY);
+                map.placeTile(newX, newY, Tileset.PLAYER);
+                currX = newX;
+                currY = newY;
+            }
+            fov.clear();
+            getFOVPoints(FOV_RANGE, currX, currY);
+            map.updateFOVmap(fov);
         }
     }
 
-    /**
+    /*
      * Updates the list of points that make up the current FOV of the player.
-     * Todo: change to Dijkstra's allowing diagonal
+     * this.fov is a List of Positions corresponding to the coordinates of the desired FOV tiles
+     * Todo: change to a more efficient method?
      */
-    private void updateFOV(int count, int x, int y) {
-        if (count < 0) {
-            return;
-        } else if (!map.isValid(x, y)) {
+    private void getFOVPoints(int count, int x, int y) {
+        if (count < 0 || !map.isValid(x, y)) {
             return;
         }
         fov.add(new Position(x, y));
         if (!(map.peek(x, y).character() == '#')) {
-            updateFOV(count - 1, x, y + 1);
-            updateFOV(count - 1, x, y - 1);
-            updateFOV(count - 1, x + 1, y);
-            updateFOV(count - 1, x - 1, y);
+            getFOVPoints(count - 1, x, y + 1);
+            getFOVPoints(count - 1, x, y - 1);
+            getFOVPoints(count - 1, x + 1, y);
+            getFOVPoints(count - 1, x - 1, y);
         }
-    }
-
-    /* Empty the fov Arraylist */
-    public void clear() {
-        fov.clear();
-    }
-
-    /**
-     * Returns the list of points that comprise the FOV.
-     */
-    public ArrayList<Position> getFOV() {
-        return fov;
-    }
-
-    public TETile prevTile() {
-        return prevTile;
     }
 }

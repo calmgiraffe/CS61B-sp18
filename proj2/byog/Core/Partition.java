@@ -18,8 +18,8 @@ public class Partition implements Serializable {
      */
     static final int MIN = 7;
     static final int MAX = 18;
-    static final int MINROOM = 7;
-    static final int MAXROOM = 12;
+    static final int MIN_ROOM = 7;
+    static final int MAX_ROOM = 12;
 
     private final Position position;
     private final Position centre;
@@ -153,10 +153,10 @@ public class Partition implements Serializable {
         int lowerLeftY = Game.rand.nextIntInclusive(height - MIN);
         Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
 
-        int minX = lowerLeft.x + MINROOM - 1;
-        int maxX = Math.min(lowerLeft.x + MAXROOM - 1, position.x + width - 1);
-        int minY = lowerLeft.y + MINROOM - 1;
-        int maxY = Math.min(lowerLeft.y + MAXROOM - 1, position.y + height - 1);
+        int minX = lowerLeft.x + MIN_ROOM - 1;
+        int maxX = Math.min(lowerLeft.x + MAX_ROOM - 1, position.x + width - 1);
+        int minY = lowerLeft.y + MIN_ROOM - 1;
+        int maxY = Math.min(lowerLeft.y + MAX_ROOM - 1, position.y + height - 1);
 
         int upperRightX = Game.rand.nextIntInclusive(minX, maxX);
         int upperRightY = Game.rand.nextIntInclusive(minY, maxY);
