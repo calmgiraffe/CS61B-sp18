@@ -25,16 +25,15 @@ public class Map implements Serializable {
     private final TETile[][] fovmap;
     private final Partition partition;
 
-    /** Map constructor */
     Map(int width, int height) {
         this.map = new TETile[width][height];
         this.fovmap = new TETile[width][height];
         this.width = width;
         this.height = height;
         this.partition = new Partition(new Position(0, 0), width, height);
-        generateWorld();
     }
 
+    /** Generates dungeon and draws irregular rooms, grass */
     public void generateWorld() {
         /* Fill both TETile[][] data structure with blank tiles */
         for (int x = 0; x < map.length; x++) {
@@ -44,24 +43,24 @@ public class Map implements Serializable {
             }
         }
         /* Make binary tree of partitions and draw hallways, making a connected graph */
-        Partition.splitAndConnect(this.partition, this);
+        Partition.splitAndConnect(this.partition);
 
         /* Traverse partition tree and add leafs to rooms array */
         this.rooms = Partition.returnRooms(this.partition);
 
         for (Room r : rooms) {
-            r.drawRoom(this);
+            r.drawRoom();
             // 50% chance of drawing an irregular room
             if (Game.rand.nextIntInclusive(100) < IRREGULAR_ROOM_ODDS) {
                 int size = Game.rand.nextIntInclusive(5, 8);
                 Position randPos = r.randomPosition(0);
-                r.drawIrregular(size, randPos.x, randPos.y, this);
+                r.drawIrregular(size, randPos.x, randPos.y);
             }
             // 70% chance of drawing grass in the room
             if (Game.rand.nextIntInclusive(100) < GRASS_ODDS) {
                 int size = Game.rand.nextIntInclusive(5, 7);
                 Position randPos = r.randomPosition(1);
-                r.drawIrregularGrass(size, randPos.x, randPos.y, this);
+                r.drawIrregularGrass(size, randPos.x, randPos.y);
             }
         }
     }
@@ -74,14 +73,14 @@ public class Map implements Serializable {
         }
     }
 
+    /** Updates fovmap with the coordinates that corespond to the field of view */
     public void updateFOVmap(List<Position> coordinates) {
-        // Fill fovmap with blank
-        for (int x = 0; x < map.length; x++) {
+        for (int x = 0; x < map.length; x++) { // Fill fovmap with blank tiles
             for (int y = 0; y < map[0].length; y++) {
                 fovmap[x][y] = Tileset.NOTHING;
             }
         }
-        for (Position pos : coordinates) {
+        for (Position pos : coordinates) { // Update fovmap
             fovmap[pos.x][pos.y] = map[pos.x][pos.y];
         }
     }

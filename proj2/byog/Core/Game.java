@@ -11,23 +11,21 @@ import static byog.Core.GUI.*;
 
 public class Game implements Serializable {
     protected static RandInclusive rand;
+    protected static Map map;
+    protected static boolean enableFOV = true;
     private static final int BACKSPACE = 8;
     private static final TERenderer ter = new TERenderer();
-    static boolean enableFOV = true;
 
-    /** Public/protected variables */
-    protected Map map;
     /* Private variables */
     private long seed;
     private StringBuilder commands;
-    private PlayerMover controller;
 
     /* Public API */
 
     /**
      * Shows the main menu on the screen. Loops until proper input is received.
      * Method also used for autograding and testing the game code. The input string will be a series
-     * of characters (for example, "n123sswwdasdassadwas", "n123sss:q", "lwww". The game should
+     * of characters (for example, "n123sswwdasdassadwas", "n123sss:q", "lwww"). The game should
      * behave exactly as if the user typed these characters into the game after playing
      * playWithKeyboard. If the string ends in ":q", the same world should be returned as if the
      * string did not end with q. For example "n123sss" and "n123sss:q" should return the same
@@ -105,8 +103,9 @@ public class Game implements Serializable {
 
     /** Game loop, runs in real time */
     private void playGame() {
-        this.map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
-        this.controller = new PlayerMover(map);
+        Game.map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
+        map.generateWorld();
+        PlayerMover controller = new PlayerMover();
 
         boolean colonPressed = false;
         while (true) {
@@ -179,7 +178,6 @@ public class Game implements Serializable {
             g = (Game) in.readObject();
             in.close();
             fileIn.close();
-            this.map = g.map;
             this.seed = g.seed;
             playGame();
         } catch (IOException i) {
