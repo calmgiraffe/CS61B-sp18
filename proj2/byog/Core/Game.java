@@ -10,7 +10,7 @@ import java.io.*;
 import static byog.Core.GUI.*;
 
 public class Game implements Serializable {
-    protected static RandInclusive rand;
+    protected static RandomInclusive rand;
     protected static Map map;
     protected static boolean enableFOV = true;
     private static final int BACKSPACE = 8;
@@ -22,7 +22,7 @@ public class Game implements Serializable {
     private PlayerMover controller;
     /* temp private variables */
     private Map m;
-    private RandInclusive r;
+    private RandomInclusive r;
 
     /* Public API */
 
@@ -82,7 +82,7 @@ public class Game implements Serializable {
             StdDraw.setFont(TITLE);
             StdDraw.text(WIDTH_CENTRE, HEADER, "CS61B: The Game");
             StdDraw.setFont(OPTION);
-            StdDraw.text(WIDTH_CENTRE, ROW1, "(s to submit, b to go back)");
+            StdDraw.text(WIDTH_CENTRE, ROW1, "s = submit, b = go back");
             StdDraw.text(WIDTH_CENTRE, ROW3, "Seed: " + seed);
             StdDraw.show();
 
@@ -97,7 +97,7 @@ public class Game implements Serializable {
             } else if (c == 's' && seed.length() > 0) { // s = start
                 // Set the seed of Game and enter play() loop
                 this.seed = Long.parseLong(seed.toString());
-                Game.rand = new RandInclusive(this.seed);
+                Game.rand = new RandomInclusive(this.seed);
                 Game.map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
                 map.generateWorld();
                 this.controller = new PlayerMover();
@@ -221,6 +221,8 @@ public class Game implements Serializable {
         if (commands != null) {
             System.out.println(TETile.toString(map.getMap()));
         }
+        // This is an example of a fault class exception
+        // Gives control to kernel which then aborts program
         System.exit(status);
     }
 }

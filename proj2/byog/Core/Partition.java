@@ -61,24 +61,24 @@ public class Partition implements Serializable {
         if (width > MAX || height > MAX) {
 
             if (width <= MAX) {
-                int border = Game.rand.nextIntInclusive(MIN, height - MIN);
+                int border = Game.rand.nextInt(MIN, height - MIN);
                 left = splitVertically(border);
                 right = new Partition(position, width, border);
 
             } else if (height <= MAX) {
-                int border = Game.rand.nextIntInclusive(MIN, width - MIN);
+                int border = Game.rand.nextInt(MIN, width - MIN);
                 left = splitHorizontally(border);
                 right = new Partition(position, border, height);
 
             } else {
-                int choice = Game.rand.nextIntInclusive(1);
+                int choice = Game.rand.nextInt(1);
                 if (choice == 0) {
-                    int border = Game.rand.nextIntInclusive(MIN, height - MIN);
+                    int border = Game.rand.nextInt(MIN, height - MIN);
                     left = splitVertically(border);
                     right = new Partition(position, width, border);
 
                 } else {
-                    int border = Game.rand.nextIntInclusive(MIN, width - MIN);
+                    int border = Game.rand.nextInt(MIN, width - MIN);
                     left = splitHorizontally(border);
                     right = new Partition(position, border, height);
                 }
@@ -146,8 +146,8 @@ public class Partition implements Serializable {
      * Positions representing the bottom left and top right corner, a floor type, etc
      */
     private void generateRandomRoom() {
-        int lowerLeftX = Game.rand.nextIntInclusive(width - MIN);
-        int lowerLeftY = Game.rand.nextIntInclusive(height - MIN);
+        int lowerLeftX = Game.rand.nextInt(width - MIN);
+        int lowerLeftY = Game.rand.nextInt(height - MIN);
         Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
 
         int minX = lowerLeft.x + MIN_ROOM - 1;
@@ -155,8 +155,8 @@ public class Partition implements Serializable {
         int minY = lowerLeft.y + MIN_ROOM - 1;
         int maxY = Math.min(lowerLeft.y + MAX_ROOM - 1, position.y + height - 1);
 
-        int upperRightX = Game.rand.nextIntInclusive(minX, maxX);
-        int upperRightY = Game.rand.nextIntInclusive(minY, maxY);
+        int upperRightX = Game.rand.nextInt(minX, maxX);
+        int upperRightY = Game.rand.nextInt(minY, maxY);
         Position upperRight = new Position(upperRightX, upperRightY);
 
         this.room = new Room(lowerLeft, upperRight);

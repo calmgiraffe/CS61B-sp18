@@ -181,10 +181,10 @@ public class Room implements Serializable {
             } else {
                 Game.map.placeTile(x, y, floorType);
             }
-            int up = count - Game.rand.nextIntInclusive(1, 3);
-            int down = count - Game.rand.nextIntInclusive(1, 3);
-            int left = count - Game.rand.nextIntInclusive(1, 3);
-            int right = count - Game.rand.nextIntInclusive(1, 3);
+            int up = count - Game.rand.nextInt(1, 3);
+            int down = count - Game.rand.nextInt(1, 3);
+            int left = count - Game.rand.nextInt(1, 3);
+            int right = count - Game.rand.nextInt(1, 3);
 
             drawIrregular(up, x, y + 1);
             drawIrregular(down, x, y - 1);
@@ -199,15 +199,15 @@ public class Room implements Serializable {
             return;
         }
         if (Game.map.peek(x, y, false) == floorType && count > 0) {
-            if (Game.rand.nextIntInclusive(100) <= 10) {
+            if (Game.rand.nextInt(100) <= 10) {
                 Game.map.placeTile(x, y, Tileset.randomColorFlower(Game.rand));
             } else {
                 Game.map.placeTile(x, y, Tileset.colorVariantGrass(Game.rand));
             }
-            int up = count - Game.rand.nextIntInclusive(1, 2);
-            int down = count - Game.rand.nextIntInclusive(1, 2);
-            int left = count - Game.rand.nextIntInclusive(1, 2);
-            int right = count - Game.rand.nextIntInclusive(1, 2);
+            int up = count - Game.rand.nextInt(1, 2);
+            int down = count - Game.rand.nextInt(1, 2);
+            int left = count - Game.rand.nextInt(1, 2);
+            int right = count - Game.rand.nextInt(1, 2);
 
             drawIrregularGrass(up, x, y + 1);
             drawIrregularGrass(down, x, y - 1);
@@ -224,8 +224,8 @@ public class Room implements Serializable {
         int yUpper = upperRight.y - buffer;
 
         return new Position(
-                Game.rand.nextIntInclusive(xLower, xUpper),
-                Game.rand.nextIntInclusive(yLower, yUpper));
+                Game.rand.nextInt(xLower, xUpper),
+                Game.rand.nextInt(yLower, yUpper));
     }
 
     private static class DistanceComparator implements Comparator<Node> {

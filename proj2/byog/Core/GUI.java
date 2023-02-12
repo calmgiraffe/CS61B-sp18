@@ -4,13 +4,13 @@ import java.awt.*;
 
 public class GUI {
     public static final int WIDTH = 60;
-    public static final int HEIGHT = 45;
+    public static final int HEIGHT = 40;
     public static final int HUD_HEIGHT = 4;
     public static final double WIDTH_CENTRE = WIDTH / 2.0;
-    public static final double HEADER = 26 * HEIGHT / 40.0;
-    public static final double ROW1 = 18 * HEIGHT / 40.0;
-    public static final double ROW2 = 16 * HEIGHT / 40.0;
-    public static final double ROW3 = 14 * HEIGHT / 40.0;
+    public static final double HEADER = 13 * HEIGHT / 20.0;
+    public static final double ROW1 = 9 * HEIGHT / 20.0;
+    public static final double ROW2 = 8 * HEIGHT / 20.0;
+    public static final double ROW3 = 7 * HEIGHT / 20.0;
 
     public static final Font TITLE = new Font("Consolas", Font.BOLD, 40);
     public static final Font OPTION = new Font("Consolas", Font.PLAIN, 28);

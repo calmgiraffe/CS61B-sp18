@@ -8,8 +8,7 @@ import java.util.List;
 
 /**
  * Map object to represent the underlying data type (TETIle[][]),
- * and other invariants like its width, height, numRooms, etc
- */
+ * and other invariants like its width, height, numRooms, etc */
 public class Map implements Serializable {
     /* Static variables */
     private static final int IRREGULAR_ROOM_ODDS = 50;
@@ -51,14 +50,14 @@ public class Map implements Serializable {
         for (Room r : rooms) {
             r.drawRoom();
             // 50% chance of drawing an irregular room
-            if (Game.rand.nextIntInclusive(100) < IRREGULAR_ROOM_ODDS) {
-                int size = Game.rand.nextIntInclusive(5, 8);
+            if (Game.rand.nextInt(100) < IRREGULAR_ROOM_ODDS) {
+                int size = Game.rand.nextInt(5, 8);
                 Position randPos = r.randomPosition(0);
                 r.drawIrregular(size, randPos.x, randPos.y);
             }
             // 70% chance of drawing grass in the room
-            if (Game.rand.nextIntInclusive(100) < GRASS_ODDS) {
-                int size = Game.rand.nextIntInclusive(5, 7);
+            if (Game.rand.nextInt(100) < GRASS_ODDS) {
+                int size = Game.rand.nextInt(5, 7);
                 Position randPos = r.randomPosition(1);
                 r.drawIrregularGrass(size, randPos.x, randPos.y);
             }
@@ -73,7 +72,7 @@ public class Map implements Serializable {
         }
     }
 
-    /** Updates fovmap with the coordinates that corespond to the field of view */
+    /** Updates fovmap with the coordinates that correspond to the field of view */
     // Todo: can potentially remove this and move to playerMover. think about Map API, this method seems too special purpose
     public void updateFOVmap(List<Position> coordinates) {
         for (int x = 0; x < map.length; x++) { // Fill fovmap with blank tiles

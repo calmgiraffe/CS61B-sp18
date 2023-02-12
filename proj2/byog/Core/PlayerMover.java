@@ -21,7 +21,7 @@ public class PlayerMover implements Serializable {
         int numRooms = Game.map.rooms.size();
 
         /* Pick a room and place character in it */
-        int i = Game.rand.nextIntInclusive(numRooms - 1);
+        int i = Game.rand.nextInt(numRooms - 1);
         Position playerPos = Game.map.rooms.get(i).randomPosition(1);
         this.currX = playerPos.x;
         this.currY = playerPos.y;
@@ -29,7 +29,7 @@ public class PlayerMover implements Serializable {
         Game.map.placeTile(currX, currY, Tileset.PLAYER);
 
         /* Pick a room and place door in it */
-        i = Game.rand.nextIntInclusive(numRooms - 1);
+        i = Game.rand.nextInt(numRooms - 1);
         Position doorPos = Game.map.rooms.get(i).randomPosition(1);
         Game.map.placeTile(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR);
 
@@ -63,7 +63,7 @@ public class PlayerMover implements Serializable {
 
                 /* Todo: Duplicate of constructor code - could put in separate method? */
                 /* Pick a room and place character in it */
-                int i = Game.rand.nextIntInclusive(numRooms - 1);
+                int i = Game.rand.nextInt(numRooms - 1);
                 Position playerPos = Game.map.rooms.get(i).randomPosition(1);
                 this.currX = playerPos.x;
                 this.currY = playerPos.y;
@@ -71,7 +71,7 @@ public class PlayerMover implements Serializable {
                 Game.map.placeTile(currX, currY, Tileset.PLAYER);
 
                 /* Pick a room and place door in it */
-                i = Game.rand.nextIntInclusive(numRooms - 1);
+                i = Game.rand.nextInt(numRooms - 1);
                 Position doorPos = Game.map.rooms.get(i).randomPosition(1);
                 Game.map.placeTile(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR);
             } else {
