@@ -4,22 +4,24 @@ import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Map object to represent the underlying data type (TETIle[][]),
- * and other invariants like its width, height, numRooms, etc */
+ * Map object to represent the underlying data type (TETIle[][]) representing the world,
+ * and other variables/invariants like its current level, width, height, rooms, etc */
 public class Map implements Serializable {
     /* Static variables */
+    public static final int MAP = 0;
+    public static final int FOVMAP = 1;
     private static final int IRREGULAR_ROOM_ODDS = 50;
     private static final int GRASS_ODDS = 70;
 
     /** Public variables */
     protected final int width;
     protected final int height;
-    protected ArrayList<Room> rooms;
+    protected ArrayList<Room> rooms = new ArrayList<>();;
     protected int level = 1;
-    /* Private variables */
+    /* Private variables. Encapsulate the underlying data type of these */
+    private ArrayList<TETile[][]> maps = new ArrayList<>();
     private final TETile[][] map;
     private final TETile[][] fovmap;
     private final Partition partition;
@@ -33,7 +35,7 @@ public class Map implements Serializable {
     }
 
     /** Generates dungeon and draws irregular rooms, grass */
-    public void generateWorld() {
+    public void generate() {
         /* Fill both TETile[][] data structure with blank tiles */
         for (int x = 0; x < map.length; x++) {
             for (int y = 0; y < map[0].length; y++) {
@@ -41,14 +43,11 @@ public class Map implements Serializable {
                 fovmap[x][y] = Tileset.BLANK;
             }
         }
-        /* Make binary tree of partitions and draw hallways, making a connected graph */
-        partition.splitAndConnect();
-
-        /* Traverse partition tree and add leafs to rooms array */
-        this.rooms = partition.returnRooms();
+        /* Make binary tree of partitions and draws hallways and rooms, making a connected graph.
+        * As a side effect, also populates this.rooms with Room objects */
+        partition.generateTree();
 
         for (Room r : rooms) {
-            r.drawRoom();
             // 50% chance of drawing an irregular room
             if (Game.rand.nextInt(100) < IRREGULAR_ROOM_ODDS) {
                 int size = Game.rand.nextInt(5, 8);
@@ -64,24 +63,26 @@ public class Map implements Serializable {
         }
     }
 
-    /** Draws the specified tile at the specified x & y.
-     * Use this method so you don't get IndexErrors. */
-    public void placeTile(int x, int y, TETile tile) {
+    /** Returns the tile at specified x and y coordinates on the map, but does not remove the tile.
+     * If out of bounds, returns null. */
+    public TETile peek(int x, int y, int type) {
         if (isValid(x, y)) {
-            map[x][y] = tile;
-        }
-    }
-
-    /** Updates fovmap with the coordinates that correspond to the field of view */
-    // Todo: can potentially remove this and move to playerMover. think about Map API, this method seems too special purpose
-    public void updateFOVmap(List<Position> coordinates) {
-        for (int x = 0; x < map.length; x++) { // Fill fovmap with blank tiles
-            for (int y = 0; y < map[0].length; y++) {
-                fovmap[x][y] = Tileset.BLANK;
+            switch (type) {
+                case MAP: return map[x][y];
+                case FOVMAP: return fovmap[x][y];
             }
         }
-        for (Position pos : coordinates) { // Update fovmap
-            fovmap[pos.x][pos.y] = map[pos.x][pos.y];
+        return null;
+    }
+
+    /** Draws the specified tile at the specified x & y.
+     * Use this method so you don't get IndexErrors. */
+    public void place(int x, int y, TETile tile, int type) {
+        if (isValid(x, y)) {
+            switch (type) {
+                case MAP: map[x][y] = tile;
+                case FOVMAP: fovmap[x][y] = tile;
+            }
         }
     }
 
@@ -93,7 +94,7 @@ public class Map implements Serializable {
     /** Given a xy coordinate on the map (range of 0 to width-1, 0 to height-1), converts this
      * to a corresponding 1D coordinate. This process can be imagined as lining up the rows of the
      * map into one long line. */
-    public int posToOneDimension(Position p) {
+    public int to1D(Position p) {
         if (!isValid(p.x, p.y)) {
             throw new ArrayIndexOutOfBoundsException("Position out of bounds.");
         }
@@ -101,7 +102,7 @@ public class Map implements Serializable {
     }
 
     /** Given a 1D position on the map, converts this to a corresponding new Position. */
-    public Position oneDimensionToPos(int position) {
+    public Position toPosition(int position) {
         int x = position % width;
         int y = position / width;
         if (!isValid(x, y)) {
@@ -111,9 +112,8 @@ public class Map implements Serializable {
     }
 
     /** Given a 1D position on a map, returns the adjacent (up, right, down, left) 1D positions */
-    // todo: this only has 2 usages. can potentially refactor and optimize
     public ArrayList<Integer> adjacent(int p) {
-        Position currPos = oneDimensionToPos(p);
+        Position currPos = toPosition(p);
         int currX = currPos.x;
         int currY = currPos.y;
 
@@ -126,7 +126,7 @@ public class Map implements Serializable {
         ArrayList<Integer> adjacent = new ArrayList<>();
         for (Position pos : tmp) {
             if (isValid(pos.x, pos.y)) {
-                adjacent.add(posToOneDimension(pos));
+                adjacent.add(to1D(pos));
             }
         }
         return adjacent;
@@ -134,15 +134,6 @@ public class Map implements Serializable {
 
     /** Returns the TETile[][] associated with this object that is to be rendered. */
     public TETile[][] getMap() {
-        return (Game.enableFOV) ? fovmap : map;
-    }
-
-    /** Returns the tile at specified x and y coordinates on the map, but does not remove the tile.
-     * If out of bounds, returns null. */
-    public TETile peek(int x, int y, boolean getFOV) {
-        if (isValid(x, y)) {
-            return (getFOV) ? fovmap[x][y] : map[x][y];
-        }
-        return null;
+        return (Game.enableFOV > 0) ? fovmap : map;
     }
 }

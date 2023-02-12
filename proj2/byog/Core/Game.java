@@ -10,16 +10,16 @@ import java.io.*;
 import static byog.Core.GUI.*;
 
 public class Game implements Serializable {
-    protected static RandomInclusive rand;
-    protected static Map map;
-    protected static boolean enableFOV = true;
+    public static RandomInclusive rand;
+    public static Map map;
+    public static int enableFOV = 1;
     private static final int BACKSPACE = 8;
     private static final TERenderer ter = new TERenderer();
 
     /* Private variables */
     private long seed;
     private StringBuilder commands;
-    private PlayerMover controller;
+    private MapController controller;
     /* temp private variables */
     private Map m;
     private RandomInclusive r;
@@ -74,7 +74,6 @@ public class Game implements Serializable {
      * Can only put in numbers for a seed. */
     private void inputSeed() {
         StringBuilder seed = new StringBuilder();
-
         while (true) {
             /* Show seed input screen & show current built seed string */
             StdDraw.clear(Color.BLACK);
@@ -86,12 +85,12 @@ public class Game implements Serializable {
             StdDraw.text(WIDTH_CENTRE, ROW3, "Seed: " + seed);
             StdDraw.show();
 
-            // Todo: many lines that accept user input like this could potentially be refactored into TERenderer
+            // Build seed string; max seed length is 18
             char c = getNextCommand();
             if ((int) c == BACKSPACE && seed.length() > 0) {
                 seed.deleteCharAt(seed.length() - 1);
 
-            } else if (seed.length() < 18 && Character.isDigit(c)) { // max seed length is 18
+            } else if (seed.length() < 18 && Character.isDigit(c)) {
                 seed.append(c);
 
             } else if (c == 's' && seed.length() > 0) { // s = start
@@ -99,11 +98,11 @@ public class Game implements Serializable {
                 this.seed = Long.parseLong(seed.toString());
                 Game.rand = new RandomInclusive(this.seed);
                 Game.map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
-                map.generateWorld();
-                this.controller = new PlayerMover();
+                Game.map.generate();
+                this.controller = new MapController();
                 play();
 
-            } else if (c == 'b') { // go back
+            } else if (c == 'b') { // b = go back
                 break;
             }
         }
@@ -131,16 +130,15 @@ public class Game implements Serializable {
             ter.renderFrame(map.getMap());
 
             /* HUD logic */
-            // Build and show the HUD
             double rawMouseX = StdDraw.mouseX(); // leave this separate - could potentially use in future
             double rawMouseY = StdDraw.mouseY();
             int x = Math.round((float) Math.floor(rawMouseX));
             int y = Math.round((float) Math.floor(rawMouseY));
-            StdDraw.setPenColor(Color.WHITE);
-            StdDraw.setFont(HUD_FONT);
 
             // If mouse within the game area, show the name of the current tile in the upper left
-            if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
+            StdDraw.setPenColor(Color.WHITE);
+            StdDraw.setFont(HUD_FONT);
+            if (map.isValid(x, y)) {
                 String description = map.peek(x, y, enableFOV).description();
                 StdDraw.textLeft(0.04 * WIDTH, 0.96 * HEIGHT, description);
             }
@@ -155,7 +153,7 @@ public class Game implements Serializable {
     /** Serializes the current Game object and saves to txt file. Exits with error code (0 or 1). */
     private void save() {
         try {
-            m = map;
+            m = map; // save to temp variables
             r = rand;
             FileOutputStream fileOut = new FileOutputStream("savefile.txt");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -179,9 +177,9 @@ public class Game implements Serializable {
             g = (Game) in.readObject();
             in.close();
             fileIn.close();
-            this.seed = g.seed; // need this or seed will not show
-            this.controller = g.controller; // similarly
-            rand = g.r;
+            this.seed = g.seed; // need these or seed will not show
+            this.controller = g.controller;
+            rand = g.r; // restore from temp variables
             map = g.m;
             play();
         } catch (IOException i) {

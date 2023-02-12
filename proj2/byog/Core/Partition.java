@@ -1,7 +1,6 @@
 package byog.Core;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -57,7 +56,7 @@ public class Partition implements Serializable {
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as
      * the branches of the current partition. Finally, method traverses the newly created branches.
      */
-    public void splitAndConnect() {
+    public void generateTree() {
         if (width > MAX || height > MAX) {
 
             if (width <= MAX) {
@@ -83,13 +82,29 @@ public class Partition implements Serializable {
                     right = new Partition(position, border, height);
                 }
             }
-            left.splitAndConnect();
-            right.splitAndConnect();
+            left.generateTree();
+            right.generateTree();
             this.connectLeftAndRight();
 
         } else { // if leaf
-            // generate random room
-            generateRandomRoom();
+            /* Generates a rectangular Room inside the partition whose area is between MIN x MIN and the
+             * exact dimensions of the partition area. A Room is an abstract object consisting of two
+             * Positions representing the bottom left and top right corner, a floor type, etc
+             */
+            int lowerLeftX = Game.rand.nextInt(width - MIN);
+            int lowerLeftY = Game.rand.nextInt(height - MIN);
+            Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
+
+            int minX = lowerLeft.x + MIN_ROOM - 1;
+            int maxX = Math.min(lowerLeft.x + MAX_ROOM - 1, position.x + width - 1);
+            int minY = lowerLeft.y + MIN_ROOM - 1;
+            int maxY = Math.min(lowerLeft.y + MAX_ROOM - 1, position.y + height - 1);
+
+            int upperRightX = Game.rand.nextInt(minX, maxX);
+            int upperRightY = Game.rand.nextInt(minY, maxY);
+            Position upperRight = new Position(upperRightX, upperRightY);
+            this.room = new Room(lowerLeft, upperRight);
+            Game.map.rooms.add(this.room);
 
             // make new PQ, add partition to it
             this.pQueue = new PriorityQueue<>(getDistanceComparator());
@@ -123,43 +138,6 @@ public class Partition implements Serializable {
         Partition minRight = right.pQueue.peek();
 
         minLeft.room.astar(minRight.room);
-    }
-
-    /** Given some root, traverses tree and returns list of all leafs. */
-    public ArrayList<Room> returnRooms() {
-        ArrayList<Room> rooms = new ArrayList<>();
-        returnRoomsHelper(rooms);
-        return rooms;
-    }
-
-    private void returnRoomsHelper(ArrayList<Room> rooms) {
-        if (left == null && right == null) {
-            rooms.add(room);
-        } else {
-            left.returnRoomsHelper(rooms);
-            right.returnRoomsHelper(rooms);
-        }
-    }
-
-    /* Generates a rectangular Room inside the partition whose area is between MIN x MIN and the
-     * exact dimensions of the partition area. A Room is an abstract object consisting of two
-     * Positions representing the bottom left and top right corner, a floor type, etc
-     */
-    private void generateRandomRoom() {
-        int lowerLeftX = Game.rand.nextInt(width - MIN);
-        int lowerLeftY = Game.rand.nextInt(height - MIN);
-        Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
-
-        int minX = lowerLeft.x + MIN_ROOM - 1;
-        int maxX = Math.min(lowerLeft.x + MAX_ROOM - 1, position.x + width - 1);
-        int minY = lowerLeft.y + MIN_ROOM - 1;
-        int maxY = Math.min(lowerLeft.y + MAX_ROOM - 1, position.y + height - 1);
-
-        int upperRightX = Game.rand.nextInt(minX, maxX);
-        int upperRightY = Game.rand.nextInt(minY, maxY);
-        Position upperRight = new Position(upperRightX, upperRightY);
-
-        this.room = new Room(lowerLeft, upperRight);
     }
 
     /* Comparator based on the difference between the two partitions distanceToParent.

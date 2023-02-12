@@ -19,9 +19,9 @@ public class UnitTests {
         Position p1 = new Position(7, 7);
         Position p2 = new Position(5, 3);
         Position p3 = new Position(3, 3);
-        assertEquals(map.posToOneDimension(p1), 63);
-        assertEquals(map.posToOneDimension(p2), 29);
-        assertEquals(map.posToOneDimension(p3), 27);
+        assertEquals(map.to1D(p1), 63);
+        assertEquals(map.to1D(p2), 29);
+        assertEquals(map.to1D(p3), 27);
     }
 
     @Test
@@ -29,18 +29,18 @@ public class UnitTests {
         Map map = new Map(10, 8);
         int p1 = 32;
         int p2 = 67;
-        assertEquals(map.oneDimensionToPos(p1).x, 2);
-        assertEquals(map.oneDimensionToPos(p1).y, 3);
-        assertEquals(map.oneDimensionToPos(p2).x, 7);
-        assertEquals(map.oneDimensionToPos(p2).y, 6);
+        assertEquals(map.toPosition(p1).x, 2);
+        assertEquals(map.toPosition(p1).y, 3);
+        assertEquals(map.toPosition(p2).x, 7);
+        assertEquals(map.toPosition(p2).y, 6);
     }
 
     @Test
     public void adjacentTest() {
         Map map = new Map(8, 8);
-        int p1 = map.posToOneDimension(new Position(7, 7)); // corner
-        int p2 = map.posToOneDimension(new Position(7, 4)); // edge
-        int p3 = map.posToOneDimension(new Position(4, 4)); // middle
+        int p1 = map.to1D(new Position(7, 7)); // corner
+        int p2 = map.to1D(new Position(7, 4)); // edge
+        int p3 = map.to1D(new Position(4, 4)); // middle
 
         for (Integer p : map.adjacent(p3)) {
             System.out.println(p);

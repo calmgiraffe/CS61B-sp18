@@ -3,7 +3,7 @@ package byog.Core;
 import java.awt.*;
 
 public class GUI {
-    public static final int WIDTH = 60;
+    public static final int WIDTH = 50;
     public static final int HEIGHT = 40;
     public static final int HUD_HEIGHT = 4;
     public static final double WIDTH_CENTRE = WIDTH / 2.0;

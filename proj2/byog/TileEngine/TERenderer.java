@@ -1,10 +1,13 @@
 package byog.TileEngine;
 
+import byog.Core.Game;
 import edu.princeton.cs.introcs.StdDraw;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.io.Serializable;
+
+import static byog.Core.GUI.*;
 
 /**
  * Utility class for rendering tiles. You do not need to modify this file. You're welcome

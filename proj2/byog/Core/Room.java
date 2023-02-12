@@ -1,8 +1,8 @@
 package byog.Core;
 
+import static byog.Core.Map.MAP;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -23,82 +23,19 @@ public class Room implements Serializable {
     /* Instance variables */
     private final Position lowerLeft;
     private final Position upperRight;
-    private final TETile floorType;
+    private final TETile floorType = Tileset.FLOOR;
 
     Room(Position lowerLeft, Position upperRight) {
         this.lowerLeft = lowerLeft;
         this.upperRight = upperRight;
-        this.floorType = Tileset.FLOOR;
-    }
-
-    /* Draws the three wall tiles and floor tile that must be placed when added a new floor tile
-     * to a hallway. The overall method works by adding a 'room' of area 1 on a preexisting room. */
-    private void drawWalls(Position p, char way) {
-        int x = p.x;
-        int y = p.y;
-
-        switch (way) {
-            case 'U' -> {
-                x -= 1;
-                y += 1;
-            }
-            case 'R' -> {
-                x += 1;
-                y -= 1;
-            }
-            default -> {
-                x -= 1;
-                y -= 1;
-            }
-        }
-        if (way == 'U' || way == 'D') {
-            for (int i = 0; i < 3; i += 1) {
-                if (Game.map.peek(x + i, y, false) != floorType) {
-                    Game.map.placeTile(x + i, y, Tileset.colorVariantWall(Game.rand));
-                }
-            }
-        } else if (way == 'L' || way == 'R') {
-            for (int i = 0; i < 3; i += 1) {
-                if (Game.map.peek(x, y + i, false) != floorType) {
-                    Game.map.placeTile(x, y + i, Tileset.colorVariantWall(Game.rand));
-                }
-            }
-        }
-    }
-
-    /* Given a 1D start & end coordinate, by following the child-parent relationships
-     * given by the edgeTo array, draws the astar path from start to end. */
-    private void drawPath(int[] edgeTo, int start, int end) {
-        int curr = edgeTo[end];
-        int prev = end;
-        char direction = '~';
-
-        while (curr != start) {
-            if (curr == prev + Game.map.width) {
-                direction = 'U';
-
-            } else if (curr == prev + 1) {
-                direction = 'R';
-
-            } else if (curr == prev - Game.map.width) {
-                direction = 'D';
-
-            } else if (curr == prev - 1) {
-                direction = 'L';
-            }
-            Position currentPos = Game.map.oneDimensionToPos(curr);
-            Game.map.placeTile(currentPos.x, currentPos.y, floorType);
-            drawWalls(currentPos, direction);
-            prev = curr;
-            curr = edgeTo[curr];
-        }
+        drawRoom();
     }
 
     /** Given another room, draws a path (one with hallways bounding floor path) between them on map
      * using the astar algorithm. */
     public void astar(Room room) {
-        int start = Game.map.posToOneDimension(this.randomPosition(1));
-        int target = Game.map.posToOneDimension(room.randomPosition(1));
+        int start = Game.map.to1D(this.randomPosition(1));
+        int target = Game.map.to1D(room.randomPosition(1));
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
         int[] edgeTo = new int[Game.map.width * Game.map.height];
@@ -129,35 +66,65 @@ public class Room implements Serializable {
         }
     }
 
-    /** Draws the rectangular room that is associated with this particular Partition onto map. */
-    public void drawRoom() {
-        int startX = lowerLeft.x;
-        int startY = lowerLeft.y;
-        int endX = upperRight.x;
-        int endY = upperRight.y;
+    /* Given a 1D start & end coordinate, by following the child-parent relationships
+     * given by the edgeTo array, draws the astar path from start to end. */
+    private void drawPath(int[] edgeTo, int start, int end) {
+        int curr = edgeTo[end];
+        int prev = end;
+        char direction = '~';
 
-        // Draw top and bottom walls
-        for (int x = startX; x <= endX; x++) {
-            if (Game.map.peek(x, startY, false) == Tileset.NOTHING) {
-                Game.map.placeTile(x, startY, Tileset.colorVariantWall(Game.rand));
+        while (curr != start) {
+            if (curr == prev + Game.map.width) {
+                direction = 'U';
+
+            } else if (curr == prev + 1) {
+                direction = 'R';
+
+            } else if (curr == prev - Game.map.width) {
+                direction = 'D';
+
+            } else if (curr == prev - 1) {
+                direction = 'L';
             }
-            if (Game.map.peek(x, endY, false) == Tileset.NOTHING) {
-                Game.map.placeTile(x, endY, Tileset.colorVariantWall(Game.rand));
+            Position currentPos = Game.map.toPosition(curr);
+            Game.map.place(currentPos.x, currentPos.y, floorType, MAP);
+            drawWalls(currentPos, direction);
+            prev = curr;
+            curr = edgeTo[curr];
+        }
+    }
+
+    /* Draws the three wall tiles and floor tile that must be placed when added a new floor tile
+     * to a hallway. The overall method works by adding a 'room' of area 1 on a preexisting room. */
+    private void drawWalls(Position p, char way) {
+        int x = p.x;
+        int y = p.y;
+
+        switch (way) {
+            case 'U' -> {
+                x -= 1;
+                y += 1;
+            }
+            case 'R' -> {
+                x += 1;
+                y -= 1;
+            }
+            default -> {
+                x -= 1;
+                y -= 1;
             }
         }
-        // Draw left and right walls
-        for (int y = startY; y <= endY; y++) {
-            if (Game.map.peek(startX, y, false) == Tileset.NOTHING) {
-                Game.map.placeTile(startX, y, Tileset.colorVariantWall(Game.rand));
+        if (way == 'U' || way == 'D') {
+            for (int i = 0; i < 3; i += 1) {
+                if (Game.map.peek(x + i, y, MAP) != floorType) {
+                    Game.map.place(x + i, y, Tileset.colorVariantWall(Game.rand), MAP);
+                }
             }
-            if (Game.map.peek(endX, y, false) == Tileset.NOTHING) {
-                Game.map.placeTile(endX, y, Tileset.colorVariantWall(Game.rand));
-            }
-        }
-        // Draw interior
-        for (int x = startX + 1; x <= endX - 1; x++) {
-            for (int y = startY + 1; y <= endY - 1; y++) {
-                Game.map.placeTile(x, y, floorType);
+        } else if (way == 'L' || way == 'R') {
+            for (int i = 0; i < 3; i += 1) {
+                if (Game.map.peek(x, y + i, MAP) != floorType) {
+                    Game.map.place(x, y + i, Tileset.colorVariantWall(Game.rand), MAP);
+                }
             }
         }
     }
@@ -171,15 +138,15 @@ public class Room implements Serializable {
             return;
         }
         if (count <= 0) {
-            if (Game.map.peek(x, y, false) == Tileset.NOTHING) {
-                Game.map.placeTile(x, y, Tileset.colorVariantWall(Game.rand));
+            if (Game.map.peek(x, y, MAP) == Tileset.NOTHING) {
+                Game.map.place(x, y, Tileset.colorVariantWall(Game.rand), MAP);
             }
         } else {
             boolean onEdge = (x == 0) || (x == Game.map.width - 1) || (y == 0) || (y == Game.map.height - 1);
             if (onEdge) {
-                Game.map.placeTile(x, y, Tileset.colorVariantWall(Game.rand));
+                Game.map.place(x, y, Tileset.colorVariantWall(Game.rand), MAP);
             } else {
-                Game.map.placeTile(x, y, floorType);
+                Game.map.place(x, y, floorType, MAP);
             }
             int up = count - Game.rand.nextInt(1, 3);
             int down = count - Game.rand.nextInt(1, 3);
@@ -198,11 +165,11 @@ public class Room implements Serializable {
         if (!Game.map.isValid(x, y)) {
             return;
         }
-        if (Game.map.peek(x, y, false) == floorType && count > 0) {
+        if (Game.map.peek(x, y, MAP) == floorType && count > 0) {
             if (Game.rand.nextInt(100) <= 10) {
-                Game.map.placeTile(x, y, Tileset.randomColorFlower(Game.rand));
+                Game.map.place(x, y, Tileset.randomColorFlower(Game.rand), MAP);
             } else {
-                Game.map.placeTile(x, y, Tileset.colorVariantGrass(Game.rand));
+                Game.map.place(x, y, Tileset.colorVariantGrass(Game.rand), MAP);
             }
             int up = count - Game.rand.nextInt(1, 2);
             int down = count - Game.rand.nextInt(1, 2);
@@ -213,6 +180,39 @@ public class Room implements Serializable {
             drawIrregularGrass(down, x, y - 1);
             drawIrregularGrass(left, x - 1, y);
             drawIrregularGrass(right, x + 1, y);
+        }
+    }
+
+    /* Draws the rectangular room that is associated with this particular Partition onto map. */
+    private void drawRoom() {
+        int startX = lowerLeft.x;
+        int startY = lowerLeft.y;
+        int endX = upperRight.x;
+        int endY = upperRight.y;
+
+        // Draw top and bottom walls
+        for (int x = startX; x <= endX; x++) {
+            if (Game.map.peek(x, startY, 0) == Tileset.NOTHING) {
+                Game.map.place(x, startY, Tileset.colorVariantWall(Game.rand), MAP);
+            }
+            if (Game.map.peek(x, endY, MAP) == Tileset.NOTHING) {
+                Game.map.place(x, endY, Tileset.colorVariantWall(Game.rand), MAP);
+            }
+        }
+        // Draw left and right walls
+        for (int y = startY; y <= endY; y++) {
+            if (Game.map.peek(startX, y, MAP) == Tileset.NOTHING) {
+                Game.map.place(startX, y, Tileset.colorVariantWall(Game.rand), MAP);
+            }
+            if (Game.map.peek(endX, y, MAP) == Tileset.NOTHING) {
+                Game.map.place(endX, y, Tileset.colorVariantWall(Game.rand), MAP);
+            }
+        }
+        // Draw interior
+        for (int x = startX + 1; x <= endX - 1; x++) {
+            for (int y = startY + 1; y <= endY - 1; y++) {
+                Game.map.place(x, y, floorType, MAP);
+            }
         }
     }
 
