@@ -72,7 +72,6 @@ public class TETile implements Serializable {
         this(t.character, textColor, t.backgroundColor, t.description, t.filepath);
     }
 
-
     /**
      * Draws the tile to the screen at location x, y. If a valid filepath is provided,
      * we draw the image located at that filepath to the screen. Otherwise, we fall

@@ -35,30 +35,17 @@ public class Partition implements Serializable {
         this.centre = new Position(position.x + width / 2, position.y + height / 2);
     }
 
-    /* Makes another partition at a point about border, which is approximately in
-     * the middle of the current partition's width so that both partitions are within bounds.
-     * */
-    private Partition splitHorizontally(int border) {
-        Position newPos = new Position(position.x + border, position.y);
-        return new Partition(newPos, width - border, height);
-    }
-
-    /* Makes another partition at a point about border, which is approximately in
-     * the middle of the current partition's height so that both partitions are within bounds.
-     */
-    private Partition splitVertically(int border) {
-        Position newPos = new Position(position.x, position.y + border);
-        return new Partition(newPos, width, height - border);
-    }
-
-    /** Examine partition and apply either their divideHorizontally or divideVertically method,
+    /** High level overview: generates partition tree and draws the hallways that will eventually
+     * connect the rooms. Does not draw the room itself.
+     * <p>
+     * Examines partition and apply either their divideHorizontally or divideVertically method,
      * depending on their dimensions. If both dimensions are greater than MAX, either vertical
      * or horizontal splitting is chosen randomly. If new partitions are made, they are set as
-     * the branches of the current partition. Finally, method traverses the newly created branches.
+     * the branches of the current partition. Lastly, method recursively traverses the newly
+     * created branches and repeats the same process.
      */
     public void generateTree() {
         if (width > MAX || height > MAX) {
-
             if (width <= MAX) {
                 int border = Game.rand.nextInt(MIN, height - MIN);
                 left = splitVertically(border);
@@ -86,11 +73,11 @@ public class Partition implements Serializable {
             right.generateTree();
             this.connectLeftAndRight();
 
-        } else { // if leaf
-            /* Generates a rectangular Room inside the partition whose area is between MIN x MIN and the
+        } else {
+            /* LEAF NODE LOGIC */
+            /* Generate a rectangular Room inside the partition whose area is between MIN x MIN and the
              * exact dimensions of the partition area. A Room is an abstract object consisting of two
-             * Positions representing the bottom left and top right corner, a floor type, etc
-             */
+             * Positions representing the bottom left and top right corner, a floor type, etc */
             int lowerLeftX = Game.rand.nextInt(width - MIN);
             int lowerLeftY = Game.rand.nextInt(height - MIN);
             Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
@@ -104,13 +91,33 @@ public class Partition implements Serializable {
             int upperRightY = Game.rand.nextInt(minY, maxY);
             Position upperRight = new Position(upperRightX, upperRightY);
             this.room = new Room(lowerLeft, upperRight);
+
+            /* Add room to global rooms list. Don't really have to do this,
+             * but avoids having to traverse partition tree in Map class. */
+            // Todo: may have to move list to Game class
             Game.map.rooms.add(this.room);
 
-            // make new PQ, add partition to it
+            /* Make new PQ, add partition to it */
             this.pQueue = new PriorityQueue<>(getDistanceComparator());
             distanceToParent = 0;
             pQueue.add(this);
         }
+    }
+
+    /* Makes another partition at a point about border, which is approximately in
+     * the middle of the current partition's width so that both partitions are within bounds.
+     * */
+    private Partition splitHorizontally(int border) {
+        Position newPos = new Position(position.x + border, position.y);
+        return new Partition(newPos, width - border, height);
+    }
+
+    /* Makes another partition at a point about border, which is approximately in
+     * the middle of the current partition's height so that both partitions are within bounds.
+     */
+    private Partition splitVertically(int border) {
+        Position newPos = new Position(position.x, position.y + border);
+        return new Partition(newPos, width, height - border);
     }
 
     /* Select two partitions, one from the left and right branch respectively,
@@ -137,6 +144,7 @@ public class Partition implements Serializable {
         Partition minLeft = left.pQueue.peek();
         Partition minRight = right.pQueue.peek();
 
+        // Draws a hallway between the two rooms of the two partitions
         minLeft.room.astar(minRight.room);
     }
 

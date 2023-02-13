@@ -12,7 +12,7 @@ import static byog.Core.GUI.*;
 public class Game implements Serializable {
     public static RandomInclusive rand;
     public static Map map;
-    public static int enableFOV = 1;
+    public static int enableFOV = 0;
     private static final int BACKSPACE = 8;
     private static final TERenderer ter = new TERenderer();
 
@@ -37,7 +37,7 @@ public class Game implements Serializable {
      * should save, and thus if we then called playWithInputString with the string "l", we'd expect
      * to get the exact same world back again, since this corresponds to loading the saved game.
      */
-    public void start(String cmdString) {
+    public void mainMenu(String cmdString) {
         if (cmdString != null) {
             // Additional instructions to enable cmd string parsing
             commands = new StringBuilder();
@@ -59,7 +59,7 @@ public class Game implements Serializable {
 
             char next = getNextCommand();
             if (next == 'n') {
-                inputSeed();
+                seedMenu();
             } else if (next == 'l') {
                 load();
             } else if (next == 'q') {
@@ -70,9 +70,9 @@ public class Game implements Serializable {
 
     /* Private internal methods */
 
-    /** Displays the seed input screen; s to submit the seed and generate a new map.
+    /* Displays the seed input screen; s to submit the seed and generate a new map.
      * Can only put in numbers for a seed. */
-    private void inputSeed() {
+    private void seedMenu() {
         StringBuilder seed = new StringBuilder();
         while (true) {
             /* Show seed input screen & show current built seed string */
@@ -100,7 +100,7 @@ public class Game implements Serializable {
                 Game.map = new Map(WIDTH, HEIGHT - HUD_HEIGHT);
                 Game.map.generate();
                 this.controller = new MapController();
-                play();
+                playLoop();
 
             } else if (c == 'b') { // b = go back
                 break;
@@ -108,8 +108,8 @@ public class Game implements Serializable {
         }
     }
 
-    /** Game loop, runs in real time */
-    private void play() {
+    /* Game loop, runs in real time */
+    private void playLoop() {
         boolean colonPressed = false;
         while (true) {
             StdDraw.clear(Color.BLACK);
@@ -127,7 +127,7 @@ public class Game implements Serializable {
                 colonPressed = false;
                 controller.parseCommand(next); // controller manipulates Map
             }
-            ter.renderFrame(map.getMap());
+            ter.renderFrame(map.map());
 
             /* HUD logic */
             double rawMouseX = StdDraw.mouseX(); // leave this separate - could potentially use in future
@@ -150,7 +150,7 @@ public class Game implements Serializable {
         }
     }
 
-    /** Serializes the current Game object and saves to txt file. Exits with error code (0 or 1). */
+    /* Serializes the current Game object and saves to txt file. Exits with error code (0 or 1). */
     private void save() {
         try {
             m = map; // save to temp variables
@@ -167,7 +167,7 @@ public class Game implements Serializable {
         }
     }
 
-    /** Load a game from stored save file, restores previous state, and starts play() loop.
+    /* Load a game from stored save file, restores previous state, and starts play() loop.
      * Exits with error code 1 upon unsuccessful load. */
     private void load() {
         Game g;
@@ -181,7 +181,7 @@ public class Game implements Serializable {
             this.controller = g.controller;
             rand = g.r; // restore from temp variables
             map = g.m;
-            play();
+            playLoop();
         } catch (IOException i) {
             i.printStackTrace();
             exit(1);
@@ -192,7 +192,7 @@ public class Game implements Serializable {
         }
     }
 
-    /** Parse the next command (char) from the user. Works for both keyboard and string modes.
+    /* Parse the next command (char) from the user. Works for both keyboard and string modes.
      * Returns '~' or exits with error code 0 upon no keyboard input or empty StringBuilder. */
     private char getNextCommand() {
         if (commands == null) {
@@ -214,10 +214,10 @@ public class Game implements Serializable {
         return '~';
     }
 
-    /** Quit and close the game. Wrapper for System.exit() */
+    /* Quit and close the game. Wrapper for System.exit() */
     private void exit(int status) {
         if (commands != null) {
-            System.out.println(TETile.toString(map.getMap()));
+            System.out.println(TETile.toString(map.map()));
         }
         // This is an example of a fault class exception
         // Gives control to kernel which then aborts program

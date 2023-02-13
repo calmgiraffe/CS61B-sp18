@@ -2,20 +2,22 @@ package byog.Core;
 
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
-import java.io.Serializable;
-import java.util.ArrayList;
 
-import static byog.Core.Map.FOVMAP;
-import static byog.Core.Map.MAP;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+
+import static byog.Core.Map.*;
 
 public class MapController implements Serializable {
     /* Static variables */
-    private static final int FOV_RANGE = 5;
+    private static final int FOV_RANGE = 4;
 
     /** Public instance variables */
     protected TETile prevTile;
     /* Private instance variables */
-    private final ArrayList<Position> fov = new ArrayList<>();
+    private final Set<Integer> fov = new HashSet<>();
+    private final Set<Integer> visited = new HashSet<>();
     private int currX;
     private int currY;
 
@@ -56,8 +58,10 @@ public class MapController implements Serializable {
             case 's' -> newY -= 1;
             case 'a' -> newX -= 1;
         }
-        if (Game.map.peek(newX, newY, MAP).character() != '#') { // if tile to move to is not wall
-            if (Game.map.peek(newX, newY, MAP).character() == '▢') { // if next tile is door
+        // If the tile to move to is not a wall tile
+        if (Game.map.peek(newX, newY, MAP).character() != '#') {
+            if (Game.map.peek(newX, newY, MAP).character() == '▢') {
+                /* Next tile is door -> go to next level */
                 Game.map.generate();
                 Game.map.level += 1;
                 int numRooms = Game.map.rooms.size();
@@ -75,12 +79,12 @@ public class MapController implements Serializable {
                 i = Game.rand.nextInt(numRooms - 1);
                 Position doorPos = Game.map.rooms.get(i).randomPosition(1);
                 Game.map.place(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR, MAP);
-            } else {
+
+            } else { // Next tile is not door
                 /*
                 At where the character currently is, place the tile that was previously there.
                 Update prevTile to the tile where the player will move.
                 At where the character is to move, place the player and update currX, currY.
-                Clear FOV and remake its set of coordinates.
                 */
                 Game.map.place(currX, currY, prevTile, MAP);
                 prevTile = Game.map.peek(newX, newY, MAP);
@@ -88,36 +92,40 @@ public class MapController implements Serializable {
                 currX = newX;
                 currY = newY;
             }
-            updateFOV();
+            this.updateFOV();
         }
     }
 
-    /* Updates fovmap with the coordinates that correspond to the field of view */
+    /* Updates fovmap with the coordinates that correspond to the field of view.
+    *  Implicitly assumes that player moved to a non-wall tile but FOV is not yet updated. */
     private void updateFOV() {
         fov.clear();
-        updateFOVPoints(FOV_RANGE, currX, currY);
+        this.updateFOVPoints(FOV_RANGE, currX, currY);
 
-        for (int i = 0; i < Game.map.width; i++) { // Fill fovmap with blank tiles
+        // Fill FOV map with blank tiles
+        for (int i = 0; i < Game.map.width; i++) {
             for (int j = 0; j < Game.map.height; j++) {
-                Game.map.place(i, j, Tileset.BLANK, FOVMAP);
+                Game.map.place(i, j, Tileset.NOTHING, FOV);
             }
         }
-        for (Position pos : fov) { // Update fovmap
+        // Update FOV map with points fom this.fov
+        for (int p : fov) {
+            Position pos = Game.map.toPosition(p);
             TETile tile = Game.map.peek(pos.x, pos.y, MAP);
-            Game.map.place(pos.x, pos.y, tile, FOVMAP);
+            Game.map.place(pos.x, pos.y, tile, FOV);
         }
+
+        // at each time increment, want to recalculate the fovmap
     }
 
-    /*
-     * Updates the list of points that make up the current FOV of the player.
-     * this.fov is a List of Positions corresponding to the coordinates of the desired FOV tiles
-     * Todo: change to a more efficient method?
-     */
+    /* Updates the list of points that make up the current FOV and visited tiles.
+     * this.fov is a Set of 1D positions corresponding to the coordinates of the desired FOV tiles */
     private void updateFOVPoints(int count, int x, int y) {
         if (count < 0 || !Game.map.isValid(x, y)) {
             return;
         }
-        fov.add(new Position(x, y));
+        visited.add(Game.map.to1D(x, y));
+        fov.add(Game.map.to1D(x, y));
         if (!(Game.map.peek(x, y, MAP).character() == '#')) {
             updateFOVPoints(count - 1, x, y + 1);
             updateFOVPoints(count - 1, x, y - 1);

@@ -28,14 +28,17 @@ public class Room implements Serializable {
     Room(Position lowerLeft, Position upperRight) {
         this.lowerLeft = lowerLeft;
         this.upperRight = upperRight;
-        drawRoom();
     }
 
-    /** Given another room, draws a path (one with hallways bounding floor path) between them on map
-     * using the astar algorithm. */
+    /** Given another room, draws a fully drawn hallway with floor and wall tiles between them on
+     * the map using the astar algorithm.
+     * <p>
+     * Helper methods used by this method are drawPath() and drawWalls(). */
     public void astar(Room room) {
-        int start = Game.map.to1D(this.randomPosition(1));
-        int target = Game.map.to1D(room.randomPosition(1));
+        Position a = this.randomPosition(1);
+        Position b = room.randomPosition(1);
+        int start = Game.map.to1D(a.x, a.y);
+        int target = Game.map.to1D(b.x, b.y);
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
         int[] edgeTo = new int[Game.map.width * Game.map.height];
@@ -60,7 +63,7 @@ public class Room implements Serializable {
                 }
                 if (q == target) {
                     targetFound = true;
-                    drawPath(edgeTo, start, q);
+                    this.drawPath(edgeTo, start, q);
                 }
             }
         }
@@ -88,7 +91,7 @@ public class Room implements Serializable {
             }
             Position currentPos = Game.map.toPosition(curr);
             Game.map.place(currentPos.x, currentPos.y, floorType, MAP);
-            drawWalls(currentPos, direction);
+            this.drawWalls(currentPos, direction);
             prev = curr;
             curr = edgeTo[curr];
         }
@@ -167,7 +170,7 @@ public class Room implements Serializable {
         }
         if (Game.map.peek(x, y, MAP) == floorType && count > 0) {
             if (Game.rand.nextInt(100) <= 10) {
-                Game.map.place(x, y, Tileset.randomColorFlower(Game.rand), MAP);
+                Game.map.place(x, y, Tileset.randomFlower(Game.rand), MAP);
             } else {
                 Game.map.place(x, y, Tileset.colorVariantGrass(Game.rand), MAP);
             }
@@ -184,7 +187,7 @@ public class Room implements Serializable {
     }
 
     /* Draws the rectangular room that is associated with this particular Partition onto map. */
-    private void drawRoom() {
+    public void drawRoom() {
         int startX = lowerLeft.x;
         int startY = lowerLeft.y;
         int endX = upperRight.x;

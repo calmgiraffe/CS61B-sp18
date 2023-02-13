@@ -11,14 +11,14 @@ import java.util.ArrayList;
 public class Map implements Serializable {
     /* Static variables */
     public static final int MAP = 0;
-    public static final int FOVMAP = 1;
+    public static final int FOV = 1;
     private static final int IRREGULAR_ROOM_ODDS = 50;
     private static final int GRASS_ODDS = 70;
 
     /** Public variables */
     protected final int width;
     protected final int height;
-    protected ArrayList<Room> rooms = new ArrayList<>();;
+    protected final ArrayList<Room> rooms = new ArrayList<>();
     protected int level = 1;
     /* Private variables. Encapsulate the underlying data type of these */
     private ArrayList<TETile[][]> maps = new ArrayList<>();
@@ -37,17 +37,18 @@ public class Map implements Serializable {
     /** Generates dungeon and draws irregular rooms, grass */
     public void generate() {
         /* Fill both TETile[][] data structure with blank tiles */
-        for (int x = 0; x < map.length; x++) {
-            for (int y = 0; y < map[0].length; y++) {
-                map[x][y] = Tileset.NOTHING;
-                fovmap[x][y] = Tileset.BLANK;
+        rooms.clear();
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[0].length; j++) {
+                map[i][j] = Tileset.NOTHING;
+                fovmap[i][j] = Tileset.NOTHING;
             }
         }
         /* Make binary tree of partitions and draws hallways and rooms, making a connected graph.
-        * As a side effect, also populates this.rooms with Room objects */
+        *  As a side effect, also populates this.rooms with Room objects */
         partition.generateTree();
-
         for (Room r : rooms) {
+            r.drawRoom();
             // 50% chance of drawing an irregular room
             if (Game.rand.nextInt(100) < IRREGULAR_ROOM_ODDS) {
                 int size = Game.rand.nextInt(5, 8);
@@ -69,7 +70,7 @@ public class Map implements Serializable {
         if (isValid(x, y)) {
             switch (type) {
                 case MAP: return map[x][y];
-                case FOVMAP: return fovmap[x][y];
+                case FOV: return fovmap[x][y];
             }
         }
         return null;
@@ -81,7 +82,7 @@ public class Map implements Serializable {
         if (isValid(x, y)) {
             switch (type) {
                 case MAP: map[x][y] = tile;
-                case FOVMAP: fovmap[x][y] = tile;
+                case FOV: fovmap[x][y] = tile;
             }
         }
     }
@@ -94,11 +95,11 @@ public class Map implements Serializable {
     /** Given a xy coordinate on the map (range of 0 to width-1, 0 to height-1), converts this
      * to a corresponding 1D coordinate. This process can be imagined as lining up the rows of the
      * map into one long line. */
-    public int to1D(Position p) {
-        if (!isValid(p.x, p.y)) {
+    public int to1D(int x, int y) {
+        if (!isValid(x, y)) {
             throw new ArrayIndexOutOfBoundsException("Position out of bounds.");
         }
-        return width * p.y + p.x;
+        return width * y + x;
     }
 
     /** Given a 1D position on the map, converts this to a corresponding new Position. */
@@ -114,26 +115,24 @@ public class Map implements Serializable {
     /** Given a 1D position on a map, returns the adjacent (up, right, down, left) 1D positions */
     public ArrayList<Integer> adjacent(int p) {
         Position currPos = toPosition(p);
-        int currX = currPos.x;
-        int currY = currPos.y;
 
         ArrayList<Position> tmp = new ArrayList<>();
-        tmp.add(new Position(currX, currY + 1));
-        tmp.add(new Position(currX, currY - 1));
-        tmp.add(new Position(currX + 1, currY));
-        tmp.add(new Position(currX - 1, currY));
+        tmp.add(new Position(currPos.x, currPos.y + 1));
+        tmp.add(new Position(currPos.x, currPos.y - 1));
+        tmp.add(new Position(currPos.x + 1, currPos.y));
+        tmp.add(new Position(currPos.x - 1, currPos.y));
 
         ArrayList<Integer> adjacent = new ArrayList<>();
         for (Position pos : tmp) {
             if (isValid(pos.x, pos.y)) {
-                adjacent.add(to1D(pos));
+                adjacent.add(to1D(pos.x, pos.y));
             }
         }
         return adjacent;
     }
 
     /** Returns the TETile[][] associated with this object that is to be rendered. */
-    public TETile[][] getMap() {
+    public TETile[][] map() {
         return (Game.enableFOV > 0) ? fovmap : map;
     }
 }

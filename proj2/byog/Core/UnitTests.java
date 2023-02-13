@@ -19,9 +19,9 @@ public class UnitTests {
         Position p1 = new Position(7, 7);
         Position p2 = new Position(5, 3);
         Position p3 = new Position(3, 3);
-        assertEquals(map.to1D(p1), 63);
-        assertEquals(map.to1D(p2), 29);
-        assertEquals(map.to1D(p3), 27);
+        assertEquals(map.to1D(p1.x, p1.y), 63);
+        assertEquals(map.to1D(p2.x, p2.y), 29);
+        assertEquals(map.to1D(p3.x, p3.y), 27);
     }
 
     @Test
@@ -38,9 +38,9 @@ public class UnitTests {
     @Test
     public void adjacentTest() {
         Map map = new Map(8, 8);
-        int p1 = map.to1D(new Position(7, 7)); // corner
-        int p2 = map.to1D(new Position(7, 4)); // edge
-        int p3 = map.to1D(new Position(4, 4)); // middle
+        int p1 = map.to1D(7, 7); // corner
+        int p2 = map.to1D(7, 4); // edge
+        int p3 = map.to1D(4, 4); // middle
 
         for (Integer p : map.adjacent(p3)) {
             System.out.println(p);
