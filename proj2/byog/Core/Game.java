@@ -12,7 +12,7 @@ import static byog.Core.GUI.*;
 public class Game implements Serializable {
     public static RandomInclusive rand;
     public static Map map;
-    public static int enableFOV = 0;
+    public static int enableFOV = 1;
     private static final int BACKSPACE = 8;
     private static final TERenderer ter = new TERenderer();
 

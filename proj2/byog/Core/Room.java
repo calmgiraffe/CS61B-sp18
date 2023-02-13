@@ -1,6 +1,6 @@
 package byog.Core;
 
-import static byog.Core.Map.MAP;
+import static byog.Core.Map.MAIN;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import java.io.Serializable;
@@ -90,7 +90,7 @@ public class Room implements Serializable {
                 direction = 'L';
             }
             Position currentPos = Game.map.toPosition(curr);
-            Game.map.place(currentPos.x, currentPos.y, floorType, MAP);
+            Game.map.place(currentPos.x, currentPos.y, floorType, MAIN);
             this.drawWalls(currentPos, direction);
             prev = curr;
             curr = edgeTo[curr];
@@ -119,14 +119,14 @@ public class Room implements Serializable {
         }
         if (way == 'U' || way == 'D') {
             for (int i = 0; i < 3; i += 1) {
-                if (Game.map.peek(x + i, y, MAP) != floorType) {
-                    Game.map.place(x + i, y, Tileset.colorVariantWall(Game.rand), MAP);
+                if (Game.map.peek(x + i, y, MAIN) != floorType) {
+                    Game.map.place(x + i, y, Tileset.colorVariantWall(Game.rand), MAIN);
                 }
             }
         } else if (way == 'L' || way == 'R') {
             for (int i = 0; i < 3; i += 1) {
-                if (Game.map.peek(x, y + i, MAP) != floorType) {
-                    Game.map.place(x, y + i, Tileset.colorVariantWall(Game.rand), MAP);
+                if (Game.map.peek(x, y + i, MAIN) != floorType) {
+                    Game.map.place(x, y + i, Tileset.colorVariantWall(Game.rand), MAIN);
                 }
             }
         }
@@ -141,15 +141,15 @@ public class Room implements Serializable {
             return;
         }
         if (count <= 0) {
-            if (Game.map.peek(x, y, MAP) == Tileset.NOTHING) {
-                Game.map.place(x, y, Tileset.colorVariantWall(Game.rand), MAP);
+            if (Game.map.peek(x, y, MAIN) == Tileset.NOTHING) {
+                Game.map.place(x, y, Tileset.colorVariantWall(Game.rand), MAIN);
             }
         } else {
             boolean onEdge = (x == 0) || (x == Game.map.width - 1) || (y == 0) || (y == Game.map.height - 1);
             if (onEdge) {
-                Game.map.place(x, y, Tileset.colorVariantWall(Game.rand), MAP);
+                Game.map.place(x, y, Tileset.colorVariantWall(Game.rand), MAIN);
             } else {
-                Game.map.place(x, y, floorType, MAP);
+                Game.map.place(x, y, floorType, MAIN);
             }
             int up = count - Game.rand.nextInt(1, 3);
             int down = count - Game.rand.nextInt(1, 3);
@@ -168,11 +168,11 @@ public class Room implements Serializable {
         if (!Game.map.isValid(x, y)) {
             return;
         }
-        if (Game.map.peek(x, y, MAP) == floorType && count > 0) {
+        if (Game.map.peek(x, y, MAIN) == floorType && count > 0) {
             if (Game.rand.nextInt(100) <= 10) {
-                Game.map.place(x, y, Tileset.randomFlower(Game.rand), MAP);
+                Game.map.place(x, y, Tileset.randomFlower(Game.rand), MAIN);
             } else {
-                Game.map.place(x, y, Tileset.colorVariantGrass(Game.rand), MAP);
+                Game.map.place(x, y, Tileset.colorVariantGrass(Game.rand), MAIN);
             }
             int up = count - Game.rand.nextInt(1, 2);
             int down = count - Game.rand.nextInt(1, 2);
@@ -196,25 +196,25 @@ public class Room implements Serializable {
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
             if (Game.map.peek(x, startY, 0) == Tileset.NOTHING) {
-                Game.map.place(x, startY, Tileset.colorVariantWall(Game.rand), MAP);
+                Game.map.place(x, startY, Tileset.colorVariantWall(Game.rand), MAIN);
             }
-            if (Game.map.peek(x, endY, MAP) == Tileset.NOTHING) {
-                Game.map.place(x, endY, Tileset.colorVariantWall(Game.rand), MAP);
+            if (Game.map.peek(x, endY, MAIN) == Tileset.NOTHING) {
+                Game.map.place(x, endY, Tileset.colorVariantWall(Game.rand), MAIN);
             }
         }
         // Draw left and right walls
         for (int y = startY; y <= endY; y++) {
-            if (Game.map.peek(startX, y, MAP) == Tileset.NOTHING) {
-                Game.map.place(startX, y, Tileset.colorVariantWall(Game.rand), MAP);
+            if (Game.map.peek(startX, y, MAIN) == Tileset.NOTHING) {
+                Game.map.place(startX, y, Tileset.colorVariantWall(Game.rand), MAIN);
             }
-            if (Game.map.peek(endX, y, MAP) == Tileset.NOTHING) {
-                Game.map.place(endX, y, Tileset.colorVariantWall(Game.rand), MAP);
+            if (Game.map.peek(endX, y, MAIN) == Tileset.NOTHING) {
+                Game.map.place(endX, y, Tileset.colorVariantWall(Game.rand), MAIN);
             }
         }
         // Draw interior
         for (int x = startX + 1; x <= endX - 1; x++) {
             for (int y = startY + 1; y <= endY - 1; y++) {
-                Game.map.place(x, y, floorType, MAP);
+                Game.map.place(x, y, floorType, MAIN);
             }
         }
     }

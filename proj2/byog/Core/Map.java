@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * and other variables/invariants like its current level, width, height, rooms, etc */
 public class Map implements Serializable {
     /* Static variables */
-    public static final int MAP = 0;
+    public static final int MAIN = 0;
     public static final int FOV = 1;
     private static final int IRREGULAR_ROOM_ODDS = 50;
     private static final int GRASS_ODDS = 70;
@@ -69,7 +69,7 @@ public class Map implements Serializable {
     public TETile peek(int x, int y, int type) {
         if (isValid(x, y)) {
             switch (type) {
-                case MAP: return map[x][y];
+                case MAIN: return map[x][y];
                 case FOV: return fovmap[x][y];
             }
         }
@@ -81,8 +81,8 @@ public class Map implements Serializable {
     public void place(int x, int y, TETile tile, int type) {
         if (isValid(x, y)) {
             switch (type) {
-                case MAP: map[x][y] = tile;
-                case FOV: fovmap[x][y] = tile;
+                case MAIN -> map[x][y] = tile;
+                case FOV -> fovmap[x][y] = tile;
             }
         }
     }
