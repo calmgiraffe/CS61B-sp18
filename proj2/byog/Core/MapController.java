@@ -24,22 +24,8 @@ public class MapController implements Serializable {
 
     /** Also initializes Game.map with door and player */
     public MapController() {
-        int numRooms = Game.map.rooms.size();
-
-        /* Pick a room and place character in it */
-        int i = Game.rand.nextInt(numRooms - 1);
-        Position playerPos = Game.map.rooms.get(i).randomPosition(1);
-        this.currX = playerPos.x;
-        this.currY = playerPos.y;
-        this.prevTile = Game.map.peek(currX, currY, MAIN);
-        Game.map.place(currX, currY, Tileset.PLAYER, MAIN);
-
-        /* Pick a room and place door in it */
-        i = Game.rand.nextInt(numRooms - 1);
-        Position doorPos = Game.map.rooms.get(i).randomPosition(1);
-        Game.map.place(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR, MAIN);
-
-        updateFOV();
+        this.placeCharacterAndDoor();
+        this.updateFOV();
     }
 
     /**
@@ -66,21 +52,7 @@ public class MapController implements Serializable {
                 fov.clear();
                 Game.map.generate();
                 Game.map.level += 1;
-                int numRooms = Game.map.rooms.size();
-
-                /* Todo: Duplicate of constructor code - could put in separate method? */
-                /* Pick a room and place character in it */
-                int i = Game.rand.nextInt(numRooms - 1);
-                Position playerPos = Game.map.rooms.get(i).randomPosition(1);
-                this.currX = playerPos.x;
-                this.currY = playerPos.y;
-                this.prevTile = Game.map.peek(currX, currY, MAIN);
-                Game.map.place(currX, currY, Tileset.PLAYER, MAIN);
-
-                /* Pick a room and place door in it */
-                i = Game.rand.nextInt(numRooms - 1);
-                Position doorPos = Game.map.rooms.get(i).randomPosition(1);
-                Game.map.place(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR, MAIN);
+                this.placeCharacterAndDoor();
 
             } else { // Next tile is not door
                 /*
@@ -105,7 +77,7 @@ public class MapController implements Serializable {
         for (int p : fov) {
             Position pos = Game.map.toPosition(p);
             TETile tile = Game.map.peek(pos.x, pos.y, MAIN);
-            Game.map.place(pos.x, pos.y, new TETile(tile, new Color(44, 44, 44)), FOV);
+            Game.map.place(pos.x, pos.y, new TETile(tile, new Color(45, 45, 45)), FOV);
         }
         fov.clear();
         this.updateFOVPoints(FOV_RANGE, currX, currY);
@@ -117,6 +89,24 @@ public class MapController implements Serializable {
             Game.map.place(pos.x, pos.y, tile, FOV);
         }
     }
+
+    private void placeCharacterAndDoor() {
+        int numRooms = Game.map.rooms.size();
+
+        /* Pick a room and place character in it */
+        int i = Game.rand.nextInt(numRooms - 1);
+        Position playerPos = Game.map.rooms.get(i).randomPosition(1);
+        this.currX = playerPos.x;
+        this.currY = playerPos.y;
+        this.prevTile = Game.map.peek(currX, currY, MAIN);
+        Game.map.place(currX, currY, Tileset.PLAYER, MAIN);
+
+        /* Pick a room and place door in it */
+        i = Game.rand.nextInt(numRooms - 1);
+        Position doorPos = Game.map.rooms.get(i).randomPosition(1);
+        Game.map.place(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR, MAIN);
+    }
+
 
     /* Updates the list of points that make up the current FOV and visited tiles.
      * this.fov is a Set of 1D positions corresponding to the coordinates of the desired FOV tiles */
