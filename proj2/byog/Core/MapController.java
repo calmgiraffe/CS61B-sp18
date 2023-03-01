@@ -12,7 +12,7 @@ import static byog.Core.Map.*;
 
 public class MapController implements Serializable {
     /* Static variables */
-    private static final int FOV_RANGE = 4;
+    private static final int FOV_RANGE = 5;
 
     /** Public instance variables */
     protected TETile prevTile;

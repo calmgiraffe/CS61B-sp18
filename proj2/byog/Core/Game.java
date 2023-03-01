@@ -37,7 +37,7 @@ public class Game implements Serializable {
      * should save, and thus if we then called playWithInputString with the string "l", we'd expect
      * to get the exact same world back again, since this corresponds to loading the saved game.
      */
-    public void mainMenu(String cmdString) {
+    public void mainMenu(String cmdString) throws InterruptedException {
         if (cmdString != null) {
             // Additional instructions to enable cmd string parsing
             commands = new StringBuilder();
@@ -65,6 +65,7 @@ public class Game implements Serializable {
             } else if (next == 'q') {
                 exit(0);
             }
+            Thread.sleep(10);
         }
     }
 
@@ -72,7 +73,7 @@ public class Game implements Serializable {
 
     /* Displays the seed input screen; s to submit the seed and generate a new map.
      * Can only put in numbers for a seed. */
-    private void seedMenu() {
+    private void seedMenu() throws InterruptedException {
         StringBuilder seed = new StringBuilder();
         while (true) {
             /* Show seed input screen & show current built seed string */
@@ -105,11 +106,12 @@ public class Game implements Serializable {
             } else if (c == 'b') { // b = go back
                 break;
             }
+            Thread.sleep(10);
         }
     }
 
     /* Game loop, runs in real time */
-    private void playLoop() {
+    private void playLoop() throws InterruptedException {
         boolean colonPressed = false;
         while (true) {
             StdDraw.clear(Color.BLACK);
@@ -147,6 +149,8 @@ public class Game implements Serializable {
             StdDraw.text(WIDTH_CENTRE, 0.96 * HEIGHT, centerText);
             StdDraw.textRight(0.96 * WIDTH, 0.96 * HEIGHT, "Level " + map.level);
             StdDraw.show();
+
+            Thread.sleep(10);
         }
     }
 
@@ -189,6 +193,8 @@ public class Game implements Serializable {
             System.out.println("Game class not found");
             c.printStackTrace();
             exit(1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
