@@ -136,30 +136,26 @@ public class Room implements Serializable {
      * and left of said position, then applying the recursive method on those four new positions.
      * Depending on the location and the count, either a FLOOR or WALL tile is drawn. */
     public void drawIrregular(int count, int x, int y) {
-        // Base case: count is 0 and able to place a tile on NOTHING
         if (!Game.map.isValid(x, y)) {
             return;
         }
+        // Base case: count is <= 0 and able to place a tile on NOTHING
         if (count <= 0) {
             if (Game.map.peek(x, y, MAIN) == Tileset.NOTHING) {
                 Game.map.place(x, y, Tileset.colorVariantWall(Game.rand), MAIN);
             }
         } else {
+            // Todo: refactor onEdge into base case
             boolean onEdge = (x == 0) || (x == Game.map.width - 1) || (y == 0) || (y == Game.map.height - 1);
             if (onEdge) {
                 Game.map.place(x, y, Tileset.colorVariantWall(Game.rand), MAIN);
             } else {
                 Game.map.place(x, y, floorType, MAIN);
             }
-            int up = count - Game.rand.nextInt(1, 3);
-            int down = count - Game.rand.nextInt(1, 3);
-            int left = count - Game.rand.nextInt(1, 3);
-            int right = count - Game.rand.nextInt(1, 3);
-
-            drawIrregular(up, x, y + 1);
-            drawIrregular(down, x, y - 1);
-            drawIrregular(left, x - 1, y);
-            drawIrregular(right, x + 1, y);
+            drawIrregular(count - Game.rand.nextInt(1, 3), x, y + 1);
+            drawIrregular(count - Game.rand.nextInt(1, 3), x, y - 1);
+            drawIrregular(count - Game.rand.nextInt(1, 3), x - 1, y);
+            drawIrregular(count - Game.rand.nextInt(1, 3), x + 1, y);
         }
     }
 

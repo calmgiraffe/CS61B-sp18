@@ -107,7 +107,6 @@ public class MapController implements Serializable {
         Game.map.place(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR, MAIN);
     }
 
-
     /* Updates the list of points that make up the current FOV and visited tiles.
      * this.fov is a Set of 1D positions corresponding to the coordinates of the desired FOV tiles */
     private void updateFOVPoints(int count, int x, int y) {
