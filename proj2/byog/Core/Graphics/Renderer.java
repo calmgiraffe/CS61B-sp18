@@ -115,7 +115,11 @@ public class Renderer implements Serializable {
         for (Text text : stateText) {
             StdDraw.setPenColor(text.getColor());
             StdDraw.setFont(text.getFont());
-            StdDraw.text(width * text.getX(), height * text.getY(), text.getText());
+            switch(text.getAlignment()) {
+                case LEFT -> StdDraw.textLeft(width * text.getX(), height * text.getY(), text.getText());
+                case CENTRE -> StdDraw.text(width * text.getX(), height * text.getY(), text.getText());
+                case RIGHT -> StdDraw.textRight(width * text.getX(), height * text.getY(), text.getText());
+            }
         }
         // Render TETile[][]
         this.renderFrame(state.getTilemap());

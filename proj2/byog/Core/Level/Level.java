@@ -199,9 +199,6 @@ public class Level implements Serializable {
         }
     }
 
-
-
-
     /** Returns the tile at specified x and y coordinates on the level, but does not remove the tile.
      * If out of bounds, returns null. */
     public TETile peek(int x, int y) {

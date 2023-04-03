@@ -16,7 +16,7 @@ import java.util.List;
 public class PlayState implements State, Serializable {
     public static final int IRREGULAR_ODDS = 50;
     public static final int GRASS_ODDS = 70;
-    protected static int ENABLE_FOV = 1;
+    public static int ENABLE_FOV = 1; // need to implement this
 
     private Game game;
     private final int width;
@@ -27,14 +27,14 @@ public class PlayState implements State, Serializable {
     private boolean colonPressed = false; // internal flag
 
     // HUD text
-    private final Text tileStr = new Text("", Color.WHITE, FontSet.HUD, 0.04, 0.96);
-    private final Text centreStr = new Text("Press q to quit", Color.WHITE, FontSet.HUD, 0.5, 0.96);
-    private final Text levelStr = new Text("Level " + currLevel, Color.WHITE, FontSet.HUD, 0.94, 0.96);
+    private final Text tileStr = new Text("", Color.WHITE, FontSet.HUD, 0.04, 0.96, Text.Alignment.LEFT);
+    private final Text centreStr = new Text("Press q to quit", Color.WHITE, FontSet.HUD, 0.5, 0.96, Text.Alignment.CENTRE);
+    private final Text levelStr = new Text("Level " + currLevel, Color.WHITE, FontSet.HUD, 0.96, 0.96, Text.Alignment.RIGHT);
     private final List<Text> text = new ArrayList<>(
             Arrays.asList(tileStr, centreStr, levelStr)
     );
 
-    protected PlayState(Game game, Long seed, int width, int height) {
+    public PlayState(Game game, Long seed, int width, int height) {
         this.game = game;
         this.width = width;
         this.height = height;
@@ -59,7 +59,7 @@ public class PlayState implements State, Serializable {
 
     @Override
     public void nextFrame(char cmd, double x, double y) {
-        Level curr = levels[currLevel];
+        this.updateWindow(); // increment frames of current window
 
         if (cmd == ':') {
             colonPressed = true;
@@ -68,12 +68,11 @@ public class PlayState implements State, Serializable {
             game.setContext(new SaveState(game, this));
         } else if ("wasd".indexOf(cmd) != -1) { // wasd
             colonPressed = false;
-            this.updateWindow();
         }
         // Tile description text
-        int newX = Math.round((float) Math.floor(x));
-        int newY = Math.round((float) Math.floor(y));
+        int newX = Math.round((float) Math.floor(x)), newY = Math.round((float) Math.floor(y));
         String tileDesc;
+        Level curr = levels[currLevel];
         if (curr.isValid(newX, newY)) {
             TETile currTile = curr.peek(newX, newY);
             tileDesc = currTile.description();

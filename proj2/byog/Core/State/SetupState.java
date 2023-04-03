@@ -6,6 +6,7 @@ import byog.Core.Graphics.TETile;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SetupState implements State {
@@ -16,29 +17,17 @@ public class SetupState implements State {
     private static final Font OPTION = new Font("Consolas", Font.PLAIN, 28);
 
     private Game game;
-    private final Text titleStr = new Text("ROGUELITE", Color.WHITE, TITLE, 0.5, 0.65);
-    private final Text submitStr = new Text("Start (S)", Color.WHITE, OPTION, 0.5, 0.46);
-    private final Text backStr = new Text("Back (B)", Color.WHITE, OPTION, 0.5, 0.40);
+    private final Text titleStr = new Text("ROGUELITE", Color.WHITE, TITLE, 0.5, 0.65, Text.Alignment.CENTRE);
+    private final Text submitStr = new Text("Start (S)", Color.WHITE, OPTION, 0.5, 0.46, Text.Alignment.CENTRE);
+    private final Text backStr = new Text("Back (B)", Color.WHITE, OPTION, 0.5, 0.40, Text.Alignment.CENTRE);
     private final StringBuilder seed = new StringBuilder();
-    private final Text seedStr = new Text("Seed: " + seed, Color.WHITE, OPTION, 0.5, 0.34);
-    private final List<Text> text = new ArrayList<>();
+    private final Text seedStr = new Text("Seed: " + seed, Color.WHITE, OPTION, 0.5, 0.34, Text.Alignment.CENTRE);
+    private final List<Text> text = new ArrayList<>(
+            Arrays.asList(titleStr, submitStr, backStr, seedStr)
+    );
 
-    SetupState(Game game) {
+    public SetupState(Game game) {
         this.game = game;
-        text.add(titleStr);
-        text.add(submitStr);
-        text.add(backStr);
-        text.add(seedStr);
-    }
-
-    @Override
-    public List<Text> getText() {
-        return text;
-    }
-
-    @Override
-    public TETile[][] getTilemap() {
-        return null;
     }
 
     @Override
@@ -53,8 +42,7 @@ public class SetupState implements State {
 
         } else if (cmd == 's' && seed.length() > 0) { // s = start
             Long seedValue = Long.parseLong(seed.toString());
-            game.setContext(new PlayState(game, seedValue, Game.WIDTH,
-                    Game.HEIGHT - Game.HUD_HEIGHT));
+            game.setContext(new PlayState(game, seedValue, Game.WIDTH, Game.HEIGHT - Game.HUD_HEIGHT));
 
         } else if (cmd == 'b') { // b = go back
             game.setContext(new MainMenuState(game));
@@ -64,5 +52,15 @@ public class SetupState implements State {
     @Override
     public void setContext(Game game) {
         this.game = game;
+    }
+
+    @Override
+    public List<Text> getText() {
+        return text;
+    }
+
+    @Override
+    public TETile[][] getTilemap() {
+        return null;
     }
 }

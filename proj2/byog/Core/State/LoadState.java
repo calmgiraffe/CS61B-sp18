@@ -24,7 +24,6 @@ public class LoadState implements State {
     @Override
     public void nextFrame(char cmd, double x, double y) {
         try {
-            // Todo: check correctness and handle edge cases
             // Load the serialized save file, convert to valid PlayState object
             FileInputStream fileIn = new FileInputStream("savefile.txt");
             ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -32,7 +31,7 @@ public class LoadState implements State {
             in.close();
             fileIn.close();
             game.setContext(savedGame); // change Game's context
-            savedGame.setContext(game);
+            savedGame.setContext(game); // change PlayState's context to Game
         } catch (IOException i) {
             i.printStackTrace();
             exit(1);
