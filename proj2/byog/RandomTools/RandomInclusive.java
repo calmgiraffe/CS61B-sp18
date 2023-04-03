@@ -1,4 +1,4 @@
-package byog.Core;
+package byog.RandomTools;
 
 import java.util.Random;
 
@@ -17,6 +17,7 @@ public class RandomInclusive extends Random {
     }
 
     /** Returns a random positive integer between 0 (inclusive) and upper (inclusive) */
+    @Override
     public int nextInt(int upper) {
         return r.nextInt(upper + 1);
     }

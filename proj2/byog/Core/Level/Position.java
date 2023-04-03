@@ -1,4 +1,6 @@
-package byog.Core;
+package byog.Core.Level;
+
+import byog.Core.Game;
 
 import java.io.Serializable;
 
@@ -26,17 +28,17 @@ public class Position implements Serializable {
      * Given two positions a & b on an x-y plane,
      * calculate the absolute distance between the two.
      */
-    public static int euclidean(Position a, Position b) {
-        return (int) (Math.pow((a.x - b.x), 2) + Math.pow((a.y - b.y), 2));
+    public static double euclidean(Position a, Position b) {
+        return Math.pow((a.x - b.x), 2) + Math.pow((a.y - b.y), 2);
     }
 
     /**
      * Given two 1D positions v1 & v2 on an x-y plane,
      * calculate the absolute distance between the two.
      */
-    public static int euclidean(int v1, int v2) {
-        Position a = Game.map.toPosition(v1);
-        Position b = Game.map.toPosition(v2);
+    public static double euclidean(int v1, int v2) {
+        Position a = Game.level.toPosition(v1);
+        Position b = Game.level.toPosition(v2);
         return euclidean(a, b);
     }
 
@@ -53,8 +55,8 @@ public class Position implements Serializable {
      * calculate the manhattan distance between the two.
      */
     public static int manhattan(int v1, int v2) {
-        Position a = Game.map.toPosition(v1);
-        Position b = Game.map.toPosition(v2);
+        Position a = Game.level.toPosition(v1);
+        Position b = Game.level.toPosition(v2);
         return manhattan(a, b);
     }
 }

@@ -1,4 +1,4 @@
-package byog.TileEngine;
+package byog.Core.Graphics;
 
 import java.awt.Color;
 import java.util.Random;

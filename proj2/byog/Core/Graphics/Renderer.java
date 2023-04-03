@@ -1,13 +1,12 @@
-package byog.TileEngine;
+package byog.Core.Graphics;
 
-import byog.Core.Game;
+import byog.Core.State.State;
 import edu.princeton.cs.introcs.StdDraw;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.io.Serializable;
-
-import static byog.Core.GUI.*;
+import java.util.List;
 
 /**
  * Utility class for rendering tiles. You do not need to modify this file. You're welcome
@@ -15,7 +14,7 @@ import static byog.Core.GUI.*;
  * messing with this renderer, unless you're trying to do something fancy like
  * allowing scrolling of the screen or tracking the player or something similar.
  */
-public class TERenderer implements Serializable {
+public class Renderer implements Serializable {
     private static final int TILE_SIZE = 16;
     private int width;
     private int height;
@@ -42,10 +41,9 @@ public class TERenderer implements Serializable {
         StdDraw.setXscale(0, width);
         StdDraw.setYscale(0, height);
 
-        StdDraw.clear(new Color(0, 0, 0));
-
+        StdDraw.clear(new Color(0, 0, 0)); // clear the screen to black
         StdDraw.enableDoubleBuffering();
-        StdDraw.show();
+        StdDraw.show(); // copy offscreen buffer to onscreen buffer
     }
 
     /**
@@ -62,7 +60,7 @@ public class TERenderer implements Serializable {
      * @param h height of the window in tiles.
      */
     public void initialize(int w, int h) {
-        initialize(w, h, 0, 0);
+        this.initialize(w, h, 0, 0);
     }
 
     /**
@@ -88,9 +86,12 @@ public class TERenderer implements Serializable {
      * @param world the 2D TETile[][] array to render
      */
     public void renderFrame(TETile[][] world) {
+        if (world == null) {
+            return;
+        }
         int numXTiles = world.length;
         int numYTiles = world[0].length;
-        StdDraw.clear(new Color(0, 0, 0));
+        //StdDraw.clear(new Color(0, 0, 0));
         for (int x = 0; x < numXTiles; x += 1) {
             for (int y = 0; y < numYTiles; y += 1) {
                 if (world[x][y] == null) {
@@ -100,6 +101,25 @@ public class TERenderer implements Serializable {
                 world[x][y].draw(x + xOffset, y + yOffset);
             }
         }
+        //StdDraw.show();
+    }
+
+    /* Render the given state. State consists of texts and tiles currently.
+    *  "Rendering" is equivalent to showing one frame.
+    */
+    public void render(State state) {
+        StdDraw.clear(Color.BLACK);
+
+        // Render text(s)
+        List<Text> stateText = state.getText();
+        for (Text text : stateText) {
+            StdDraw.setPenColor(text.getColor());
+            StdDraw.setFont(text.getFont());
+            StdDraw.text(width * text.getX(), height * text.getY(), text.getText());
+        }
+        // Render TETile[][]
+        this.renderFrame(state.getTilemap());
+
         StdDraw.show();
     }
 }

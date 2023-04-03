@@ -1,8 +1,9 @@
-package byog.Core;
+package byog.Core.Level;
 
-import static byog.Core.Map.MAIN;
-import byog.TileEngine.TETile;
-import byog.TileEngine.Tileset;
+import byog.Core.Game;
+import byog.Core.State.PlayState;
+import byog.Core.Graphics.TETile;
+import byog.Core.Graphics.Tileset;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -31,18 +32,18 @@ public class Room implements Serializable {
     }
 
     /** Given another room, draws a fully drawn hallway with floor and wall tiles between them on
-     * the map using the astar algorithm.
+     * the level using the astar algorithm.
      * <p>
      * Helper methods used by this method are drawPath() and drawWalls(). */
     public void astar(Room room) {
         Position a = this.randomPosition(1);
         Position b = room.randomPosition(1);
-        int start = Game.map.to1D(a.x, a.y);
-        int target = Game.map.to1D(b.x, b.y);
+        int start = Game.level.to1D(a.x, a.y);
+        int target = Game.level.to1D(b.x, b.y);
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
-        int[] edgeTo = new int[Game.map.width * Game.map.height];
-        int[] distTo = new int[Game.map.width * Game.map.height];
+        int[] edgeTo = new int[PlayState.WIDTH * PlayState.HEIGHT];
+        int[] distTo = new int[PlayState.WIDTH * PlayState.HEIGHT];
         Arrays.fill(distTo, Integer.MAX_VALUE);
         distTo[start] = 0;
 
@@ -52,7 +53,7 @@ public class Room implements Serializable {
         while (fringe.size() > 0 && !targetFound) {
             int p = fringe.remove().position;
 
-            for (int q : Game.map.adjacent(p)) {
+            for (int q : Game.level.adjacent(p)) {
                 // If new distance < old distance, update distTo and edgeTo
                 // Add neighbour node q to PQ, factoring in heuristic
                 if (distTo[p] + 1 < distTo[q]) {
@@ -77,20 +78,20 @@ public class Room implements Serializable {
         char direction = '~';
 
         while (curr != start) {
-            if (curr == prev + Game.map.width) {
+            if (curr == prev + PlayState.WIDTH) {
                 direction = 'U';
 
             } else if (curr == prev + 1) {
                 direction = 'R';
 
-            } else if (curr == prev - Game.map.width) {
+            } else if (curr == prev - PlayState.WIDTH) {
                 direction = 'D';
 
             } else if (curr == prev - 1) {
                 direction = 'L';
             }
-            Position currentPos = Game.map.toPosition(curr);
-            Game.map.place(currentPos.x, currentPos.y, floorType, MAIN);
+            Position currentPos = Game.level.toPosition(curr);
+            Game.level.place(currentPos.x, currentPos.y, floorType);
             this.drawWalls(currentPos, direction);
             prev = curr;
             curr = edgeTo[curr];
@@ -119,61 +120,64 @@ public class Room implements Serializable {
         }
         if (way == 'U' || way == 'D') {
             for (int i = 0; i < 3; i += 1) {
-                if (Game.map.peek(x + i, y, MAIN) != floorType) {
-                    Game.map.place(x + i, y, Tileset.colorVariantWall(Game.rand), MAIN);
+                if (Game.level.peek(x + i, y) != floorType) {
+                    Game.level.place(x + i, y, Tileset.colorVariantWall(PlayState.rand));
                 }
             }
         } else if (way == 'L' || way == 'R') {
             for (int i = 0; i < 3; i += 1) {
-                if (Game.map.peek(x, y + i, MAIN) != floorType) {
-                    Game.map.place(x, y + i, Tileset.colorVariantWall(Game.rand), MAIN);
+                if (Game.level.peek(x, y + i) != floorType) {
+                    Game.level.place(x, y + i, Tileset.colorVariantWall(PlayState.rand));
                 }
             }
         }
     }
+
+
+
 
     /** From a position, draws an irregular room by making new positions at the top, right, bottom,
      * and left of said position, then applying the recursive method on those four new positions.
      * Depending on the location and the count, either a FLOOR or WALL tile is drawn. */
     public void drawIrregular(int count, int x, int y) {
-        if (!Game.map.isValid(x, y)) {
+        if (!Game.level.isValid(x, y)) {
             return;
         }
         // Base case: count is <= 0 and able to place a tile on NOTHING
         if (count <= 0) {
-            if (Game.map.peek(x, y, MAIN) == Tileset.NOTHING) {
-                Game.map.place(x, y, Tileset.colorVariantWall(Game.rand), MAIN);
+            if (Game.level.peek(x, y) == Tileset.NOTHING) {
+                Game.level.place(x, y, Tileset.colorVariantWall(PlayState.rand));
             }
         } else {
             // Todo: refactor onEdge into base case
-            boolean onEdge = (x == 0) || (x == Game.map.width - 1) || (y == 0) || (y == Game.map.height - 1);
+            boolean onEdge = (x == 0) || (x == PlayState.WIDTH - 1) || (y == 0) || (y == PlayState.HEIGHT - 1);
             if (onEdge) {
-                Game.map.place(x, y, Tileset.colorVariantWall(Game.rand), MAIN);
+                Game.level.place(x, y, Tileset.colorVariantWall(PlayState.rand));
             } else {
-                Game.map.place(x, y, floorType, MAIN);
+                Game.level.place(x, y, floorType);
             }
-            drawIrregular(count - Game.rand.nextInt(1, 3), x, y + 1);
-            drawIrregular(count - Game.rand.nextInt(1, 3), x, y - 1);
-            drawIrregular(count - Game.rand.nextInt(1, 3), x - 1, y);
-            drawIrregular(count - Game.rand.nextInt(1, 3), x + 1, y);
+            drawIrregular(count - PlayState.rand.nextInt(1, 3), x, y + 1);
+            drawIrregular(count - PlayState.rand.nextInt(1, 3), x, y - 1);
+            drawIrregular(count - PlayState.rand.nextInt(1, 3), x - 1, y);
+            drawIrregular(count - PlayState.rand.nextInt(1, 3), x + 1, y);
         }
     }
 
     /** Same as above but with grass and flowers. */
     public void drawIrregularGrass(int count, int x, int y) {
-        if (!Game.map.isValid(x, y)) {
+        if (!Game.level.isValid(x, y)) {
             return;
         }
-        if (Game.map.peek(x, y, MAIN) == floorType && count > 0) {
-            if (Game.rand.nextInt(100) <= 10) {
-                Game.map.place(x, y, Tileset.randomFlower(Game.rand), MAIN);
+        if (Game.level.peek(x, y) == floorType && count > 0) {
+            if (PlayState.rand.nextInt(100) <= 10) {
+                Game.level.place(x, y, Tileset.randomFlower(PlayState.rand));
             } else {
-                Game.map.place(x, y, Tileset.colorVariantGrass(Game.rand), MAIN);
+                Game.level.place(x, y, Tileset.colorVariantGrass(PlayState.rand));
             }
-            int up = count - Game.rand.nextInt(1, 2);
-            int down = count - Game.rand.nextInt(1, 2);
-            int left = count - Game.rand.nextInt(1, 2);
-            int right = count - Game.rand.nextInt(1, 2);
+            int up = count - PlayState.rand.nextInt(1, 2);
+            int down = count - PlayState.rand.nextInt(1, 2);
+            int left = count - PlayState.rand.nextInt(1, 2);
+            int right = count - PlayState.rand.nextInt(1, 2);
 
             drawIrregularGrass(up, x, y + 1);
             drawIrregularGrass(down, x, y - 1);
@@ -182,7 +186,7 @@ public class Room implements Serializable {
         }
     }
 
-    /* Draws the rectangular room that is associated with this particular Partition onto map. */
+    /* Draws the rectangular room that is associated with this particular Partition onto level. */
     public void drawRoom() {
         int startX = lowerLeft.x;
         int startY = lowerLeft.y;
@@ -191,26 +195,26 @@ public class Room implements Serializable {
 
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
-            if (Game.map.peek(x, startY, 0) == Tileset.NOTHING) {
-                Game.map.place(x, startY, Tileset.colorVariantWall(Game.rand), MAIN);
+            if (Game.level.peek(x, startY, 0) == Tileset.NOTHING) {
+                Game.level.place(x, startY, Tileset.colorVariantWall(PlayState.rand));
             }
-            if (Game.map.peek(x, endY, MAIN) == Tileset.NOTHING) {
-                Game.map.place(x, endY, Tileset.colorVariantWall(Game.rand), MAIN);
+            if (Game.level.peek(x, endY) == Tileset.NOTHING) {
+                Game.level.place(x, endY, Tileset.colorVariantWall(PlayState.rand));
             }
         }
         // Draw left and right walls
         for (int y = startY; y <= endY; y++) {
-            if (Game.map.peek(startX, y, MAIN) == Tileset.NOTHING) {
-                Game.map.place(startX, y, Tileset.colorVariantWall(Game.rand), MAIN);
+            if (Game.level.peek(startX, y) == Tileset.NOTHING) {
+                Game.level.place(startX, y, Tileset.colorVariantWall(PlayState.rand));
             }
-            if (Game.map.peek(endX, y, MAIN) == Tileset.NOTHING) {
-                Game.map.place(endX, y, Tileset.colorVariantWall(Game.rand), MAIN);
+            if (Game.level.peek(endX, y) == Tileset.NOTHING) {
+                Game.level.place(endX, y, Tileset.colorVariantWall(PlayState.rand));
             }
         }
         // Draw interior
         for (int x = startX + 1; x <= endX - 1; x++) {
             for (int y = startY + 1; y <= endY - 1; y++) {
-                Game.map.place(x, y, floorType, MAIN);
+                Game.level.place(x, y, floorType);
             }
         }
     }
@@ -223,8 +227,8 @@ public class Room implements Serializable {
         int yUpper = upperRight.y - buffer;
 
         return new Position(
-                Game.rand.nextInt(xLower, xUpper),
-                Game.rand.nextInt(yLower, yUpper));
+                PlayState.rand.nextInt(xLower, xUpper),
+                PlayState.rand.nextInt(yLower, yUpper));
     }
 
     private static class DistanceComparator implements Comparator<Node> {

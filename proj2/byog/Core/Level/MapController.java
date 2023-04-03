@@ -1,14 +1,15 @@
-package byog.Core;
+package byog.Core.Level;
 
-import byog.TileEngine.TETile;
-import byog.TileEngine.Tileset;
+import byog.Core.Game;
+import byog.Core.Graphics.TETile;
+import byog.Core.Graphics.Tileset;
 
 import java.awt.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import static byog.Core.Map.*;
+import static byog.Core.Level.Level.*;
 
 public class MapController implements Serializable {
     /* Static variables */
@@ -22,7 +23,7 @@ public class MapController implements Serializable {
     private int currX;
     private int currY;
 
-    /** Also initializes Game.map with door and player */
+    /** Also initializes Game.level with door and player */
     public MapController() {
         this.placeCharacterAndDoor();
         this.updateFOV();
@@ -46,12 +47,12 @@ public class MapController implements Serializable {
             case 'a' -> newX -= 1;
         }
         // If the tile to move to is not a wall tile
-        if (Game.map.peek(newX, newY, MAIN).character() != '#') {
-            if (Game.map.peek(newX, newY, MAIN).character() == '▢') {
+        if (Game.level.peek(newX, newY, MAIN).character() != '#') {
+            if (Game.level.peek(newX, newY, MAIN).character() == '▢') {
                 /* Next tile is door -> go to next level */
                 fov.clear();
-                Game.map.generate();
-                Game.map.level += 1;
+                Game.level.generate();
+                Game.level.level += 1;
                 this.placeCharacterAndDoor();
 
             } else { // Next tile is not door
@@ -60,9 +61,9 @@ public class MapController implements Serializable {
                 Update prevTile to the tile where the player will move.
                 At where the character is to move, place the player and update currX, currY.
                 */
-                Game.map.place(currX, currY, prevTile, MAIN);
-                prevTile = Game.map.peek(newX, newY, MAIN);
-                Game.map.place(newX, newY, Tileset.PLAYER, MAIN);
+                Game.level.place(currX, currY, prevTile, MAIN);
+                prevTile = Game.level.peek(newX, newY, MAIN);
+                Game.level.place(newX, newY, Tileset.PLAYER, MAIN);
                 currX = newX;
                 currY = newY;
             }
@@ -75,47 +76,47 @@ public class MapController implements Serializable {
     private void updateFOV() {
         // Replace current fov tiles with tiles from MAIN. If new level, fov is empty.
         for (int p : fov) {
-            Position pos = Game.map.toPosition(p);
-            TETile tile = Game.map.peek(pos.x, pos.y, MAIN);
-            Game.map.place(pos.x, pos.y, new TETile(tile, new Color(45, 45, 45)), FOV);
+            Position pos = Game.level.toPosition(p);
+            TETile tile = Game.level.peek(pos.x, pos.y, MAIN);
+            Game.level.place(pos.x, pos.y, new TETile(tile, new Color(45, 45, 45)), FOV);
         }
         fov.clear();
         this.updateFOVPoints(FOV_RANGE, currX, currY);
 
-        // Update FOV map with points fom this.fov
+        // Update FOV level with points fom this.fov
         for (int p : fov) {
-            Position pos = Game.map.toPosition(p);
-            TETile tile = Game.map.peek(pos.x, pos.y, MAIN);
-            Game.map.place(pos.x, pos.y, tile, FOV);
+            Position pos = Game.level.toPosition(p);
+            TETile tile = Game.level.peek(pos.x, pos.y, MAIN);
+            Game.level.place(pos.x, pos.y, tile, FOV);
         }
     }
 
     private void placeCharacterAndDoor() {
-        int numRooms = Game.map.rooms.size();
+        int numRooms = Game.level.rooms.size();
 
         /* Pick a room and place character in it */
         int i = Game.rand.nextInt(numRooms - 1);
-        Position playerPos = Game.map.rooms.get(i).randomPosition(1);
+        Position playerPos = Game.level.rooms.get(i).randomPosition(1);
         this.currX = playerPos.x;
         this.currY = playerPos.y;
-        this.prevTile = Game.map.peek(currX, currY, MAIN);
-        Game.map.place(currX, currY, Tileset.PLAYER, MAIN);
+        this.prevTile = Game.level.peek(currX, currY, MAIN);
+        Game.level.place(currX, currY, Tileset.PLAYER, MAIN);
 
         /* Pick a room and place door in it */
         i = Game.rand.nextInt(numRooms - 1);
-        Position doorPos = Game.map.rooms.get(i).randomPosition(1);
-        Game.map.place(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR, MAIN);
+        Position doorPos = Game.level.rooms.get(i).randomPosition(1);
+        Game.level.place(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR, MAIN);
     }
 
     /* Updates the list of points that make up the current FOV and visited tiles.
      * this.fov is a Set of 1D positions corresponding to the coordinates of the desired FOV tiles */
     private void updateFOVPoints(int count, int x, int y) {
-        if (count < 0 || !Game.map.isValid(x, y)) {
+        if (count < 0 || !Game.level.isValid(x, y)) {
             return;
         }
-        visited.add(Game.map.to1D(x, y));
-        fov.add(Game.map.to1D(x, y));
-        if (!(Game.map.peek(x, y, MAIN).character() == '#')) {
+        visited.add(Game.level.to1D(x, y));
+        fov.add(Game.level.to1D(x, y));
+        if (!(Game.level.peek(x, y, MAIN).character() == '#')) {
             updateFOVPoints(count - 1, x, y + 1);
             updateFOVPoints(count - 1, x, y - 1);
             updateFOVPoints(count - 1, x + 1, y);

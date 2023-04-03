@@ -10,8 +10,8 @@ public class Main {
             System.out.println("Can only have one argument - the input string");
             System.exit(0);
         }
-        Game game = new Game();
         String cmdString = (args.length == 1) ? args[0] : null;
-        game.mainMenu(cmdString);
+        Game game = new Game(cmdString);
+        game.start();
     }
 }
