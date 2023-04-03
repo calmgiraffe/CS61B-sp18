@@ -28,16 +28,4 @@ public class UnitTests {
         assertEquals(level.toPosition(p2).x, 7);
         assertEquals(level.toPosition(p2).y, 6);
     }
-
-    @Test
-    public void adjacentTest() {
-        Level level = new Level(8, 8, rand);
-        int p1 = level.to1D(7, 7); // corner
-        int p2 = level.to1D(7, 4); // edge
-        int p3 = level.to1D(4, 4); // middle
-
-        for (Integer p : level.adjacent(p3)) {
-            System.out.println(p);
-        }
-    }
 }

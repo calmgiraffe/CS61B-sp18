@@ -18,7 +18,10 @@ import java.util.Random;
  */
 
 public class Tileset {
+    // Entities
     public static final TETile PLAYER = new TETile('@', Color.white, Color.black, "player");
+    public static final TETile ENTITY = new TETile('&', Color.red, Color.black, "entity");
+
     public static final TETile WALL = new TETile('#', new Color(216, 128, 128), Color.darkGray, "wall");
     public static final TETile FLOOR = new TETile('·', new Color(128, 192, 128), Color.black, "floor");
     public static final TETile NOTHING = new TETile(' ', Color.black, Color.black, "");

@@ -1,6 +1,5 @@
 package byog.Core.Level;
 
-import byog.RandomTools.RandomInclusive;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,15 +24,15 @@ public class Partition implements Serializable {
     protected Room room;
     protected Partition left;  // left branch
     protected Partition right; // right branch
-    protected List<Partition> childPartitions = new ArrayList<>(); // all rooms at and below the current node
-    private final RandomInclusive rand;
+    protected final List<Partition> childPartitions = new ArrayList<>(); // all rooms at and below the current node
+    private final Level level;
 
-    Partition(Position p, int width, int height, RandomInclusive rand) {
+    protected Partition(Position p, int width, int height, Level level) {
         this.position = p;
         this.width = width;
         this.height = height;
         this.centre = new Position(position.x + width / 2, position.y + height / 2);
-        this.rand = rand;
+        this.level = level;
     }
 
     /** High level overview: recursively generates partition tree
@@ -47,26 +46,26 @@ public class Partition implements Serializable {
     public void generateTree(List<Room> rooms) {
         if (width > MAX || height > MAX) {
             if (width <= MAX) {
-                int border = rand.nextInt(MIN, height - MIN);
+                int border = level.rand.nextInt(MIN, height - MIN);
                 left = splitVertically(border);
-                right = new Partition(position, width, border, rand);
+                right = new Partition(position, width, border, level);
 
             } else if (height <= MAX) {
-                int border = rand.nextInt(MIN, width - MIN);
+                int border = level.rand.nextInt(MIN, width - MIN);
                 left = splitHorizontally(border);
-                right = new Partition(position, border, height, rand);
+                right = new Partition(position, border, height, level);
 
             } else {
-                int choice = rand.nextInt(1);
+                int choice = level.rand.nextInt(1);
                 if (choice == 0) {
-                    int border = rand.nextInt(MIN, height - MIN);
+                    int border = level.rand.nextInt(MIN, height - MIN);
                     left = splitVertically(border);
-                    right = new Partition(position, width, border, rand);
+                    right = new Partition(position, width, border, level);
 
                 } else {
-                    int border = rand.nextInt(MIN, width - MIN);
+                    int border = level.rand.nextInt(MIN, width - MIN);
                     left = splitHorizontally(border);
-                    right = new Partition(position, border, height, rand);
+                    right = new Partition(position, border, height, level);
                 }
             }
             left.generateTree(rooms);
@@ -79,8 +78,8 @@ public class Partition implements Serializable {
             /* Generate a rectangular Room inside the partition whose area is between MIN x MIN and the
              * exact dimensions of the partition area. A Room is an abstract object consisting of two
              * Positions representing the bottom left and top right corner, a floor type, etc */
-            int lowerLeftX = rand.nextInt(width - MIN);
-            int lowerLeftY = rand.nextInt(height - MIN);
+            int lowerLeftX = level.rand.nextInt(width - MIN);
+            int lowerLeftY = level.rand.nextInt(height - MIN);
             Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
 
             int minX = lowerLeft.x + MIN_ROOM - 1;
@@ -88,10 +87,10 @@ public class Partition implements Serializable {
             int minY = lowerLeft.y + MIN_ROOM - 1;
             int maxY = Math.min(lowerLeft.y + MAX_ROOM - 1, position.y + height - 1);
 
-            int upperRightX = rand.nextInt(minX, maxX);
-            int upperRightY = rand.nextInt(minY, maxY);
+            int upperRightX = level.rand.nextInt(minX, maxX);
+            int upperRightY = level.rand.nextInt(minY, maxY);
             Position upperRight = new Position(upperRightX, upperRightY);
-            room = new Room(lowerLeft, upperRight, rand);
+            room = new Room(lowerLeft, upperRight, level);
 
             rooms.add(room);
             childPartitions.add(this);
@@ -103,7 +102,7 @@ public class Partition implements Serializable {
      * */
     private Partition splitHorizontally(int border) {
         Position newPos = new Position(position.x + border, position.y);
-        return new Partition(newPos, width - border, height, rand);
+        return new Partition(newPos, width - border, height, level);
     }
 
     /* Makes another partition at a point about border, which is approximately in
@@ -111,6 +110,6 @@ public class Partition implements Serializable {
      */
     private Partition splitVertically(int border) {
         Position newPos = new Position(position.x, position.y + border);
-        return new Partition(newPos, width, height - border, rand);
+        return new Partition(newPos, width, height - border, level);
     }
 }
