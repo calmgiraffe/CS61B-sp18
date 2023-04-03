@@ -7,13 +7,15 @@ import byog.Core.Graphics.TETile;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.exit;
 
 /* Serializes the current Game object and saves to txt file. Exits with error code (0 or 1). */
-public class SaveState implements State {
-    private final Game game;
+public class SaveState implements State, Serializable {
+    private Game game;
     private final PlayState save;
 
     public SaveState(Game game, PlayState save) {
@@ -39,11 +41,16 @@ public class SaveState implements State {
 
     @Override
     public List<Text> getText() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public TETile[][] getTilemap() {
         return null;
+    }
+
+    @Override
+    public void setContext(Game game) {
+        this.game = game;
     }
 }

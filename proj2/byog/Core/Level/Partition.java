@@ -25,7 +25,7 @@ public class Partition implements Serializable {
     protected Room room;
     protected Partition left;  // left branch
     protected Partition right; // right branch
-    protected List<Partition> childPartitions; // all rooms at and below the current node
+    protected List<Partition> childPartitions = new ArrayList<>(); // all rooms at and below the current node
     private final RandomInclusive rand;
 
     Partition(Position p, int width, int height, RandomInclusive rand) {
@@ -44,7 +44,7 @@ public class Partition implements Serializable {
      * the branches of the current partition. Method recursively traverses the newly
      * created branches and repeats the same process.
      */
-    public void generateTree() {
+    public void generateTree(List<Room> rooms) {
         if (width > MAX || height > MAX) {
             if (width <= MAX) {
                 int border = rand.nextInt(MIN, height - MIN);
@@ -69,8 +69,8 @@ public class Partition implements Serializable {
                     right = new Partition(position, border, height, rand);
                 }
             }
-            left.generateTree();
-            right.generateTree();
+            left.generateTree(rooms);
+            right.generateTree(rooms);
             childPartitions.addAll(left.childPartitions);
             childPartitions.addAll(right.childPartitions);
 
@@ -91,10 +91,9 @@ public class Partition implements Serializable {
             int upperRightX = rand.nextInt(minX, maxX);
             int upperRightY = rand.nextInt(minY, maxY);
             Position upperRight = new Position(upperRightX, upperRightY);
-            room = new Room(lowerLeft, upperRight);
+            room = new Room(lowerLeft, upperRight, rand);
 
-            /* Make new list, add partition to it */
-            childPartitions = new ArrayList<>();
+            rooms.add(room);
             childPartitions.add(this);
         }
     }

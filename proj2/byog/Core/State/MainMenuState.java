@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class MainMenuState implements State {
-    private final Game game;
+    private Game game;
     private final Text titleStr = new Text("ROGUELITE", Color.WHITE, FontSet.TITLE, 0.5, 0.65);
     private final Text newStr = new Text("New Game (N)", Color.WHITE, FontSet.OPTION, 0.5, 0.46);
     private final Text loadStr = new Text("Load Game (L)", Color.WHITE, FontSet.OPTION, 0.5, 0.40);
@@ -44,5 +44,10 @@ public class MainMenuState implements State {
     @Override
     public TETile[][] getTilemap() {
         return null;
+    }
+
+    @Override
+    public void setContext(Game game) {
+        this.game = game;
     }
 }

@@ -1,8 +1,9 @@
 package byog.Core.Graphics;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class Text {
+public class Text implements Serializable {
     private String text;
     private Color color;
     private Font font;

@@ -7,6 +7,7 @@ import byog.Core.Graphics.TETile;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.exit;
@@ -31,6 +32,7 @@ public class LoadState implements State {
             in.close();
             fileIn.close();
             game.setContext(savedGame); // change Game's context
+            savedGame.setContext(game);
         } catch (IOException i) {
             i.printStackTrace();
             exit(1);
@@ -43,11 +45,17 @@ public class LoadState implements State {
 
     @Override
     public List<Text> getText() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public TETile[][] getTilemap() {
         return null;
     }
+
+    @Override
+    public void setContext(Game game) {
+        this.game = game;
+    }
+
 }

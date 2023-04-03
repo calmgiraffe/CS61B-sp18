@@ -6,16 +6,25 @@ import byog.Core.Graphics.Tileset;
 import byog.RandomTools.RandomInclusive;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Level object to represent the underlying data type (TETIle[][]) representing the world,
  * and other variables/invariants like its current level, width, height, rooms, etc */
 public class Level implements Serializable {
-    private final int width;
-    private final int height;
+    /* Private class to represent a vertex-distance pair in the pQueue. */
+    private static class Node {
+        int position;
+        int distance;
+
+        Node(int position, int distance) {
+            this.position = position;
+            this.distance = distance;
+        }
+    }
+
+    protected final int width;
+    protected final int height;
     private final ArrayList<Room> rooms = new ArrayList<>();
     private final TETile[][] tilemap;
     private final Partition partition;
@@ -38,24 +47,23 @@ public class Level implements Serializable {
             }
         }
         /* Make binary tree of partitions and populate this.rooms with leaf rooms */
-        partition.generateTree();
+        partition.generateTree(rooms);
         connectPartitions(partition);
-
 
         // Todo: redo the method of creating rooms
         for (Room r : rooms) {
-            r.drawRoom();
+            r.drawRoom(this);
             // 50% chance of drawing an irregular room
             if (rand.nextInt(100) < PlayState.IRREGULAR_ODDS) {
                 int size = rand.nextInt(5, 7);
                 Position randPos = r.randomPosition(0);
-                r.drawIrregular(size, randPos.x, randPos.y);
+                r.drawIrregular(size, randPos.x, randPos.y, this);
             }
             // 70% chance of drawing grass in the room
             if (rand.nextInt(100) < PlayState.GRASS_ODDS) {
                 int size = rand.nextInt(5, 7);
                 Position randPos = r.randomPosition(1);
-                r.drawIrregularGrass(size, randPos.x, randPos.y);
+                r.drawIrregularGrass(size, randPos.x, randPos.y, this);
             }
         }
     }
@@ -89,9 +97,110 @@ public class Level implements Serializable {
                 closestRight = p;
             }
         }
+
         // Draws a hallway between the two rooms of the two partitions
-        closestLeft.room.astar(closestRight.room);
+        astar(closestLeft.room, closestRight.room);
     }
+
+    private void astar(Room roomA, Room roomB) {
+        Position a = roomA.randomPosition(1), b = roomB.randomPosition(1);
+        int start = to1D(a.x, a.y), target = to1D(b.x, b.y);
+
+        // Todo: can use HashMap instead of Array
+        PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
+        int[] edgeTo = new int[width * height];
+        int[] distTo = new int[width * height];
+        Arrays.fill(distTo, Integer.MAX_VALUE);
+        distTo[start] = 0;
+
+        // Initially, add start to PQ. Then loop until target found
+        fringe.add(new Node(start, 0));
+        boolean targetFound = false;
+        while (fringe.size() > 0 && !targetFound) {
+            int p = fringe.remove().position;
+
+            for (int q : adjacent(p)) {
+                // If new distance < old distance, update distTo and edgeTo
+                // Add neighbour node q to PQ, factoring in heuristic
+                if (distTo[p] + 1 < distTo[q]) {
+                    distTo[q] = distTo[p] + 1;
+                    edgeTo[q] = p;
+                    Node n = new Node(q, distTo[q] + Position.manhattan(q, target, this));
+                    fringe.add(n);
+                }
+                if (q == target) {
+                    targetFound = true;
+                    this.drawPath(edgeTo, start, q);
+                }
+            }
+        }
+    }
+
+    /* Given a 1D start & end coordinate, by following the child-parent relationships
+     * given by the edgeTo array, draws the astar path from start to end. */
+    private void drawPath(int[] edgeTo, int start, int end) {
+        int curr = edgeTo[end];
+        int prev = end;
+        char direction = '~';
+
+        while (curr != start) {
+            if (curr == prev + width) {
+                direction = 'U';
+
+            } else if (curr == prev + 1) {
+                direction = 'R';
+
+            } else if (curr == prev - width) {
+                direction = 'D';
+
+            } else if (curr == prev - 1) {
+                direction = 'L';
+            }
+            Position currentPos = toPosition(curr);
+            place(currentPos.x, currentPos.y, Tileset.FLOOR);
+            this.drawWalls(currentPos, direction);
+            prev = curr;
+            curr = edgeTo[curr];
+        }
+    }
+
+    /* Draws the three wall tiles and floor tile that must be placed when added a new floor tile
+     * to a hallway. The overall method works by adding a 'room' of area 1 on a preexisting room. */
+    private void drawWalls(Position p, char way) {
+        int x = p.x;
+        int y = p.y;
+
+        switch (way) {
+            case 'U' -> {
+                x -= 1;
+                y += 1;
+            }
+            case 'R' -> {
+                x += 1;
+                y -= 1;
+            }
+            default -> {
+                x -= 1;
+                y -= 1;
+            }
+        }
+        if (way == 'U' || way == 'D') {
+            for (int i = 0; i < 3; i += 1) {
+                if (peek(x + i, y) != Tileset.FLOOR) {
+                    place(x + i, y, Tileset.colorVariantWall(rand));
+                }
+            }
+        } else if (way == 'L' || way == 'R') {
+            for (int i = 0; i < 3; i += 1) {
+                if (peek(x, y + i) != Tileset.FLOOR) {
+                    place(x, y + i, Tileset.colorVariantWall(rand));
+                }
+            }
+        }
+    }
+
+
+
 
     /** Returns the tile at specified x and y coordinates on the level, but does not remove the tile.
      * If out of bounds, returns null. */
@@ -157,5 +266,15 @@ public class Level implements Serializable {
     /** Returns the TETile[][] associated with this object that is to be rendered. */
     public TETile[][] getTilemap() {
         return tilemap;
+    }
+
+    private static class DistanceComparator implements Comparator<Node> {
+        public int compare(Node a, Node b) {
+            return a.distance - b.distance;
+        }
+    }
+
+    private static Comparator<Node> getDistanceComparator() {
+        return new DistanceComparator();
     }
 }

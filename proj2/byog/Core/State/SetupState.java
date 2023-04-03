@@ -15,7 +15,7 @@ public class SetupState implements State {
     private static final Font TITLE = new Font("Consolas", Font.BOLD, 40);
     private static final Font OPTION = new Font("Consolas", Font.PLAIN, 28);
 
-    private final Game game;
+    private Game game;
     private final Text titleStr = new Text("ROGUELITE", Color.WHITE, TITLE, 0.5, 0.65);
     private final Text submitStr = new Text("Start (S)", Color.WHITE, OPTION, 0.5, 0.46);
     private final Text backStr = new Text("Back (B)", Color.WHITE, OPTION, 0.5, 0.40);
@@ -59,5 +59,10 @@ public class SetupState implements State {
         } else if (cmd == 'b') { // b = go back
             game.setContext(new MainMenuState(game));
         }
+    }
+
+    @Override
+    public void setContext(Game game) {
+        this.game = game;
     }
 }

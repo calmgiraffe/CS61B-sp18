@@ -18,7 +18,7 @@ public class PlayState implements State, Serializable {
     public static final int GRASS_ODDS = 70;
     protected static int ENABLE_FOV = 1;
 
-    private final Game game;
+    private Game game;
     private final int width;
     private final int height;
     private final RandomInclusive rand;
@@ -29,7 +29,7 @@ public class PlayState implements State, Serializable {
     // HUD text
     private final Text tileStr = new Text("", Color.WHITE, FontSet.HUD, 0.04, 0.96);
     private final Text centreStr = new Text("Press q to quit", Color.WHITE, FontSet.HUD, 0.5, 0.96);
-    private final Text levelStr = new Text("Level " + currLevel, Color.WHITE, FontSet.HUD, 0.96, 0.96);
+    private final Text levelStr = new Text("Level " + currLevel, Color.WHITE, FontSet.HUD, 0.94, 0.96);
     private final List<Text> text = new ArrayList<>(
             Arrays.asList(tileStr, centreStr, levelStr)
     );
@@ -42,6 +42,7 @@ public class PlayState implements State, Serializable {
 
         for (int i = currLevel - 1; i <= currLevel + 1; i++) {
             levels[i] = new Level(width, height, rand);
+            levels[i].generate();
         }
     }
 
@@ -50,6 +51,7 @@ public class PlayState implements State, Serializable {
         for (int i = currLevel - 1; i <= currLevel + 1; i++) {
             if (levels[i] != null) {
                 levels[i] = new Level(width, height, rand);
+                levels[i].generate();
             }
             // levels[i].nextFrame(cmd)
         }
@@ -62,6 +64,7 @@ public class PlayState implements State, Serializable {
         if (cmd == ':') {
             colonPressed = true;
         } else if (cmd == 'q' && colonPressed) {
+            colonPressed = false;
             game.setContext(new SaveState(game, this));
         } else if ("wasd".indexOf(cmd) != -1) { // wasd
             colonPressed = false;
@@ -90,9 +93,12 @@ public class PlayState implements State, Serializable {
 
     @Override
     public TETile[][] getTilemap() {
-        // underlying TETile level
-        // entities
-        // player
+        // underlying TETile level, entities, player?
         return levels[currLevel].getTilemap();
+    }
+
+    @Override
+    public void setContext(Game game) {
+        this.game = game;
     }
 }
