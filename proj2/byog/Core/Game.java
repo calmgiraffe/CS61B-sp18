@@ -10,6 +10,7 @@ import java.io.*;
 import static java.lang.System.exit;
 
 public class Game implements Serializable {
+    private static final int MS_PER_UPDATE = 15;
     public static final int WIDTH = 50;
     public static final int HEIGHT = 40;
     public static final int HUD_HEIGHT = 4;
@@ -20,7 +21,8 @@ public class Game implements Serializable {
     private boolean quitGame = false;
     private State state;
 
-    // Constructor
+
+    /* Constructor */
     public Game(String cmdString) {
         renderer.initialize(WIDTH, HEIGHT);
 
@@ -33,15 +35,18 @@ public class Game implements Serializable {
     }
 
     public void start() throws InterruptedException {
+        char cmd;
+        double mouseX, mouseY;
+
         while (!quitGame) {
             // Get keyboard and mouse inputs
-            char cmd = getNextCommand();
-            double mouseX = StdDraw.mouseX();
-            double mouseY = StdDraw.mouseY();
+            cmd = getNextCommand();
+            mouseX = StdDraw.mouseX();
+            mouseY = StdDraw.mouseY();
 
             state.nextFrame(cmd, mouseX, mouseY);
             renderer.render(state);
-            Thread.sleep(15); // Todo: make sleep time variable (see Game loop pattern)
+            Thread.sleep(MS_PER_UPDATE);
         }
         exit(0);
     }

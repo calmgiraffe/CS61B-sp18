@@ -1,6 +1,6 @@
 package byog.Core.Level;
 
-import byog.Core.Graphics.TETile;
+import byog.Core.Graphics.Tile;
 import byog.Core.Graphics.Tileset;
 
 import java.awt.*;
@@ -44,8 +44,8 @@ public class Player extends Entity implements Serializable {
         // Replace current fov tiles with tiles from MAIN. If new level, fov is empty.
         for (int p : fov) {
             Position pos = level.toPosition(p);
-            TETile tile = level.peek(pos.x, pos.y);
-            level.place(pos.x, pos.y, new TETile(tile, new Color(45, 45, 45)));
+            Tile tile = level.peek(pos.x, pos.y);
+            level.place(pos.x, pos.y, new Tile(tile, new Color(45, 45, 45)));
         }
         fov.clear();
         this.updateFOVPoints(FOV, x, y);
@@ -53,7 +53,7 @@ public class Player extends Entity implements Serializable {
         // Update FOV level with points fom this.fov
         for (int p : fov) {
             Position pos = level.toPosition(p);
-            TETile tile = level.peek(pos.x, pos.y);
+            Tile tile = level.peek(pos.x, pos.y);
             level.place(pos.x, pos.y, tile);
         }
     }

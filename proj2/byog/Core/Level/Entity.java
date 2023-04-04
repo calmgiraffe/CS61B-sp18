@@ -1,16 +1,16 @@
 package byog.Core.Level;
 
-import byog.Core.Graphics.TETile;
+import byog.Core.Graphics.Tile;
 
 public abstract class Entity {
     protected int x;
     protected int y;
     protected int health = 100;
     protected Level level;
-    protected TETile tile;
-    protected TETile currTile; // Tile that is "below" the entity
+    protected Tile tile;
+    protected Tile currTile; // Tile that is "below" the entity
 
-    public Entity(int x, int y, Level level, TETile tile) {
+    public Entity(int x, int y, Level level, Tile tile) {
         this.x = x;
         this.y = y;
         this.level = level;

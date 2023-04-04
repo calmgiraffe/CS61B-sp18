@@ -2,7 +2,7 @@ package byog.Core.State;
 
 import byog.Core.Game;
 import byog.Core.Graphics.Text;
-import byog.Core.Graphics.TETile;
+import byog.Core.Graphics.Tile;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class SaveState implements State, Serializable {
     }
 
     @Override
-    public TETile[][] getTilemap() {
+    public Tile[][] getTilemap() {
         return null;
     }
 

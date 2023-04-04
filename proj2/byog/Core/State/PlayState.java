@@ -5,7 +5,7 @@ import byog.Core.Game;
 import byog.Core.Level.Level;
 import byog.RandomTools.RandomInclusive;
 import byog.Core.Graphics.Text;
-import byog.Core.Graphics.TETile;
+import byog.Core.Graphics.Tile;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -85,7 +85,7 @@ public class PlayState implements State, Serializable {
         String tileDesc;
         Level curr = manager.getCurrentLevel();
         if (curr.isValid(newX, newY)) {
-            TETile currTile = curr.peek(newX, newY);
+            Tile currTile = curr.peek(newX, newY);
             tileDesc = currTile.description();
         } else {
             tileDesc = "";
@@ -102,7 +102,7 @@ public class PlayState implements State, Serializable {
     }
 
     @Override
-    public TETile[][] getTilemap() {
+    public Tile[][] getTilemap() {
         return manager.getCurrentLevel().getTilemap();
     }
 

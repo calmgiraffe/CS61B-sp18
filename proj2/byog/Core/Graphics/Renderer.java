@@ -15,7 +15,7 @@ import java.util.List;
  * allowing scrolling of the screen or tracking the player or something similar.
  */
 public class Renderer implements Serializable {
-    private static final int TILE_SIZE = 16;
+    private static final int TILE_SIZE = 18;
     private int width;
     private int height;
     private int xOffset;
@@ -25,7 +25,7 @@ public class Renderer implements Serializable {
      * Same functionality as the other initialization method. The only difference is that the xOff
      * and yOff parameters will change where the renderFrame method starts drawing. For example,
      * if you select w = 60, h = 30, xOff = 3, yOff = 4 and then call renderFrame with a
-     * TETile[50][25] array, the renderer will leave 3 tiles blank on the left, 7 tiles blank
+     * Tile[50][25] array, the renderer will leave 3 tiles blank on the left, 7 tiles blank
      * on the right, 4 tiles blank on the bottom, and 1 tile blank on the top.
      * @param w width of the window in tiles
      * @param h height of the window in tiles.
@@ -48,11 +48,11 @@ public class Renderer implements Serializable {
 
     /**
      * Initializes StdDraw parameters and launches the StdDraw window. w and h are the
-     * width and height of the world in number of tiles. If the TETile[][] array that you
+     * width and height of the world in number of tiles. If the Tile[][] array that you
      * pass to renderFrame is smaller than this, then extra blank space will be left
      * on the right and top edges of the frame. For example, if you select w = 60 and
      * h = 30, this method will create a 60 tile wide by 30 tile tall window. If
-     * you then subsequently call renderFrame with a TETile[50][25] array, it will
+     * you then subsequently call renderFrame with a Tile[50][25] array, it will
      * leave 10 tiles blank on the right side and 5 tiles blank on the top side. If
      * you want to leave extra space on the left or bottom instead, use the other
      * initialization method.
@@ -64,7 +64,7 @@ public class Renderer implements Serializable {
     }
 
     /**
-     * Takes in a 2d array of TETile objects and renders the 2d array to the screen, starting from
+     * Takes in a 2d array of Tile objects and renders the 2d array to the screen, starting from
      * xOffset and yOffset.
      *
      * If the array is an NxM array, then the element displayed at positions would be as follows,
@@ -83,9 +83,9 @@ public class Renderer implements Serializable {
      * This method assumes that the xScale and yScale have been set such that the max x
      * value is the width of the screen in tiles, and the max y value is the height of
      * the screen in tiles.
-     * @param world the 2D TETile[][] array to render
+     * @param world the 2D Tile[][] array to render
      */
-    public void renderFrame(TETile[][] world) {
+    public void renderFrame(Tile[][] world) {
         if (world == null) {
             return;
         }
@@ -121,7 +121,7 @@ public class Renderer implements Serializable {
                 case RIGHT -> StdDraw.textRight(width * text.getX(), height * text.getY(), text.getText());
             }
         }
-        // Render TETile[][]
+        // Render Tile[][]
         this.renderFrame(state.getTilemap());
 
         StdDraw.show();

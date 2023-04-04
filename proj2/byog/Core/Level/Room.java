@@ -1,9 +1,8 @@
 package byog.Core.Level;
 
-import byog.Core.Graphics.TETile;
+import byog.Core.Graphics.Tile;
 import byog.Core.Graphics.Tileset;
 import byog.Core.State.PlayState;
-import byog.RandomTools.RandomInclusive;
 
 import java.io.Serializable;
 
@@ -12,7 +11,7 @@ public class Room implements Serializable {
     /* Instance variables */
     private final Position lowerLeft;
     private final Position upperRight;
-    private final TETile floorType = Tileset.FLOOR;
+    private final Tile floorType = Tileset.FLOOR;
     private final Level level;
 
     protected Room(Position lowerLeft, Position upperRight, Level level) {

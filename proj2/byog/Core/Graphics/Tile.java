@@ -9,20 +9,20 @@ import edu.princeton.cs.introcs.StdDraw;
 import byog.RandomTools.RandomUtils;
 
 /**
- * The TETile object is used to represent a single tile in your game. A 2D array of tiles make up a
+ * The Tile object is used to represent a single tile in your game. A 2D array of tiles make up a
  * board, and can be drawn to the screen using the Renderer class.
  *
- * All TETile objects must have a character, textcolor, and background color to be used to represent
+ * All Tile objects must have a character, textcolor, and background color to be used to represent
  * the tile when drawn to the screen. You can also optionally provide a path to an image file of an
  * appropriate size (16x16) to be drawn in place of the unicode representation. If the image path
  * provided cannot be found, draw will fallback to using the provided character and color
  * representation, so you are free to use image tiles on your own computer.
  *
- * The provided TETile is immutable, i.e. none of its instance variables can change. You are welcome
- * to make your TETile class mutable, if you prefer.
+ * The provided Tile is immutable, i.e. none of its instance variables can change. You are welcome
+ * to make your Tile class mutable, if you prefer.
  */
 
-public class TETile implements Serializable {
+public class Tile implements Serializable {
     private final char character; // Do not rename character or the autograder will break.
     private Color textColor;
     private final Color backgroundColor;
@@ -30,15 +30,15 @@ public class TETile implements Serializable {
     private final String filepath;
 
     /**
-     * Full constructor for TETile objects.
+     * Full constructor for Tile objects.
      * @param character The character displayed on the screen.
      * @param textColor The color of the character itself.
      * @param backgroundColor The color drawn behind the character.
      * @param description The description of the tile, shown in the GUI on hovering over the tile.
      * @param filepath Full path to image to be used for this tile. Must be correct size (16x16)
      */
-    public TETile(char character, Color textColor, Color backgroundColor, String description,
-                  String filepath) {
+    public Tile(char character, Color textColor, Color backgroundColor, String description,
+                String filepath) {
         this.character = character;
         this.textColor = textColor;
         this.backgroundColor = backgroundColor;
@@ -54,7 +54,7 @@ public class TETile implements Serializable {
      * @param backgroundColor The color drawn behind the character.
      * @param description The description of the tile, shown in the GUI on hovering over the tile.
      */
-    public TETile(char character, Color textColor, Color backgroundColor, String description) {
+    public Tile(char character, Color textColor, Color backgroundColor, String description) {
         this.character = character;
         this.textColor = textColor;
         this.backgroundColor = backgroundColor;
@@ -63,11 +63,11 @@ public class TETile implements Serializable {
     }
 
     /**
-     * Creates a copy of TETile t, except with given textColor.
+     * Creates a copy of Tile t, except with given textColor.
      * @param t tile to copy
      * @param textColor foreground color for tile copy
      */
-    public TETile(TETile t, Color textColor) {
+    public Tile(Tile t, Color textColor) {
         this(t.character, textColor, t.backgroundColor, t.description, t.filepath);
     }
 
@@ -132,7 +132,7 @@ public class TETile implements Serializable {
      * @param db the maximum difference in blue value
      * @param r the random number generator to use
      */
-    public static TETile colorVariant(TETile t, int dr, int dg, int db, Random r) {
+    public static Tile colorVariant(Tile t, int dr, int dg, int db, Random r) {
         Color oldColor = t.textColor;
         int newRed = newColorValue(oldColor.getRed(), dr, r);
         int newGreen = newColorValue(oldColor.getGreen(), dg, r);
@@ -140,7 +140,7 @@ public class TETile implements Serializable {
 
         Color c = new Color(newRed, newGreen, newBlue);
 
-        return new TETile(t, c);
+        return new Tile(t, c);
     }
 
     private static int newColorValue(int v, int dv, Random r) {
@@ -160,7 +160,7 @@ public class TETile implements Serializable {
      * @param world the 2D world to print
      * @return string representation of the world
      */
-    public static String toString(TETile[][] world) {
+    public static String toString(Tile[][] world) {
         int width = world.length;
         int height = world[0].length;
         StringBuilder sb = new StringBuilder();
@@ -182,15 +182,15 @@ public class TETile implements Serializable {
      * Makes a copy of the given 2D tile array.
      * @param tiles the 2D array to copy
      **/
-    public static TETile[][] copyOf(TETile[][] tiles) {
+    public static Tile[][] copyOf(Tile[][] tiles) {
         if (tiles == null) {
             return null;
         }
 
-        TETile[][] copy = new TETile[tiles.length][];
+        Tile[][] copy = new Tile[tiles.length][];
 
         int i = 0;
-        for (TETile[] column : tiles) {
+        for (Tile[] column : tiles) {
             copy[i] = Arrays.copyOf(column, column.length);
             i += 1;
         }
@@ -198,10 +198,11 @@ public class TETile implements Serializable {
         return copy;
     }
 
-    @Override
-    /** Provides an equals method that is consistent
+    /**
+     * Provides an equals method that is consistent
      *  with the way that the autograder works.
      */
+    @Override
     public boolean equals(Object x) {
         if (this == x) {
             return true;
@@ -212,7 +213,7 @@ public class TETile implements Serializable {
         if (this.getClass() != x.getClass()) {
             return false;
         }
-        TETile that = (TETile) x;
+        Tile that = (Tile) x;
         return this.character == that.character;
     }
 

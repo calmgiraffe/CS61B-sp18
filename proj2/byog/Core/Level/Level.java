@@ -1,15 +1,12 @@
 package byog.Core.Level;
 
-import byog.Core.Graphics.TETile;
+import byog.Core.Graphics.Tile;
 import byog.Core.Graphics.Tileset;
 import byog.RandomTools.RandomInclusive;
 
-import java.awt.*;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
-
-import static byog.Core.Graphics.Colors.*;
 
 /**
  * Level object to represent the underlying data type (TETIle[][]) representing the world,
@@ -20,19 +17,19 @@ public class Level implements Serializable {
     protected final int height;
     protected final RandomInclusive rand;
     private final ArrayList<Room> rooms = new ArrayList<>();
-    private final TETile[][] tilemap;
+    private final Tile[][] tilemap;
     private Player player;
-    private List<TETile> wallTiles = new ArrayList<>();
+    private List<Tile> wallTiles = new ArrayList<>();
     private int angle = 0;
 
     public Level(int width, int height, RandomInclusive rand) {
         this.width = width;
         this.height = height;
-        this.tilemap = new TETile[width][height];
+        this.tilemap = new Tile[width][height];
         Partition partition = new Partition(new Position(0, 0), width, height, this);
         this.rand = rand;
 
-        /* Fill TETile[][] data structure with blank tiles */
+        /* Fill Tile[][] data structure with blank tiles */
         for (int x = 0; x < tilemap.length; x++) {
             for (int y = 0; y < tilemap[0].length; y++) {
                 place(x, y, Tileset.NOTHING);
@@ -62,7 +59,7 @@ public class Level implements Serializable {
 
     /** Returns the tile at specified x and y coordinates on the level, but does not remove the tile.
      * If out of bounds, returns null. */
-    public TETile peek(int x, int y) {
+    public Tile peek(int x, int y) {
         if (isValid(x, y)) {
             return tilemap[x][y];
         }
@@ -71,7 +68,7 @@ public class Level implements Serializable {
 
     /** Draws the specified tile at the specified x & y.
      * Use this method so you don't get IndexErrors. */
-    public void place(int x, int y, TETile tile) {
+    public void place(int x, int y, Tile tile) {
         if (isValid(x, y)) {
             tilemap[x][y] = tile;
 
@@ -81,7 +78,7 @@ public class Level implements Serializable {
         }
     }
 
-    /** Returns true if x and y are within the dimensions of the TETile[][] matrix. */
+    /** Returns true if x and y are within the dimensions of the Tile[][] matrix. */
     public boolean isValid(int x, int y) {
         return (0 <= x && x < width) && (0 <= y && y < height);
     }
@@ -125,8 +122,8 @@ public class Level implements Serializable {
         return adjacent;
     }
 
-    /** Returns the TETile[][] associated with this object that is to be rendered. */
-    public TETile[][] getTilemap() {
+    /** Returns the Tile[][] associated with this object that is to be rendered. */
+    public Tile[][] getTilemap() {
         return tilemap;
     }
 }
