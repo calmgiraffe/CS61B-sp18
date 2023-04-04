@@ -12,16 +12,7 @@ import java.util.*;
  * and other variables/invariants like its current level, width, height, rooms, etc
  */
 public class Level implements Serializable {
-    /* Private class to represent a vertex-distance pair in the pQueue. */
-    private static class Node {
-        int position;
-        int distance;
 
-        Node(int position, int distance) {
-            this.position = position;
-            this.distance = distance;
-        }
-    }
     protected final int width;
     protected final int height;
     protected final RandomInclusive rand;
@@ -44,136 +35,9 @@ public class Level implements Serializable {
         }
         /* Generates dungeon and draws grass */
         partition.generateTree(rooms);
-        this.connectPartitions(partition);
+        partition.connectPartitions();
         // Place entities
         this.updateEntities('~');
-    }
-
-    /* Select two partitions, one from the left and right branch respectively,
-     * as stored in the left and right lists, then draws a path between their centres,
-     * thereby connecting them and ensuring a complete graph.
-     */
-    private void connectPartitions(Partition curr) {
-        if (curr.left == null && curr.right == null) {
-            return;
-        }
-        connectPartitions(curr.left);
-        connectPartitions(curr.right);
-
-        double leftDist = Double.MAX_VALUE, rightDist = Double.MAX_VALUE;
-        Partition closestLeft = curr, closestRight = curr;
-        double currDist;
-
-        for (Partition p : curr.left.childPartitions) {
-            currDist = Position.euclidean(p.centre, curr.centre);
-            if (currDist < leftDist) {
-                leftDist = currDist;
-                closestLeft = p;
-            }
-        }
-        for (Partition p : curr.right.childPartitions) {
-            currDist = Position.euclidean(p.centre, curr.centre);
-            if (currDist < rightDist) {
-                rightDist = currDist;
-                closestRight = p;
-            }
-        }
-        // Draws a hallway between the two rooms of the two partitions
-        astar(closestLeft.room, closestRight.room);
-    }
-
-    /* Draw a completed hallway between A and B, picking a random location in the Room */
-    private void astar(Room roomA, Room roomB) {
-        Position a = roomA.randomPosition(1), b = roomB.randomPosition(1);
-        int start = to1D(a.x, a.y), target = to1D(b.x, b.y);
-
-        PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
-        int[] edgeTo = new int[width * height];
-        int[] distTo = new int[width * height];
-        Arrays.fill(distTo, Integer.MAX_VALUE);
-        distTo[start] = 0;
-
-        // Initially, add start to PQ. Then loop until target found
-        fringe.add(new Node(start, 0));
-        boolean targetFound = false;
-        while (!fringe.isEmpty() && !targetFound) {
-            int p = fringe.remove().position;
-
-            for (int q : adjacent(p)) {
-                // If new distance < old distance, update distTo and edgeTo
-                // Add neighbour node q to PQ, factoring in heuristic
-                if (distTo[p] + 1 < distTo[q]) {
-                    distTo[q] = distTo[p] + 1;
-                    edgeTo[q] = p;
-                    fringe.add(new Node(q, distTo[q] + Position.manhattan(q, target, this)));
-                }
-                if (q == target) {
-                    targetFound = true;
-                    this.drawPath(edgeTo, start, q);
-                }
-            }
-        }
-        // Draw rooms with grass after a hallway is made
-        roomA.drawRoom();
-        roomB.drawRoom();
-    }
-
-    /* Given a 1D start & end coordinate, by following the child-parent relationships
-     * given by the edgeTo array, draws the astar path from start to end. */
-    private void drawPath(int[] edgeTo, int start, int end) {
-        int curr = edgeTo[end], prev = end;
-        char way = '~';
-
-        while (curr != start) {
-            if (curr == prev + width) {
-                way = 'U';
-
-            } else if (curr == prev + 1) {
-                way = 'R';
-
-            } else if (curr == prev - width) {
-                way = 'D';
-
-            } else if (curr == prev - 1) {
-                way = 'L';
-            }
-            Position currentPos = toPosition(curr);
-            place(currentPos.x, currentPos.y, Tileset.FLOOR);
-
-            /* Draws the three wall tiles and floor tile that must be placed when adding a new floor
-            tile to hallway. Overall method works by adding a room of area 1 on a preexisting room. */
-            int x = currentPos.x, y = currentPos.y;
-            switch (way) {
-                case 'U' -> {
-                    x -= 1;
-                    y += 1;
-                }
-                case 'R' -> {
-                    x += 1;
-                    y -= 1;
-                }
-                default -> {
-                    x -= 1;
-                    y -= 1;
-                }
-            }
-            if (way == 'U' || way == 'D') {
-                for (int i = 0; i < 3; i += 1) {
-                    if (peek(x + i, y) != Tileset.FLOOR) {
-                        place(x + i, y, Tileset.colorVariantWall(rand));
-                    }
-                }
-            } else if (way == 'L' || way == 'R') {
-                for (int i = 0; i < 3; i += 1) {
-                    if (peek(x, y + i) != Tileset.FLOOR) {
-                        place(x, y + i, Tileset.colorVariantWall(rand));
-                    }
-                }
-            }
-            /* End drawWalls() */
-            prev = curr;
-            curr = edgeTo[curr];
-        }
     }
 
     /* Update the state of the level, this includes changing color of tiles */
@@ -222,10 +86,10 @@ public class Level implements Serializable {
         return width * y + x;
     }
 
-    /** Given a 1D position on the level, converts this to a corresponding new Position. */
-    public Position toPosition(int position) {
-        int x = position % width;
-        int y = position / width;
+    /** Given a 1D pos1D on the level, converts this to a corresponding new Position. */
+    public Position toPosition(int pos1D) {
+        int x = pos1D % width;
+        int y = pos1D / width;
         if (!isValid(x, y)) {
             throw new ArrayIndexOutOfBoundsException("X and Y out of bounds.");
         }
@@ -254,15 +118,5 @@ public class Level implements Serializable {
     /** Returns the TETile[][] associated with this object that is to be rendered. */
     public TETile[][] getTilemap() {
         return tilemap;
-    }
-
-    private static class DistanceComparator implements Comparator<Node> {
-        public int compare(Node a, Node b) {
-            return a.distance - b.distance;
-        }
-    }
-
-    private static Comparator<Node> getDistanceComparator() {
-        return new DistanceComparator();
     }
 }

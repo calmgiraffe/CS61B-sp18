@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PlayState implements State, Serializable {
-    private class LevelManager {
+    private class LevelManager implements Serializable {
         private final Level[] levels = new Level[NUM_LEVELS + 1];
 
         private LevelManager() {
