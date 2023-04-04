@@ -11,23 +11,48 @@ import byog.RandomTools.RandomUtils;
 /**
  * The Tile object is used to represent a single tile in your game. A 2D array of tiles make up a
  * board, and can be drawn to the screen using the Renderer class.
- *
+ * <p>
  * All Tile objects must have a character, textcolor, and background color to be used to represent
  * the tile when drawn to the screen. You can also optionally provide a path to an image file of an
  * appropriate size (16x16) to be drawn in place of the unicode representation. If the image path
  * provided cannot be found, draw will fallback to using the provided character and color
  * representation, so you are free to use image tiles on your own computer.
- *
+ * <p>
  * The provided Tile is immutable, i.e. none of its instance variables can change. You are welcome
  * to make your Tile class mutable, if you prefer.
  */
 
 public class Tile implements Serializable {
+    // Entities
+    public static final Tile PLAYER = new Tile('@', Color.white, Color.black, "player");
+    public static final Tile ENTITY = new Tile('&', Color.red, Color.black, "entity");
+
+    // Standard
+    public static final Tile WALL = new Tile('#', new Color(216, 128, 128), Color.darkGray, "wall");
+    public static final Tile FLOOR = new Tile('·', new Color(128, 192, 128), Color.black, "floor");
+    public static final Tile NOTHING = new Tile(' ', Color.black, Color.black, "");
+    public static final Tile GRASS = new Tile('"', new Color(66, 197, 40), Color.black, "grass");
+    public static final Tile WATER = new Tile('≈', Color.blue, Color.black, "water");
+    public static final Tile FLOWER = new Tile('❀', Color.magenta, Color.pink, "flower");
+    public static final Tile LOCKED_DOOR = new Tile('█', Color.orange, Color.black, "locked door");
+    public static final Tile UNLOCKED_DOOR = new Tile('▢', Color.orange, Color.black, "unlocked door");
+    public static final Tile SAND = new Tile('▒', Color.yellow, Color.black, "sand");
+    public static final Tile MOUNTAIN = new Tile('▲', Color.gray, Color.black, "mountain");
+    public static final Tile TREE = new Tile('♠', Color.green, Color.black, "tree");
+
+    // Better looking flowers
+    public static final Tile FLOWERMAGENTA = new Tile('❀', Color.magenta, Color.black, "flower");
+    public static final Tile FLOWERORANGE = new Tile('❀', Color.ORANGE, Color.black, "orange flower");
+    public static final Tile FLOWERRED = new Tile('❀', Color.red, Color.black, "red flower");
+    public static final Tile FLOWERPINK = new Tile('❀', Color.pink, Color.black, "pink flower");
+    public static final Tile FLOWERCYAN = new Tile('❀', Color.cyan, Color.black, "flower");
+
     private final char character; // Do not rename character or the autograder will break.
     private Color textColor;
     private final Color backgroundColor;
     private final String description;
     private final String filepath;
+
 
     /**
      * Full constructor for Tile objects.
@@ -69,57 +94,6 @@ public class Tile implements Serializable {
      */
     public Tile(Tile t, Color textColor) {
         this(t.character, textColor, t.backgroundColor, t.description, t.filepath);
-    }
-
-    /**
-     * Draws the tile to the screen at location x, y. If a valid filepath is provided,
-     * we draw the image located at that filepath to the screen. Otherwise, we fall
-     * back to the character and color representation for the tile.
-     * <p>
-     * Note that the image provided must be of the right size (16x16). It will not be
-     * automatically resized or truncated.
-     * @param x x coordinate
-     * @param y y coordinate
-     */
-    public void draw(double x, double y) {
-        if (filepath != null) {
-            try {
-                StdDraw.picture(x + 0.5, y + 0.5, filepath);
-                return;
-            } catch (IllegalArgumentException e) {
-                // Exception happens because the file can't be found. In this case, fail silently
-                // and just use the character and background color for the tile.
-            }
-        }
-        StdDraw.setFont(FontSet.TILE);
-        StdDraw.setPenColor(backgroundColor);
-        StdDraw.filledSquare(x + 0.5, y + 0.5, 0.5);
-        StdDraw.setPenColor(textColor);
-        StdDraw.text(x + 0.5, y + 0.5, Character.toString(character()));
-    }
-
-    /** Character representation of the tile. Used for drawing in text mode.
-     * @return character representation
-     */
-    public char character() {
-        return character;
-    }
-
-    /**
-     * Description of the tile. Useful for displaying mouseover text or
-     * testing that two tiles represent the same type of thing.
-     * @return description of the tile
-     */
-    public String description() {
-        return description;
-    }
-
-    public Color getTextColor() {
-        return textColor;
-    }
-
-    public void changeTextColor(Color newColor) {
-        this.textColor = newColor;
     }
 
     /**
@@ -220,5 +194,38 @@ public class Tile implements Serializable {
     @Override
     public int hashCode() {
         return this.character;
+    }
+
+    public static Tile randomFlower(Random r) {
+        int choice = r.nextInt(3);
+        if (choice == 0) {
+            return FLOWERORANGE;
+        } else if (choice == 1) {
+            return FLOWERRED;
+        } else {
+            return FLOWERPINK;
+        }
+    }
+
+    /* Getter methods */
+
+    public char character() {
+        return character;
+    }
+
+    public Color textColor() {
+        return textColor;
+    }
+
+    public Color backgroundColor() {
+        return backgroundColor;
+    }
+
+    public String description() {
+        return description;
+    }
+
+    public String filepath() {
+        return filepath;
     }
 }

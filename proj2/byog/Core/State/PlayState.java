@@ -14,8 +14,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PlayState implements State, Serializable {
+
     private class LevelManager implements Serializable {
         private final Level[] levels = new Level[NUM_LEVELS + 1];
+        private int curr = 1;
 
         private LevelManager() {
             levels[curr] = new Level(width, height, rand);
@@ -34,11 +36,9 @@ public class PlayState implements State, Serializable {
         }
     }
     public static final int NUM_LEVELS = 25;
-    public static final int GRASS_ODDS = 70;
     public static int ENABLE_FOV = 1; // Todo: need to implement this
 
     private Game game;
-    private int curr = 1;
     private final int width;
     private final int height;
     private final RandomInclusive rand;
@@ -51,7 +51,7 @@ public class PlayState implements State, Serializable {
     // HUD text
     private final Text tileStr = new Text("", Color.WHITE, FontSet.HUD, 0.03, 0.96, Text.Alignment.LEFT);
     private final Text centreStr = new Text("Press q to quit", Color.WHITE, FontSet.HUD, 0.5, 0.96, Text.Alignment.CENTRE);
-    private final Text levelStr = new Text("Level " + curr, Color.WHITE, FontSet.HUD, 0.97, 0.96, Text.Alignment.RIGHT);
+    private final Text levelStr = new Text("Level 1", Color.WHITE, FontSet.HUD, 0.97, 0.96, Text.Alignment.RIGHT);
     private final List<Text> text = new ArrayList<>(
             Arrays.asList(tileStr, centreStr, levelStr)
     );

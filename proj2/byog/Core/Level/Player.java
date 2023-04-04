@@ -1,7 +1,6 @@
 package byog.Core.Level;
 
 import byog.Core.Graphics.Tile;
-import byog.Core.Graphics.Tileset;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -15,7 +14,7 @@ public class Player extends Entity implements Serializable {
     private final Set<Integer> visited = new HashSet<>();
 
     public Player(int x, int y, Level level) {
-        super(x, y, level, Tileset.PLAYER);
+        super(x, y, level, Tile.PLAYER);
     }
 
     /**

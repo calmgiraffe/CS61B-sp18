@@ -1,17 +1,14 @@
 package byog.Core.Level;
 
 import byog.Core.Graphics.Tile;
-import byog.Core.Graphics.Tileset;
-import byog.Core.State.PlayState;
-
 import java.io.Serializable;
 
-
 public class Room implements Serializable {
-    /* Instance variables */
+    public static final int GRASS_ODDS = 70;
+
     private final Position lowerLeft;
     private final Position upperRight;
-    private final Tile floorType = Tileset.FLOOR;
+    private final Tile floorType = Tile.FLOOR;
     private final Level level;
 
     protected Room(Position lowerLeft, Position upperRight, Level level) {
@@ -20,43 +17,16 @@ public class Room implements Serializable {
         this.level = level;
     }
 
-    /* From a position, draws an irregular room by making new positions at the top, right, bottom,
-     * and left of said position, then applying the recursive method on those four new positions.
-     * Depending on the location and the count, either a FLOOR or WALL tile is drawn. */
-    /*
-    public void drawIrregular(int count, int x, int y, Level level) {
-        if (!level.isValid(x, y)) {
-            return;
-        }
-        // Base case: count is <= 0 and able to place a tile on NOTHING
-        if (count <= 0) {
-            if (level.peek(x, y) == Tileset.NOTHING) {
-                level.place(x, y, Tileset.colorVariantWall(rand));
-            }
-        } else {
-            boolean onEdge = (x == 0) || (x == level.width - 1) || (y == 0) || (y == level.height - 1);
-            if (onEdge) {
-                level.place(x, y, Tileset.colorVariantWall(rand));
-            } else {
-                level.place(x, y, floorType);
-            }
-            drawIrregular(count - rand.nextInt(1, 3), x, y + 1, level);
-            drawIrregular(count - rand.nextInt(1, 3), x, y - 1, level);
-            drawIrregular(count - rand.nextInt(1, 3), x - 1, y, level);
-            drawIrregular(count - rand.nextInt(1, 3), x + 1, y, level);
-        }
-    }
-    */
-
+    /** Recursively draw grass in the room */
     public void drawGrass(int count, int x, int y) {
         if (!level.isValid(x, y)) {
             return;
         }
         if (level.peek(x, y) == floorType && count > 0) {
             if (level.rand.nextInt(100) <= 10) {
-                level.place(x, y, Tileset.randomFlower(level.rand));
+                level.place(x, y, Tile.randomFlower(level.rand));
             } else {
-                level.place(x, y, Tileset.colorVariantGrass(level.rand));
+                level.place(x, y, Tile.colorVariant(Tile.GRASS, 50, 50, 50, level.rand));
             }
             int up = count - level.rand.nextInt(1, 2);
             int down = count - level.rand.nextInt(1, 2);
@@ -79,20 +49,20 @@ public class Room implements Serializable {
 
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
-            if (level.peek(x, startY) == Tileset.NOTHING) {
-                level.place(x, startY, Tileset.colorVariantWall(level.rand));
+            if (level.peek(x, startY) == Tile.NOTHING) {
+                level.place(x, startY, Tile.colorVariant(Tile.WALL, 30, 30, 30, level.rand));
             }
-            if (level.peek(x, endY) == Tileset.NOTHING) {
-                level.place(x, endY, Tileset.colorVariantWall(level.rand));
+            if (level.peek(x, endY) == Tile.NOTHING) {
+                level.place(x, endY, Tile.colorVariant(Tile.WALL, 30, 30, 30, level.rand));
             }
         }
         // Draw left and right walls
         for (int y = startY; y <= endY; y++) {
-            if (level.peek(startX, y) == Tileset.NOTHING) {
-                level.place(startX, y, Tileset.colorVariantWall(level.rand));
+            if (level.peek(startX, y) == Tile.NOTHING) {
+                level.place(startX, y, Tile.colorVariant(Tile.WALL, 30, 30, 30, level.rand));
             }
-            if (level.peek(endX, y) == Tileset.NOTHING) {
-                level.place(endX, y, Tileset.colorVariantWall(level.rand));
+            if (level.peek(endX, y) == Tile.NOTHING) {
+                level.place(endX, y, Tile.colorVariant(Tile.WALL, 30, 30, 30, level.rand));
             }
         }
         // Draw interior
@@ -102,7 +72,7 @@ public class Room implements Serializable {
             }
         }
         // Draw grass inside room
-        if (level.rand.nextInt(100) < PlayState.GRASS_ODDS) {
+        if (level.rand.nextInt(100) < GRASS_ODDS) {
             int size = level.rand.nextInt(5, 7);
             Position randPos = this.randomPosition(1);
             this.drawGrass(size, randPos.x, randPos.y);

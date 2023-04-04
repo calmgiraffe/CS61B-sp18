@@ -1,7 +1,6 @@
 package byog.Core.Level;
 
 import byog.Core.Graphics.Tile;
-import byog.Core.Graphics.Tileset;
 import byog.RandomTools.RandomInclusive;
 
 import java.io.Serializable;
@@ -32,7 +31,7 @@ public class Level implements Serializable {
         /* Fill Tile[][] data structure with blank tiles */
         for (int x = 0; x < tilemap.length; x++) {
             for (int y = 0; y < tilemap[0].length; y++) {
-                place(x, y, Tileset.NOTHING);
+                place(x, y, Tile.NOTHING);
             }
         }
         /* Generates dungeon and draws grass */

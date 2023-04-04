@@ -1,6 +1,6 @@
 package byog.Core.Level;
 
-import byog.Core.Graphics.Tileset;
+import byog.Core.Graphics.Tile;
 
 import java.io.Serializable;
 import java.util.*;
@@ -212,7 +212,7 @@ public class Partition implements Serializable {
                 way = 'L';
             }
             Position currentPos = level.toPosition(curr);
-            level.place(currentPos.x, currentPos.y, Tileset.FLOOR);
+            level.place(currentPos.x, currentPos.y, Tile.FLOOR);
 
             /* Draws the three wall tiles and floor tile that must be placed when adding a new floor
             tile to hallway. Overall method works by adding a room of area 1 on a preexisting room. */
@@ -233,14 +233,14 @@ public class Partition implements Serializable {
             }
             if (way == 'U' || way == 'D') {
                 for (int i = 0; i < 3; i += 1) {
-                    if (level.peek(x + i, y) != Tileset.FLOOR) {
-                        level.place(x + i, y, Tileset.colorVariantWall(level.rand));
+                    if (level.peek(x + i, y) != Tile.FLOOR) {
+                        level.place(x + i, y, Tile.colorVariant(Tile.WALL, 30, 30, 30, level.rand));
                     }
                 }
             } else if (way == 'L' || way == 'R') {
                 for (int i = 0; i < 3; i += 1) {
-                    if (level.peek(x, y + i) != Tileset.FLOOR) {
-                        level.place(x, y + i, Tileset.colorVariantWall(level.rand));
+                    if (level.peek(x, y + i) != Tile.FLOOR) {
+                        level.place(x, y + i, Tile.colorVariant(Tile.WALL, 30, 30, 30, level.rand));
                     }
                 }
             }
