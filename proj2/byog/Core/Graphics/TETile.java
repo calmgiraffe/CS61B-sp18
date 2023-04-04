@@ -24,7 +24,7 @@ import byog.RandomTools.RandomUtils;
 
 public class TETile implements Serializable {
     private final char character; // Do not rename character or the autograder will break.
-    private final Color textColor;
+    private Color textColor;
     private final Color backgroundColor;
     private final String description;
     private final String filepath;
@@ -112,6 +112,14 @@ public class TETile implements Serializable {
      */
     public String description() {
         return description;
+    }
+
+    public Color getTextColor() {
+        return textColor;
+    }
+
+    public void changeTextColor(Color newColor) {
+        this.textColor = newColor;
     }
 
     /**

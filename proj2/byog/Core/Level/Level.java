@@ -4,21 +4,26 @@ import byog.Core.Graphics.TETile;
 import byog.Core.Graphics.Tileset;
 import byog.RandomTools.RandomInclusive;
 
+import java.awt.*;
 import java.io.Serializable;
 import java.util.*;
+import java.util.List;
+
+import static byog.Core.Graphics.Colors.*;
 
 /**
  * Level object to represent the underlying data type (TETIle[][]) representing the world,
  * and other variables/invariants like its current level, width, height, rooms, etc
  */
 public class Level implements Serializable {
-
     protected final int width;
     protected final int height;
     protected final RandomInclusive rand;
     private final ArrayList<Room> rooms = new ArrayList<>();
     private final TETile[][] tilemap;
-    protected Player player;
+    private Player player;
+    private List<TETile> wallTiles = new ArrayList<>();
+    private int angle = 0;
 
     public Level(int width, int height, RandomInclusive rand) {
         this.width = width;
@@ -42,6 +47,7 @@ public class Level implements Serializable {
 
     /* Update the state of the level, this includes changing color of tiles */
     public void nextFrame() {
+        angle = (angle + 5) % 360;
         return;
     }
 
@@ -68,6 +74,10 @@ public class Level implements Serializable {
     public void place(int x, int y, TETile tile) {
         if (isValid(x, y)) {
             tilemap[x][y] = tile;
+
+            if (tile.character() == '#') {
+                wallTiles.add(tile);
+            }
         }
     }
 

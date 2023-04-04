@@ -26,17 +26,16 @@ public class Partition implements Serializable {
     private static final int MAX = 18;
     private static final int MIN_ROOM = 7;
     private static final int MAX_ROOM = 12;
-
     /* Private instance variables */
     private final Position position; // position is given to be bottom left corner
-    protected final Position centre;
+    private final Position centre;
     private final int width;
     private final int height;
-    protected Room room;
-    protected Partition left;  // left branch
-    protected Partition right; // right branch
-    protected final List<Partition> childPartitions = new ArrayList<>(); // all rooms at and below the current node
     private final Level level;
+    private final List<Partition> childPartitions = new ArrayList<>(); // all rooms at and below the current node
+    private Room room;
+    private Partition left;  // left branch
+    private Partition right; // right branch
 
     protected Partition(Position p, int width, int height, Level level) {
         this.position = p;
