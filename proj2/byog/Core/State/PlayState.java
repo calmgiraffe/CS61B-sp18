@@ -103,7 +103,6 @@ public class PlayState implements State, Serializable {
 
     @Override
     public TETile[][] getTilemap() {
-        // underlying TETile level, entities, player?
         return manager.getCurrentLevel().getTilemap();
     }
 

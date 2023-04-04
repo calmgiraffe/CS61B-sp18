@@ -27,14 +27,13 @@ public class Level implements Serializable {
     protected final RandomInclusive rand;
     private final ArrayList<Room> rooms = new ArrayList<>();
     private final TETile[][] tilemap;
-    private final Partition partition;
     protected Player player;
 
     public Level(int width, int height, RandomInclusive rand) {
         this.width = width;
         this.height = height;
         this.tilemap = new TETile[width][height];
-        this.partition = new Partition(new Position(0, 0), width, height, this);
+        Partition partition = new Partition(new Position(0, 0), width, height, this);
         this.rand = rand;
 
         /* Fill TETile[][] data structure with blank tiles */
@@ -233,8 +232,8 @@ public class Level implements Serializable {
         return new Position(x, y);
     }
 
-    /* Given a 1D position on a level, returns the adjacent (up, right, down, left) 1D positions */
-    private ArrayList<Integer> adjacent(int p) {
+    /** Given a 1D position on a level, returns the adjacent (up, right, down, left) 1D positions */
+    public ArrayList<Integer> adjacent(int p) {
         Position currPos = toPosition(p);
 
         ArrayList<Position> tmp = new ArrayList<>();
