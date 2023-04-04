@@ -1,9 +1,7 @@
 package byog.Core.Level;
 
-import byog.Core.Game;
 import byog.Core.Graphics.TETile;
 import byog.Core.Graphics.Tileset;
-import byog.Core.State.PlayState;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -13,12 +11,11 @@ import java.util.Set;
 public class Player extends Entity implements Serializable {
     private static final int FOV = 5;
 
-    protected TETile tile = Tileset.PLAYER;
     private final Set<Integer> fov = new HashSet<>();
     private final Set<Integer> visited = new HashSet<>();
 
-    public Player(int x, int y, Color color, Level level) {
-        super(x, y, color, level);
+    public Player(int x, int y, Level level) {
+        super(x, y, level, Tileset.PLAYER);
     }
 
     /**
@@ -37,10 +34,8 @@ public class Player extends Entity implements Serializable {
             case 's' -> dy = -1;
             case 'a' -> dx = -1;
         }
-        move(dx, dy);
+       move(dx, dy);
     }
-
-
 
 
     /* Updates fovmap with the coordinates that correspond to the field of view.
@@ -48,47 +43,30 @@ public class Player extends Entity implements Serializable {
     private void updateFOV() {
         // Replace current fov tiles with tiles from MAIN. If new level, fov is empty.
         for (int p : fov) {
-            Position pos = Game.level.toPosition(p);
-            TETile tile = Game.level.peek(pos.x, pos.y, MAIN);
-            Game.level.place(pos.x, pos.y, new TETile(tile, new Color(45, 45, 45)), FOV);
+            Position pos = level.toPosition(p);
+            TETile tile = level.peek(pos.x, pos.y);
+            level.place(pos.x, pos.y, new TETile(tile, new Color(45, 45, 45)));
         }
         fov.clear();
-        this.updateFOVPoints(FOV, currX, currY);
+        this.updateFOVPoints(FOV, x, y);
 
         // Update FOV level with points fom this.fov
         for (int p : fov) {
-            Position pos = Game.level.toPosition(p);
-            TETile tile = Game.level.peek(pos.x, pos.y, MAIN);
-            Game.level.place(pos.x, pos.y, tile, FOV);
+            Position pos = level.toPosition(p);
+            TETile tile = level.peek(pos.x, pos.y);
+            level.place(pos.x, pos.y, tile);
         }
-    }
-
-    private void placeCharacterAndDoor() {
-        int numRooms = Game.level.rooms.size();
-
-        /* Pick a room and place character in it */
-        int i = Game.rand.nextInt(numRooms - 1);
-        Position playerPos = Game.level.rooms.get(i).randomPosition(1);
-        this.currX = playerPos.x;
-        this.currY = playerPos.y;
-        this.currTile = Game.level.peek(currX, currY, MAIN);
-        Game.level.place(currX, currY, Tileset.PLAYER, MAIN);
-
-        /* Pick a room and place door in it */
-        i = Game.rand.nextInt(numRooms - 1);
-        Position doorPos = Game.level.rooms.get(i).randomPosition(1);
-        Game.level.place(doorPos.x, doorPos.y, Tileset.UNLOCKED_DOOR, MAIN);
     }
 
     /* Updates the list of points that make up the current FOV and visited tiles.
      * this.fov is a Set of 1D positions corresponding to the coordinates of the desired FOV tiles */
     private void updateFOVPoints(int count, int x, int y) {
-        if (count < 0 || !Game.level.isValid(x, y)) {
+        if (count < 0 || !level.isValid(x, y)) {
             return;
         }
-        visited.add(Game.level.to1D(x, y));
-        fov.add(Game.level.to1D(x, y));
-        if (!(Game.level.peek(x, y, MAIN).character() == '#')) {
+        visited.add(level.to1D(x, y));
+        fov.add(level.to1D(x, y));
+        if (!(level.peek(x, y).character() == '#')) {
             updateFOVPoints(count - 1, x, y + 1);
             updateFOVPoints(count - 1, x, y - 1);
             updateFOVPoints(count - 1, x + 1, y);

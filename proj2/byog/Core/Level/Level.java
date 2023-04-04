@@ -9,7 +9,8 @@ import java.util.*;
 
 /**
  * Level object to represent the underlying data type (TETIle[][]) representing the world,
- * and other variables/invariants like its current level, width, height, rooms, etc */
+ * and other variables/invariants like its current level, width, height, rooms, etc
+ */
 public class Level implements Serializable {
     /* Private class to represent a vertex-distance pair in the pQueue. */
     private static class Node {
@@ -21,11 +22,10 @@ public class Level implements Serializable {
             this.distance = distance;
         }
     }
-
     protected final int width;
     protected final int height;
     protected final RandomInclusive rand;
-    private final ArrayList<Room> rooms = new ArrayList<>(); // Todo: should I actually keep a list?
+    private final ArrayList<Room> rooms = new ArrayList<>();
     private final TETile[][] tilemap;
     private final Partition partition;
     protected Player player;
@@ -43,20 +43,18 @@ public class Level implements Serializable {
                 place(x, y, Tileset.NOTHING);
             }
         }
-    }
-
-    /** Generates dungeon and draws irregular rooms, grass */
-    public void generate() {
-        /* Make binary tree of partitions and populate this.rooms with leaf rooms */
+        /* Generates dungeon and draws grass */
         partition.generateTree(rooms);
-        connectPartitions(partition);
+        this.connectPartitions(partition);
+        // Place entities
+        this.updateEntities('~');
     }
 
-    /** Select two partitions, one from the left and right branch respectively,
+    /* Select two partitions, one from the left and right branch respectively,
      * as stored in the left and right lists, then draws a path between their centres,
      * thereby connecting them and ensuring a complete graph.
      */
-    public void connectPartitions(Partition curr) {
+    private void connectPartitions(Partition curr) {
         if (curr.left == null && curr.right == null) {
             return;
         }
@@ -83,11 +81,6 @@ public class Level implements Serializable {
         }
         // Draws a hallway between the two rooms of the two partitions
         astar(closestLeft.room, closestRight.room);
-    }
-
-    /* Update the state of the level, this includes changing color of tiles */
-    public void update() {
-        // visual update the tiles (color)
     }
 
     /* Draw a completed hallway between A and B, picking a random location in the Room */
@@ -121,6 +114,7 @@ public class Level implements Serializable {
                 }
             }
         }
+        // Draw rooms with grass after a hallway is made
         roomA.drawRoom();
         roomB.drawRoom();
     }
@@ -181,6 +175,20 @@ public class Level implements Serializable {
             prev = curr;
             curr = edgeTo[curr];
         }
+    }
+
+    /* Update the state of the level, this includes changing color of tiles */
+    public void nextFrame() {
+        return;
+    }
+
+    public void updateEntities(char cmd) {
+        if (player == null) {
+            int i = rand.nextInt(0, rooms.size() - 1);
+            Position playerStart = rooms.get(i).randomPosition(1);
+            player = new Player(playerStart.x, playerStart.y, this);
+        }
+        player.move(cmd);
     }
 
     /** Returns the tile at specified x and y coordinates on the level, but does not remove the tile.
@@ -247,11 +255,6 @@ public class Level implements Serializable {
     /** Returns the TETile[][] associated with this object that is to be rendered. */
     public TETile[][] getTilemap() {
         return tilemap;
-    }
-
-    /** Return reference to player */
-    public Player getPlayer() {
-        return player;
     }
 
     private static class DistanceComparator implements Comparator<Node> {
