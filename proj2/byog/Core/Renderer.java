@@ -3,6 +3,7 @@ package byog.Core;
 import byog.Core.Graphics.FontSet;
 import byog.Core.Graphics.Text;
 import byog.Core.Graphics.Tile;
+import byog.Core.Level.Entity;
 import byog.Core.State.State;
 import edu.princeton.cs.introcs.StdDraw;
 
@@ -138,6 +139,8 @@ public class Renderer implements Serializable {
     *  "Rendering" is equivalent to showing one frame.
     */
     public void render(State state) {
+        // Todo: render should iterate through renderable objects recursively
+
         List<Renderable> data = state.getData();
         StdDraw.clear(Color.BLACK);
 
@@ -146,10 +149,10 @@ public class Renderer implements Serializable {
 
             } else if (obj instanceof Tile) {
 
+            } else if (obj instanceof Entity) {
+
             }
         }
-
-        // todo: render should iterate through renderable recursively
         // i.e, state.getData();
         StdDraw.show();
     }
