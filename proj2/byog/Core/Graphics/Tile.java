@@ -3,9 +3,10 @@ package byog.Core.Graphics;
 import java.awt.Color;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
-import edu.princeton.cs.introcs.StdDraw;
+import byog.Core.Renderable;
 import byog.RandomTools.RandomUtils;
 
 /**
@@ -22,7 +23,7 @@ import byog.RandomTools.RandomUtils;
  * to make your Tile class mutable, if you prefer.
  */
 
-public class Tile implements Serializable {
+public class Tile implements Serializable, Renderable {
     // Entities
     public static final Tile PLAYER = new Tile('@', Color.white, Color.black, "player");
     public static final Tile ENTITY = new Tile('&', Color.red, Color.black, "entity");
@@ -53,7 +54,6 @@ public class Tile implements Serializable {
     private final String description;
     private final String filepath;
 
-
     /**
      * Full constructor for Tile objects.
      * @param character The character displayed on the screen.
@@ -62,8 +62,7 @@ public class Tile implements Serializable {
      * @param description The description of the tile, shown in the GUI on hovering over the tile.
      * @param filepath Full path to image to be used for this tile. Must be correct size (16x16)
      */
-    public Tile(char character, Color textColor, Color backgroundColor, String description,
-                String filepath) {
+    public Tile(char character, Color textColor, Color backgroundColor, String description, String filepath) {
         this.character = character;
         this.textColor = textColor;
         this.backgroundColor = backgroundColor;
@@ -227,5 +226,15 @@ public class Tile implements Serializable {
 
     public String filepath() {
         return filepath;
+    }
+
+    @Override
+    public List<Renderable> getRenderableData() {
+        return null;
+    }
+
+    @Override
+    public void update() {
+
     }
 }

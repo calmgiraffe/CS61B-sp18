@@ -1,13 +1,26 @@
 package byog.Core.Graphics;
 
+import byog.Core.Renderable;
+
 import java.awt.*;
 import java.io.Serializable;
+import java.util.List;
 
-public class Text implements Serializable {
+public class Text implements Serializable, Renderable {
+    @Override
+    public List<Renderable> getRenderableData() {
+        return null;
+    }
+
+    @Override
+    public void update() {
+
+    }
+
     public enum Alignment {
         LEFT,
         CENTRE,
-        RIGHT;
+        RIGHT
     }
     private String text;
     private Color color;

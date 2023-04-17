@@ -1,8 +1,9 @@
 package byog.Core.Level;
 
+import byog.Core.Renderable;
 import byog.Core.Graphics.Tile;
 
-public abstract class Entity {
+public abstract class Entity implements Renderable {
     protected int x;
     protected int y;
     protected int health = 100;

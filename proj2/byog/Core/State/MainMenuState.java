@@ -3,12 +3,12 @@ package byog.Core.State;
 import byog.Core.Graphics.FontSet;
 import byog.Core.Game;
 import byog.Core.Graphics.Text;
-import byog.Core.Graphics.Tile;
+import byog.Core.Renderable;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
 
 import static byog.Core.Graphics.Colors.*;
 
@@ -20,12 +20,11 @@ public class MainMenuState implements State {
     private final Text newStr = new Text("New Game (N)", Color.WHITE, FontSet.OPTION, 0.50, 0.46, Text.Alignment.CENTRE);
     private final Text loadStr = new Text("Load Game (L)", Color.WHITE, FontSet.OPTION, 0.50, 0.40, Text.Alignment.CENTRE);
     private final Text quitStr = new Text("Quit Game (Q)", Color.WHITE, FontSet.OPTION, 0.50, 0.34, Text.Alignment.CENTRE);
-    private final List<Text> text = new ArrayList<>(
-            Arrays.asList(titleStr, newStr, loadStr, quitStr)
-    );
+    private final ArrayList<Renderable> data;
 
     public MainMenuState(Game game) {
         this.game = game;
+        this.data = new ArrayList<>(Arrays.asList(titleStr, newStr, loadStr, quitStr));
     }
 
     @Override
@@ -43,13 +42,8 @@ public class MainMenuState implements State {
     }
 
     @Override
-    public List<Text> getText() {
-        return text;
-    }
-
-    @Override
-    public Tile[][] getTilemap() {
-        return null;
+    public List<Renderable> getData() {
+        return data;
     }
 
     @Override

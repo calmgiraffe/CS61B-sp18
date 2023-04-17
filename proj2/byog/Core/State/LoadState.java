@@ -1,13 +1,11 @@
 package byog.Core.State;
 
 import byog.Core.Game;
-import byog.Core.Graphics.Text;
-import byog.Core.Graphics.Tile;
+import byog.Core.Renderable;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.exit;
@@ -43,18 +41,12 @@ public class LoadState implements State {
     }
 
     @Override
-    public List<Text> getText() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public Tile[][] getTilemap() {
-        return null;
-    }
-
-    @Override
     public void setContext(Game game) {
         this.game = game;
     }
 
+    @Override
+    public List<Renderable> getData() {
+        return null;
+    }
 }

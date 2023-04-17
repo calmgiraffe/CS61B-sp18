@@ -1,9 +1,8 @@
 package byog.Core;
 
 import byog.Core.State.MainMenuState;
-import byog.Core.State.State;
-import byog.Core.Graphics.Renderer;
 
+import byog.Core.State.State;
 import edu.princeton.cs.introcs.StdDraw;
 import java.io.*;
 

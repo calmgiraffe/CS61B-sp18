@@ -1,10 +1,12 @@
 package byog.Core.Level;
 
 import byog.Core.Graphics.Tile;
+import byog.Core.Renderable;
 
 import java.awt.*;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Player extends Entity implements Serializable {
@@ -71,5 +73,15 @@ public class Player extends Entity implements Serializable {
             updateFOVPoints(count - 1, x + 1, y);
             updateFOVPoints(count - 1, x - 1, y);
         }
+    }
+
+    @Override
+    public List<Renderable> getRenderableData() {
+        return null;
+    }
+
+    @Override
+    public void update() {
+
     }
 }

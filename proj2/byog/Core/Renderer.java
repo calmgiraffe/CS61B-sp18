@@ -1,5 +1,8 @@
-package byog.Core.Graphics;
+package byog.Core;
 
+import byog.Core.Graphics.FontSet;
+import byog.Core.Graphics.Text;
+import byog.Core.Graphics.Tile;
 import byog.Core.State.State;
 import edu.princeton.cs.introcs.StdDraw;
 
@@ -36,8 +39,11 @@ public class Renderer implements Serializable {
         this.xOffset = xOff;
         this.yOffset = yOff;
         StdDraw.setCanvasSize(width * TILE_SIZE, height * TILE_SIZE);
+
+
         Font font = new Font("Monaco", Font.BOLD, TILE_SIZE - 2);
-        StdDraw.setFont(font);      
+        StdDraw.setFont(font);
+
         StdDraw.setXscale(0, width);
         StdDraw.setYscale(0, height);
 
@@ -132,22 +138,19 @@ public class Renderer implements Serializable {
     *  "Rendering" is equivalent to showing one frame.
     */
     public void render(State state) {
+        List<Renderable> data = state.getData();
         StdDraw.clear(Color.BLACK);
 
-        // Render text(s)
-        List<Text> stateText = state.getText();
-        for (Text text : stateText) {
-            StdDraw.setPenColor(text.getColor());
-            StdDraw.setFont(text.getFont());
-            switch(text.getAlignment()) {
-                case LEFT -> StdDraw.textLeft(width * text.getX(), height * text.getY(), text.getText());
-                case CENTRE -> StdDraw.text(width * text.getX(), height * text.getY(), text.getText());
-                case RIGHT -> StdDraw.textRight(width * text.getX(), height * text.getY(), text.getText());
+        for (Renderable obj : data) {
+            if (obj instanceof Text) {
+
+            } else if (obj instanceof Tile) {
+
             }
         }
-        // Render Tile[][]
-        this.renderFrame(state.getTilemap());
 
+        // todo: render should iterate through renderable recursively
+        // i.e, state.getData();
         StdDraw.show();
     }
 }

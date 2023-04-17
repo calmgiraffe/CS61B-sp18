@@ -3,7 +3,7 @@ package byog.Core.State;
 import byog.Core.Game;
 import byog.Core.Graphics.FontSet;
 import byog.Core.Graphics.Text;
-import byog.Core.Graphics.Tile;
+import byog.Core.Renderable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -23,12 +23,11 @@ public class SetupState implements State {
     private final Text backStr = new Text("Back (B)", Color.WHITE, FontSet.OPTION, 0.5, 0.40, Text.Alignment.CENTRE);
     private final StringBuilder seed = new StringBuilder();
     private final Text seedStr = new Text("Seed: " + seed, Color.WHITE, FontSet.OPTION, 0.5, 0.34, Text.Alignment.CENTRE);
-    private final List<Text> text = new ArrayList<>(
-            Arrays.asList(titleStr, submitStr, backStr, seedStr)
-    );
+    private final ArrayList<Renderable> data;
 
     public SetupState(Game game) {
         this.game = game;
+        this.data = new ArrayList<>(Arrays.asList(titleStr, submitStr, backStr, seedStr));
     }
 
     @Override
@@ -59,12 +58,7 @@ public class SetupState implements State {
     }
 
     @Override
-    public List<Text> getText() {
-        return text;
-    }
-
-    @Override
-    public Tile[][] getTilemap() {
-        return null;
+    public List<Renderable> getData() {
+        return data;
     }
 }

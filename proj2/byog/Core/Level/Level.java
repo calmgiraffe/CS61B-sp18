@@ -1,6 +1,7 @@
 package byog.Core.Level;
 
 import byog.Core.Graphics.Tile;
+import byog.Core.Renderable;
 import byog.RandomTools.RandomInclusive;
 
 import java.io.Serializable;
@@ -11,7 +12,8 @@ import java.util.List;
  * Level object to represent the underlying data type (TETIle[][]) representing the world,
  * and other variables/invariants like its current level, width, height, rooms, etc
  */
-public class Level implements Serializable {
+public class Level implements Serializable, Renderable {
+    /* Instance variables */
     protected final int width;
     protected final int height;
     protected final RandomInclusive rand;
@@ -29,6 +31,7 @@ public class Level implements Serializable {
         this.rand = rand;
 
         /* Fill Tile[][] data structure with blank tiles */
+        // Todo: potentially move into separate method
         for (int x = 0; x < tilemap.length; x++) {
             for (int y = 0; y < tilemap[0].length; y++) {
                 place(x, y, Tile.NOTHING);
@@ -47,7 +50,7 @@ public class Level implements Serializable {
         return;
     }
 
-    public void updateEntities(char cmd) {
+    public void updateEntities(char cmd) { // Todo: possibly refactor
         if (player == null) {
             int i = rand.nextInt(0, rooms.size() - 1);
             Position playerStart = rooms.get(i).randomPosition(1);
@@ -55,6 +58,8 @@ public class Level implements Serializable {
         }
         player.move(cmd);
     }
+
+
 
     /** Returns the tile at specified x and y coordinates on the level, but does not remove the tile.
      * If out of bounds, returns null. */
@@ -103,26 +108,40 @@ public class Level implements Serializable {
     }
 
     /** Given a 1D position on a level, returns the adjacent (up, right, down, left) 1D positions */
-    public ArrayList<Integer> adjacent(int p) {
-        Position currPos = toPosition(p);
+    public List<Position> adjacent(Position p) {
+        ArrayList<Position> adj = new ArrayList<>();
+        int[][] arr = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
-        ArrayList<Position> tmp = new ArrayList<>();
-        tmp.add(new Position(currPos.x, currPos.y + 1));
-        tmp.add(new Position(currPos.x, currPos.y - 1));
-        tmp.add(new Position(currPos.x + 1, currPos.y));
-        tmp.add(new Position(currPos.x - 1, currPos.y));
+        for (int[] pair : arr) {
+            if (isValid(p.x + pair[0], p.y + pair[1])) {
+                adj.add(new Position(p.x + pair[0], p.y + pair[1]));
+            }
+        }
+        return adj;
+    }
+
+    /** Given a 1D position on a level, returns the adjacent (up, right, down, left) 1D positions */
+    public List<Integer> adjacent(int p) {
+        Position pos = toPosition(p);
+        int[][] arr = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
         ArrayList<Integer> adjacent = new ArrayList<>();
-        for (Position pos : tmp) {
-            if (isValid(pos.x, pos.y)) {
-                adjacent.add(to1D(pos.x, pos.y));
+        for (int[] pair : arr) {
+            if (isValid(pos.x + pair[0], pos.y + pair[1])) {
+                adjacent.add(to1D(pos.x + pair[0], pos.y + pair[1]));
             }
         }
         return adjacent;
     }
 
-    /** Returns the Tile[][] associated with this object that is to be rendered. */
-    public Tile[][] getTilemap() {
-        return tilemap;
+
+    @Override
+    public List<Renderable> getRenderableData() {
+        return null;
+    }
+
+    @Override
+    public void update() {
+
     }
 }
