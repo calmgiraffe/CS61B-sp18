@@ -2,8 +2,9 @@ package byog.Core.State;
 
 import byog.Core.Graphics.FontSet;
 import byog.Core.Game;
-import byog.Core.Graphics.Text;
-import byog.Core.Renderable;
+import byog.Core.Level.Text;
+import byog.Core.Visitable;
+import byog.Core.Visitor;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -20,11 +21,16 @@ public class MainMenuState implements State {
     private final Text newStr = new Text("New Game (N)", Color.WHITE, FontSet.OPTION, 0.50, 0.46, Text.Alignment.CENTRE);
     private final Text loadStr = new Text("Load Game (L)", Color.WHITE, FontSet.OPTION, 0.50, 0.40, Text.Alignment.CENTRE);
     private final Text quitStr = new Text("Quit Game (Q)", Color.WHITE, FontSet.OPTION, 0.50, 0.34, Text.Alignment.CENTRE);
-    private final ArrayList<Renderable> data;
+    private final List<Visitable> visitables = new ArrayList<>();
 
     public MainMenuState(Game game) {
         this.game = game;
-        this.data = new ArrayList<>(Arrays.asList(titleStr, newStr, loadStr, quitStr));
+        this.visitables.addAll(Arrays.asList(titleStr, newStr, loadStr, quitStr));
+    }
+
+    @Override
+    public void setContext(Game game) {
+        this.game = game;
     }
 
     @Override
@@ -42,12 +48,12 @@ public class MainMenuState implements State {
     }
 
     @Override
-    public List<Renderable> getData() {
-        return data;
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
-    public void setContext(Game game) {
-        this.game = game;
+    public List<Visitable> getVisitables() {
+        return visitables;
     }
 }

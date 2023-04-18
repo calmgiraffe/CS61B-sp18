@@ -1,7 +1,8 @@
 package byog.Core.State;
 
 import byog.Core.Game;
-import byog.Core.Renderable;
+import byog.Core.Visitable;
+import byog.Core.Visitor;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,7 +44,12 @@ public class SaveState implements State, Serializable {
     }
 
     @Override
-    public List<Renderable> getData() {
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public List<Visitable> getVisitables() {
         return null;
     }
 }

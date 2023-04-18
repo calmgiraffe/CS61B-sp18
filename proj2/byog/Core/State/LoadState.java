@@ -1,7 +1,8 @@
 package byog.Core.State;
 
 import byog.Core.Game;
-import byog.Core.Renderable;
+import byog.Core.Visitable;
+import byog.Core.Visitor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,6 +17,11 @@ public class LoadState implements State {
     private Game game;
 
     public LoadState(Game game) {
+        this.game = game;
+    }
+
+    @Override
+    public void setContext(Game game) {
         this.game = game;
     }
 
@@ -41,12 +47,12 @@ public class LoadState implements State {
     }
 
     @Override
-    public void setContext(Game game) {
-        this.game = game;
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
-    public List<Renderable> getData() {
+    public List<Visitable> getVisitables() {
         return null;
     }
 }

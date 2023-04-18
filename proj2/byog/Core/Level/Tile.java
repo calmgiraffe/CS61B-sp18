@@ -1,4 +1,4 @@
-package byog.Core.Graphics;
+package byog.Core.Level;
 
 import java.awt.Color;
 import java.io.Serializable;
@@ -6,7 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import byog.Core.Renderable;
+import byog.Core.Visitable;
+import byog.Core.Visitor;
 import byog.RandomTools.RandomUtils;
 
 /**
@@ -23,7 +24,7 @@ import byog.RandomTools.RandomUtils;
  * to make your Tile class mutable, if you prefer.
  */
 
-public class Tile implements Serializable, Renderable {
+public class Tile implements Serializable, Visitable {
     // Entities
     public static final Tile PLAYER = new Tile('@', Color.white, Color.black, "player");
     public static final Tile ENTITY = new Tile('&', Color.red, Color.black, "entity");
@@ -229,12 +230,12 @@ public class Tile implements Serializable, Renderable {
     }
 
     @Override
-    public List<Renderable> getRenderableData() {
-        return null;
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
-    public void update() {
-
+    public List<Visitable> getVisitables() {
+        return null;
     }
 }

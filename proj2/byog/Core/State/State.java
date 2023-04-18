@@ -1,12 +1,10 @@
 package byog.Core.State;
 
 import byog.Core.Game;
-import byog.Core.Renderable;
+import byog.Core.Level.Level;
+import byog.Core.Visitable;
 
-import java.util.List;
-
-public interface State {
-    void nextFrame(char cmd, double x, double y);
+public interface State extends Visitable {
     void setContext(Game game);
-    List<Renderable> getData();
+    void nextFrame(char cmd, double x, double y);
 }

@@ -1,4 +1,4 @@
-package byog.Core.Level;
+package byog.Core.Level.Map;
 
 import java.io.Serializable;
 
@@ -34,9 +34,9 @@ public class Position implements Serializable {
      * Given two 1D positions v1 & v2 on an x-y plane,
      * calculate the absolute distance between the two.
      */
-    public static double euclidean(int v1, int v2, Level level) {
-        Position a = level.toPosition(v1);
-        Position b = level.toPosition(v2);
+    public static double euclidean(int v1, int v2, Map map) {
+        Position a = map.toPosition(v1);
+        Position b = map.toPosition(v2);
         return euclidean(a, b);
     }
 
@@ -52,9 +52,9 @@ public class Position implements Serializable {
      * Given two 1D positions v1 & v2 on an x-y plane,
      * calculate the manhattan distance between the two.
      */
-    public static int manhattan(int v1, int v2, Level level) {
-        Position a = level.toPosition(v1);
-        Position b = level.toPosition(v2);
+    public static int manhattan(int v1, int v2, Map map) {
+        Position a = map.toPosition(v1);
+        Position b = map.toPosition(v2);
         return manhattan(a, b);
     }
 }

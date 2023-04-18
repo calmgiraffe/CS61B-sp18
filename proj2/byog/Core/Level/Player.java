@@ -1,31 +1,31 @@
 package byog.Core.Level;
 
-import byog.Core.Graphics.Tile;
-import byog.Core.Renderable;
-
-import java.awt.*;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Player extends Entity implements Serializable {
+
     private static final int FOV = 5;
 
     private final Set<Integer> fov = new HashSet<>();
     private final Set<Integer> visited = new HashSet<>();
 
-    public Player(int x, int y, Level level) {
+    public Player() {
+        super();
+    }
+
+    /*public Player(int x, int y, Level level) {
         super(x, y, level, Tile.PLAYER);
     }
 
-    /**
-     * Given a direction 'wasd', moves the player icon up/right/down/left.
+
+    *//* * Given a direction 'wasd', moves the player icon up/right/down/left.
      * Checks that the tile to be moved to is not a wall, in which case the character is moved.
      * Keeps a record of the tile that was previously placed so original tile is restored
      * once player moves out.
-     * @param direction one of 'wasd', representing direction to move in
-     */
+     * @param direction one of 'wasd', representing direction to move in*//*
+
     public void move(char direction) {
         int dx = 0, dy = 0;
 
@@ -38,9 +38,8 @@ public class Player extends Entity implements Serializable {
        move(dx, dy);
     }
 
-
-    /* Updates fovmap with the coordinates that correspond to the field of view.
-    *  Implicitly assumes that player moved to a non-wall tile but FOV is not yet updated. */
+    *//* Updates fovmap with the coordinates that correspond to the field of view.
+    *  Implicitly assumes that player moved to a non-wall tile but FOV is not yet updated.*//*
     private void updateFOV() {
         // Replace current fov tiles with tiles from MAIN. If new level, fov is empty.
         for (int p : fov) {
@@ -59,8 +58,8 @@ public class Player extends Entity implements Serializable {
         }
     }
 
-    /* Updates the list of points that make up the current FOV and visited tiles.
-     * this.fov is a Set of 1D positions corresponding to the coordinates of the desired FOV tiles */
+     *//*Updates the list of points that make up the current FOV and visited tiles.
+     * this.fov is a Set of 1D positions corresponding to the coordinates of the desired FOV tiles*//*
     private void updateFOVPoints(int count, int x, int y) {
         if (count < 0 || !level.isValid(x, y)) {
             return;
@@ -73,15 +72,5 @@ public class Player extends Entity implements Serializable {
             updateFOVPoints(count - 1, x + 1, y);
             updateFOVPoints(count - 1, x - 1, y);
         }
-    }
-
-    @Override
-    public List<Renderable> getRenderableData() {
-        return null;
-    }
-
-    @Override
-    public void update() {
-
-    }
+    }*/
 }

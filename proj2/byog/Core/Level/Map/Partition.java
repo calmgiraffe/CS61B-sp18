@@ -1,6 +1,6 @@
-package byog.Core.Level;
+package byog.Core.Level.Map;
 
-import byog.Core.Graphics.Tile;
+import byog.Core.Level.Tile;
 
 import java.io.Serializable;
 import java.util.*;
@@ -26,26 +26,27 @@ public class Partition implements Serializable {
     private static final int MAX = 18;
     private static final int MIN_ROOM = 7;
     private static final int MAX_ROOM = 12;
+
     /* Private instance variables */
     private final Position position; // position is given to be bottom left corner
     private final Position centre;
     private final int width;
     private final int height;
-    private final Level level;
+    private final Map map;
     private final List<Partition> childPartitions = new ArrayList<>(); // all rooms at and below the current node
     private Room room;
     private Partition left;  // left branch
     private Partition right; // right branch
 
-    protected Partition(Position p, int width, int height, Level level) {
+    protected Partition(Position p, int width, int height, Map map) {
         this.position = p;
         this.width = width;
         this.height = height;
         this.centre = new Position(position.x + width / 2, position.y + height / 2);
-        this.level = level;
+        this.map = map;
     }
 
-    /** High level overview: recursively generates partition tree
+    /** High level overview: recursively generates partition tree w/ rooms, adding latter to List
      * <p>
      * Examines partition and apply either their divideHorizontally or divideVertically method,
      * depending on their dimensions. If both dimensions are greater than MAX, either vertical
@@ -56,26 +57,26 @@ public class Partition implements Serializable {
     public void generateTree(List<Room> rooms) {
         if (width > MAX || height > MAX) {
             if (width <= MAX) {
-                int border = level.rand.nextInt(MIN, height - MIN);
+                int border = map.rand.nextInt(MIN, height - MIN);
                 left = splitVertically(border);
-                right = new Partition(position, width, border, level);
+                right = new Partition(position, width, border, map);
 
             } else if (height <= MAX) {
-                int border = level.rand.nextInt(MIN, width - MIN);
+                int border = map.rand.nextInt(MIN, width - MIN);
                 left = splitHorizontally(border);
-                right = new Partition(position, border, height, level);
+                right = new Partition(position, border, height, map);
 
             } else {
-                int choice = level.rand.nextInt(1);
+                int choice = map.rand.nextInt(1);
                 if (choice == 0) {
-                    int border = level.rand.nextInt(MIN, height - MIN);
+                    int border = map.rand.nextInt(MIN, height - MIN);
                     left = splitVertically(border);
-                    right = new Partition(position, width, border, level);
+                    right = new Partition(position, width, border, map);
 
                 } else {
-                    int border = level.rand.nextInt(MIN, width - MIN);
+                    int border = map.rand.nextInt(MIN, width - MIN);
                     left = splitHorizontally(border);
-                    right = new Partition(position, border, height, level);
+                    right = new Partition(position, border, height, map);
                 }
             }
             left.generateTree(rooms);
@@ -88,8 +89,8 @@ public class Partition implements Serializable {
             /* Generate a rectangular Room inside the partition whose area is between MIN x MIN and the
              * exact dimensions of the partition area. A Room is an abstract object consisting of two
              * Positions representing the bottom left and top right corner, a floor type, etc */
-            int lowerLeftX = level.rand.nextInt(width - MIN);
-            int lowerLeftY = level.rand.nextInt(height - MIN);
+            int lowerLeftX = map.rand.nextInt(width - MIN);
+            int lowerLeftY = map.rand.nextInt(height - MIN);
             Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
 
             int minX = lowerLeft.x + MIN_ROOM - 1;
@@ -97,10 +98,10 @@ public class Partition implements Serializable {
             int minY = lowerLeft.y + MIN_ROOM - 1;
             int maxY = Math.min(lowerLeft.y + MAX_ROOM - 1, position.y + height - 1);
 
-            int upperRightX = level.rand.nextInt(minX, maxX);
-            int upperRightY = level.rand.nextInt(minY, maxY);
+            int upperRightX = map.rand.nextInt(minX, maxX);
+            int upperRightY = map.rand.nextInt(minY, maxY);
             Position upperRight = new Position(upperRightX, upperRightY);
-            room = new Room(lowerLeft, upperRight, level);
+            room = new Room(lowerLeft, upperRight, map);
 
             rooms.add(room);
             childPartitions.add(this);
@@ -112,7 +113,7 @@ public class Partition implements Serializable {
      * */
     private Partition splitHorizontally(int border) {
         Position newPos = new Position(position.x + border, position.y);
-        return new Partition(newPos, width - border, height, level);
+        return new Partition(newPos, width - border, height, map);
     }
 
     /* Makes another partition at a point about border, which is approximately in
@@ -120,7 +121,7 @@ public class Partition implements Serializable {
      */
     private Partition splitVertically(int border) {
         Position newPos = new Position(position.x, position.y + border);
-        return new Partition(newPos, width, height - border, level);
+        return new Partition(newPos, width, height - border, map);
     }
 
     /** Select two partitions, one from the left and right branch respectively,
@@ -159,11 +160,11 @@ public class Partition implements Serializable {
     /* Draw a completed hallway between A and B, picking a random location in the Room */
     private void astar(Room roomA, Room roomB) {
         Position a = roomA.randomPosition(1), b = roomB.randomPosition(1);
-        int start = level.to1D(a.x, a.y), target = level.to1D(b.x, b.y);
+        int start = map.to1D(a.x, a.y), target = map.to1D(b.x, b.y);
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
-        int[] edgeTo = new int[level.width * level.height];
-        int[] distTo = new int[level.width * level.height];
+        int[] edgeTo = new int[map.width * map.height];
+        int[] distTo = new int[map.width * map.height];
         Arrays.fill(distTo, Integer.MAX_VALUE);
         distTo[start] = 0;
 
@@ -173,13 +174,13 @@ public class Partition implements Serializable {
         while (!fringe.isEmpty() && !targetFound) {
             int p = fringe.remove().position;
 
-            for (int q : level.adjacent(p)) {
+            for (int q : map.adjacent(p)) {
                 // If new distance < old distance, update distTo and edgeTo
                 // Add neighbour node q to PQ, factoring in heuristic
                 if (distTo[p] + 1 < distTo[q]) {
                     distTo[q] = distTo[p] + 1;
                     edgeTo[q] = p;
-                    fringe.add(new Node(q, distTo[q] + Position.manhattan(q, target, level)));
+                    fringe.add(new Node(q, distTo[q] + Position.manhattan(q, target, map)));
                 }
                 if (q == target) {
                     targetFound = true;
@@ -199,20 +200,20 @@ public class Partition implements Serializable {
         char way = '~';
 
         while (curr != start) {
-            if (curr == prev + level.width) {
+            if (curr == prev + map.width) {
                 way = 'U';
 
             } else if (curr == prev + 1) {
                 way = 'R';
 
-            } else if (curr == prev - level.width) {
+            } else if (curr == prev - map.width) {
                 way = 'D';
 
             } else if (curr == prev - 1) {
                 way = 'L';
             }
-            Position currentPos = level.toPosition(curr);
-            level.place(currentPos.x, currentPos.y, Tile.FLOOR);
+            Position currentPos = map.toPosition(curr);
+            map.place(currentPos.x, currentPos.y, Tile.FLOOR);
 
             /* Draws the three wall tiles and floor tile that must be placed when adding a new floor
             tile to hallway. Overall method works by adding a room of area 1 on a preexisting room. */
@@ -233,14 +234,14 @@ public class Partition implements Serializable {
             }
             if (way == 'U' || way == 'D') {
                 for (int i = 0; i < 3; i += 1) {
-                    if (level.peek(x + i, y) != Tile.FLOOR) {
-                        level.place(x + i, y, Tile.colorVariant(Tile.WALL, 30, 30, 30, level.rand));
+                    if (map.peek(x + i, y) != Tile.FLOOR) {
+                        map.place(x + i, y, Tile.colorVariant(Tile.WALL, 30, 30, 30, map.rand));
                     }
                 }
             } else if (way == 'L' || way == 'R') {
                 for (int i = 0; i < 3; i += 1) {
-                    if (level.peek(x, y + i) != Tile.FLOOR) {
-                        level.place(x, y + i, Tile.colorVariant(Tile.WALL, 30, 30, 30, level.rand));
+                    if (map.peek(x, y + i) != Tile.FLOOR) {
+                        map.place(x, y + i, Tile.colorVariant(Tile.WALL, 30, 30, 30, map.rand));
                     }
                 }
             }

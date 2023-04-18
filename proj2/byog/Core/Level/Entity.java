@@ -1,17 +1,31 @@
 package byog.Core.Level;
 
-import byog.Core.Renderable;
-import byog.Core.Graphics.Tile;
+import byog.Core.Visitable;
+import byog.Core.Visitor;
 
-public abstract class Entity implements Renderable {
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class Entity implements Visitable {
     protected int x;
     protected int y;
     protected int health = 100;
     protected Level level;
     protected Tile tile;
     protected Tile currTile; // Tile that is "below" the entity
+    protected List<Visitable> visitables = new ArrayList<>();
 
-    public Entity(int x, int y, Level level, Tile tile) {
+    public Entity() {}
+
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+    public List<Visitable> getVisitables() {
+        return null;
+    }
+
+
+    /*public Entity(int x, int y, Level level, Tile tile) {
         this.x = x;
         this.y = y;
         this.level = level;
@@ -29,5 +43,5 @@ public abstract class Entity implements Renderable {
             x = newX;
             y = newY;
         }
-    }
+    }*/
 }

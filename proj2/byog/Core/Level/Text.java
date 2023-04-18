@@ -1,21 +1,14 @@
-package byog.Core.Graphics;
+package byog.Core.Level;
 
-import byog.Core.Renderable;
+import byog.Core.Visitable;
+import byog.Core.Renderer;
+import byog.Core.Visitor;
 
 import java.awt.*;
 import java.io.Serializable;
 import java.util.List;
 
-public class Text implements Serializable, Renderable {
-    @Override
-    public List<Renderable> getRenderableData() {
-        return null;
-    }
-
-    @Override
-    public void update() {
-
-    }
+public class Text implements Serializable, Visitable {
 
     public enum Alignment {
         LEFT,
@@ -36,6 +29,16 @@ public class Text implements Serializable, Renderable {
         this.x = x;
         this.y = y;
         this.alignment = alignment;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public List<Visitable> getVisitables() {
+        return null;
     }
 
     public void setText(String text) {

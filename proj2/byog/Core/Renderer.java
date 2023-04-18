@@ -1,16 +1,17 @@
 package byog.Core;
 
 import byog.Core.Graphics.FontSet;
-import byog.Core.Graphics.Text;
-import byog.Core.Graphics.Tile;
 import byog.Core.Level.Entity;
+import byog.Core.Level.Level;
+import byog.Core.Level.Map.Map;
+import byog.Core.Level.Text;
+import byog.Core.Level.Tile;
 import byog.Core.State.State;
 import edu.princeton.cs.introcs.StdDraw;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Utility class for rendering tiles. You do not need to modify this file. You're welcome
@@ -40,7 +41,6 @@ public class Renderer implements Serializable {
         this.xOffset = xOff;
         this.yOffset = yOff;
         StdDraw.setCanvasSize(width * TILE_SIZE, height * TILE_SIZE);
-
 
         Font font = new Font("Monaco", Font.BOLD, TILE_SIZE - 2);
         StdDraw.setFont(font);
@@ -139,21 +139,9 @@ public class Renderer implements Serializable {
     *  "Rendering" is equivalent to showing one frame.
     */
     public void render(State state) {
-        // Todo: render should iterate through renderable objects recursively
-
-        List<Renderable> data = state.getData();
         StdDraw.clear(Color.BLACK);
-
-        for (Renderable obj : data) {
-            if (obj instanceof Text) {
-
-            } else if (obj instanceof Tile) {
-
-            } else if (obj instanceof Entity) {
-
-            }
-        }
-        // i.e, state.getData();
+        RendererVisitor rendererVisitor = new RendererVisitor();
+        rendererVisitor.visit(state);
         StdDraw.show();
     }
 }
