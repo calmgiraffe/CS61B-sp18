@@ -20,15 +20,7 @@ public class PlayState implements State, Serializable {
     private final Level[] levels;
     private int currLevel = 1;
     private final RandomInclusive rand;
-
-    // Flags
-    private boolean reachedEndOfLevel = false;
     private boolean colonPressed = false;
-
-    /* HUD text */
-    private final Text tileStr = new Text("", Color.WHITE, FontSet.HUD, 0.03, 0.96, Text.Alignment.LEFT);
-    private final Text centreStr = new Text("Press q to quit", Color.WHITE, FontSet.HUD, 0.5, 0.96, Text.Alignment.CENTRE);
-    private final Text levelStr = new Text("Level 1", Color.WHITE, FontSet.HUD, 0.97, 0.96, Text.Alignment.RIGHT);
 
     public PlayState(Game game, Long seed, int width, int height) {
         this.game = game;
@@ -37,20 +29,23 @@ public class PlayState implements State, Serializable {
         levels[currLevel] = new Level(width, height, rand); // generate first level
     }
 
-    private void nextLevel() {
-        currLevel += 1;
-    }
-    private void prevLevel() {
-        currLevel -= 1;
-    }
-
     @Override
     public void setContext(Game game) {
         this.game = game;
     }
 
     @Override
-    public void nextFrame(char cmd, double mouseX, double mouseY) {
+    public void update(char cmd, double mouseX, double mouseY) {
+        // level[currlevel].update()
+        // hud.update()
+
+        // Hud needs to know:
+        // mouse x and y position
+        // the tiles underneath x and y
+        // the current level
+
+
+
         /* Set the next frame of window */
         levels[currLevel].nextFrame();
 
@@ -74,7 +69,7 @@ public class PlayState implements State, Serializable {
         String tileDesc;
         Map currMap = levels[currLevel].getMap();
         if (currMap.isValid(newX, newY)) {
-            Sprite currSprite = currMap.peek(newX, newY);
+            Sprite currSprite = currMap.peek(newX, newY).getSprite();
             tileDesc = currSprite.description();
         } else {
             tileDesc = "";
@@ -83,5 +78,12 @@ public class PlayState implements State, Serializable {
 
         /* Set centreStr based off flag */
         centreStr.setText(colonPressed ? "Press q to quit" : "");
+    }
+
+    private void nextLevel() {
+        currLevel += 1;
+    }
+    private void prevLevel() {
+        currLevel -= 1;
     }
 }

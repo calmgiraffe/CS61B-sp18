@@ -35,6 +35,7 @@ public class Game implements Serializable {
     public void start() throws InterruptedException {
         char cmd;
         double mouseX, mouseY;
+        InputComponent input = new InputComponent();
 
         while (!quitGame) {
             // Get keyboard and mouse inputs
@@ -42,7 +43,7 @@ public class Game implements Serializable {
             mouseX = StdDraw.mouseX();
             mouseY = StdDraw.mouseY();
 
-            state.nextFrame(cmd, mouseX, mouseY);
+            state.update(cmd, mouseX, mouseY);
             renderer.render(state);
             Thread.sleep(MS_PER_UPDATE);
         }

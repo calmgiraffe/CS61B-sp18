@@ -5,8 +5,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Random;
 
-import byog.Core.Visitable;
-import byog.Core.Visitor;
 import byog.RandomTools.RandomUtils;
 
 /**

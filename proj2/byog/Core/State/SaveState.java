@@ -20,7 +20,7 @@ public class SaveState implements State, Serializable {
     }
 
     @Override
-    public void nextFrame(char cmd, double x, double y) {
+    public void update(char cmd, double x, double y) {
         try {
             // Serialize PlayState to a file
             FileOutputStream fileOut = new FileOutputStream("savefile.txt");

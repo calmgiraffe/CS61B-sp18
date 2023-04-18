@@ -32,7 +32,7 @@ public class SetupState implements State {
     }
 
     @Override
-    public void nextFrame(char cmd, double x, double y) {
+    public void update(char cmd, double x, double y) {
         angle = (angle + 5) % 360;
         titleStr.setColor(rainbowColor(angle));
 
