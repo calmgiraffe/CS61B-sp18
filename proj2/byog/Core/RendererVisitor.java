@@ -10,6 +10,7 @@ import byog.Core.State.State;
 import edu.princeton.cs.introcs.StdDraw;
 
 public class RendererVisitor implements Visitor {
+    Renderer renderer = new Renderer();
 
     /**
      * Draws the tile to the screen at location x, y. If a valid filepath is provided,
@@ -40,7 +41,6 @@ public class RendererVisitor implements Visitor {
 
     @Override
     public void visit(Tile tile) {
-
     }
 
     @Override
@@ -52,21 +52,17 @@ public class RendererVisitor implements Visitor {
 
     @Override
     public void visit(Level level) {
-
     }
 
     @Override
     public void visit(Map map) {
-
     }
 
     @Override
     public void visit(Entity entity) {
-
     }
 
     @Override
     public void visit(State state) {
-
     }
 }

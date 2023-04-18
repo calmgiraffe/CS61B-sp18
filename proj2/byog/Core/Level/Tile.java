@@ -208,7 +208,6 @@ public class Tile implements Serializable, Visitable {
     }
 
     /* Getter methods */
-
     public char character() {
         return character;
     }
