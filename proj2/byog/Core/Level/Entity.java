@@ -17,11 +17,9 @@ public abstract class Entity implements Visitable {
 
     public Entity() {}
 
+    @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);
-    }
-    public List<Visitable> getVisitables() {
-        return null;
     }
 
 

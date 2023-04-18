@@ -1,7 +1,6 @@
 package byog.Core.State;
 
 import byog.Core.Game;
-import byog.Core.Level.Level;
 import byog.Core.Visitable;
 
 public interface State extends Visitable {

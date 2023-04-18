@@ -20,7 +20,6 @@ public class Game implements Serializable {
     private boolean quitGame = false;
     private State state;
 
-
     /* Constructor */
     public Game(String cmdString) {
         renderer.initialize(WIDTH, HEIGHT);

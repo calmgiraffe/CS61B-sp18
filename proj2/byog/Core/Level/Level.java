@@ -23,7 +23,7 @@ public class Level implements Serializable, Visitable {
         this.width = width;
         this.height = height;
         this.rand = rand;
-        this.map = new Map(width, height, rand);
+        this.map = new Map(width, height, rand); // generate the underlying map (grid of tiles)
         this.visitables = new ArrayList<>(Arrays.asList(map));
         visitables.add(map);
     }
@@ -41,10 +41,8 @@ public class Level implements Serializable, Visitable {
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public List<Visitable> getVisitables() {
-        return visitables;
+        for (Visitable obj : visitables) {
+            obj.accept(visitor);
+        }
     }
 }

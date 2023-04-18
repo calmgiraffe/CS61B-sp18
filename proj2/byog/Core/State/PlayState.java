@@ -41,7 +41,7 @@ public class PlayState implements State, Serializable {
         this.game = game;
         this.rand = new RandomInclusive(seed);
         this.levels = new Level[NUM_LEVELS + 1];
-        levels[currLevel] = new Level(width, height, rand);
+        levels[currLevel] = new Level(width, height, rand); // generate first level
         this.visitables = new ArrayList<>(Arrays.asList(tileStr, centreStr, levelStr, levels[currLevel]));
     }
 
@@ -74,7 +74,7 @@ public class PlayState implements State, Serializable {
             colonPressed = false;
             levels[currLevel].updateEntities(cmd); // entities move only when player moves
         }
-        // Todo: raise flag if reached end of level
+        // Todo: handling case when player reaches end of level
 
         /* Set tileStr based off current mouse position */
         int newX = Math.round((float) Math.floor(mouseX));
@@ -96,10 +96,8 @@ public class PlayState implements State, Serializable {
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public List<Visitable> getVisitables() {
-        return new ArrayList<>(Arrays.asList(tileStr, centreStr, levelStr, levels[currLevel]));
+        for (Visitable obj : visitables) {
+            obj.accept(visitor);
+        }
     }
 }

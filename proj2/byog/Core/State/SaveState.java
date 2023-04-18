@@ -47,9 +47,4 @@ public class SaveState implements State, Serializable {
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
-
-    @Override
-    public List<Visitable> getVisitables() {
-        return null;
-    }
 }

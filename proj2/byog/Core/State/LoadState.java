@@ -50,9 +50,4 @@ public class LoadState implements State {
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
-
-    @Override
-    public List<Visitable> getVisitables() {
-        return null;
-    }
 }

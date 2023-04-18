@@ -24,11 +24,11 @@ public class SetupState implements State {
     private final Text backStr = new Text("Back (B)", Color.WHITE, FontSet.OPTION, 0.5, 0.40, Text.Alignment.CENTRE);
     private final StringBuilder seed = new StringBuilder();
     private final Text seedStr = new Text("Seed: " + seed, Color.WHITE, FontSet.OPTION, 0.5, 0.34, Text.Alignment.CENTRE);
-    private final List<Visitable> visitables;
+    private final List<Visitable> visitables = new ArrayList<>();
 
     public SetupState(Game game) {
         this.game = game;
-        this.visitables = new ArrayList<>(Arrays.asList(titleStr, submitStr, backStr, seedStr));
+        this.visitables.addAll(Arrays.asList(titleStr, submitStr, backStr, seedStr));
     }
 
     @Override
@@ -41,19 +41,19 @@ public class SetupState implements State {
         angle = (angle + 5) % 360;
         titleStr.setColor(rainbowColor(angle));
 
-        if ((int) cmd == BACKSPACE && seed.length() > 0) {
+        if ((int) cmd == BACKSPACE && seed.length() > 0) { // delete from seed
             seed.deleteCharAt(seed.length() - 1);
             seedStr.setText("Seed: " + seed);
-
-        } else if (seed.length() <= MAX_LONG_LEN && Character.isDigit(cmd)) {
+        }
+        else if (seed.length() <= MAX_LONG_LEN && Character.isDigit(cmd)) { // add to seed
             seed.append(cmd);
             seedStr.setText("Seed: " + seed);
-
-        } else if (cmd == 's' && seed.length() > 0) { // s = start
+        }
+        else if (cmd == 's' && seed.length() > 0) { // s = start
             Long seedValue = Long.parseLong(seed.toString());
             game.setContext(new PlayState(game, seedValue, Game.WIDTH, Game.HEIGHT - Game.HUD_HEIGHT));
-
-        } else if (cmd == 'b') { // b = go back
+        }
+        else if (cmd == 'b') { // b = go back
             game.setContext(new MainMenuState(game));
         }
     }
@@ -61,10 +61,8 @@ public class SetupState implements State {
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public List<Visitable> getVisitables() {
-        return visitables;
+        for (Visitable obj : visitables) {
+            obj.accept(visitor);
+        }
     }
 }

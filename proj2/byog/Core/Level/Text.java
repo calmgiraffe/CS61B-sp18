@@ -36,11 +36,6 @@ public class Text implements Serializable, Visitable {
         visitor.visit(this);
     }
 
-    @Override
-    public List<Visitable> getVisitables() {
-        return null;
-    }
-
     public void setText(String text) {
         this.text = text;
     }

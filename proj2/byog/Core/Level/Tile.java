@@ -233,9 +233,4 @@ public class Tile implements Serializable, Visitable {
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
-
-    @Override
-    public List<Visitable> getVisitables() {
-        return null;
-    }
 }

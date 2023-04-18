@@ -9,8 +9,6 @@ import byog.Core.Level.Tile;
 import byog.Core.State.State;
 import edu.princeton.cs.introcs.StdDraw;
 
-import java.util.List;
-
 public class RendererVisitor implements Visitor {
 
     /**
@@ -47,7 +45,9 @@ public class RendererVisitor implements Visitor {
 
     @Override
     public void visit(Text text) {
-
+        StdDraw.setFont(text.getFont());
+        StdDraw.setPenColor(text.getColor());
+        StdDraw.text(text.getX(), text.getY(), text.getText());
     }
 
     @Override
@@ -67,12 +67,6 @@ public class RendererVisitor implements Visitor {
 
     @Override
     public void visit(State state) {
-        List<Visitable> visitableList = state.getVisitables();
-        if (visitableList == null) {
-            return;
-        }
-        for (Visitable v : visitableList) {
-            v.accept(this);
-        }
+
     }
 }

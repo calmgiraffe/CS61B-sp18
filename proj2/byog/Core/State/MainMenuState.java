@@ -50,10 +50,8 @@ public class MainMenuState implements State {
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public List<Visitable> getVisitables() {
-        return visitables;
+        for (Visitable obj : visitables) {
+            obj.accept(visitor);
+        }
     }
 }
