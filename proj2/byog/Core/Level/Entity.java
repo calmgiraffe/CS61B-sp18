@@ -1,45 +1,13 @@
 package byog.Core.Level;
 
-import byog.Core.Visitable;
-import byog.Core.Visitor;
+import byog.Core.GameObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public abstract class Entity implements Visitable {
-    protected int x;
-    protected int y;
+public abstract class Entity extends GameObject {
+    protected double x;
+    protected double y;
     protected int health = 100;
-    protected Level level;
-    protected Tile tile;
-    protected Tile currTile; // Tile that is "below" the entity
-    protected List<Visitable> visitables = new ArrayList<>();
 
-    public Entity() {}
-
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
+    public Entity() {
+        super(x, y, )
     }
-
-
-    /*public Entity(int x, int y, Level level, Tile tile) {
-        this.x = x;
-        this.y = y;
-        this.level = level;
-        this.tile = tile;
-        this.currTile = level.peek(x, y);
-        level.place(x, y, tile);
-    }
-
-    public void move(int dx, int dy) {
-        int newX = x + dx, newY = y + dy;
-        if (level.peek(newX, newY).character() != '#') {
-            level.place(x, y, currTile);
-            currTile = level.peek(newX, newY);
-            level.place(newX, newY, tile);
-            x = newX;
-            y = newY;
-        }
-    }*/
 }

@@ -3,13 +3,10 @@ package byog.Core.State;
 import byog.Core.Game;
 import byog.Core.Graphics.FontSet;
 import byog.Core.Level.Text;
-import byog.Core.Visitable;
-import byog.Core.Visitor;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+
 
 import static byog.Core.Graphics.Colors.rainbowColor;
 
@@ -24,11 +21,9 @@ public class SetupState implements State {
     private final Text backStr = new Text("Back (B)", Color.WHITE, FontSet.OPTION, 0.5, 0.40, Text.Alignment.CENTRE);
     private final StringBuilder seed = new StringBuilder();
     private final Text seedStr = new Text("Seed: " + seed, Color.WHITE, FontSet.OPTION, 0.5, 0.34, Text.Alignment.CENTRE);
-    private final List<Visitable> visitables = new ArrayList<>();
 
     public SetupState(Game game) {
         this.game = game;
-        this.visitables.addAll(Arrays.asList(titleStr, submitStr, backStr, seedStr));
     }
 
     @Override
@@ -55,14 +50,6 @@ public class SetupState implements State {
         }
         else if (cmd == 'b') { // b = go back
             game.setContext(new MainMenuState(game));
-        }
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-        for (Visitable obj : visitables) {
-            obj.accept(visitor);
         }
     }
 }

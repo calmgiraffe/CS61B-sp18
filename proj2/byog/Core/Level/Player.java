@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Player extends Entity implements Serializable {
+public class Player {
 
     private static final int FOV = 5;
 
@@ -16,13 +16,13 @@ public class Player extends Entity implements Serializable {
     }
 
     /*public Player(int x, int y, Level level) {
-        super(x, y, level, Tile.PLAYER);
+        super(x, y, level, Sprite.PLAYER);
     }
 
 
     *//* * Given a direction 'wasd', moves the player icon up/right/down/left.
-     * Checks that the tile to be moved to is not a wall, in which case the character is moved.
-     * Keeps a record of the tile that was previously placed so original tile is restored
+     * Checks that the sprite to be moved to is not a wall, in which case the character is moved.
+     * Keeps a record of the sprite that was previously placed so original sprite is restored
      * once player moves out.
      * @param direction one of 'wasd', representing direction to move in*//*
 
@@ -39,13 +39,13 @@ public class Player extends Entity implements Serializable {
     }
 
     *//* Updates fovmap with the coordinates that correspond to the field of view.
-    *  Implicitly assumes that player moved to a non-wall tile but FOV is not yet updated.*//*
+    *  Implicitly assumes that player moved to a non-wall sprite but FOV is not yet updated.*//*
     private void updateFOV() {
         // Replace current fov tiles with tiles from MAIN. If new level, fov is empty.
         for (int p : fov) {
             Position pos = level.toPosition(p);
-            Tile tile = level.peek(pos.x, pos.y);
-            level.place(pos.x, pos.y, new Tile(tile, new Color(45, 45, 45)));
+            Sprite sprite = level.peek(pos.x, pos.y);
+            level.place(pos.x, pos.y, new Sprite(sprite, new Color(45, 45, 45)));
         }
         fov.clear();
         this.updateFOVPoints(FOV, x, y);
@@ -53,8 +53,8 @@ public class Player extends Entity implements Serializable {
         // Update FOV level with points fom this.fov
         for (int p : fov) {
             Position pos = level.toPosition(p);
-            Tile tile = level.peek(pos.x, pos.y);
-            level.place(pos.x, pos.y, tile);
+            Sprite sprite = level.peek(pos.x, pos.y);
+            level.place(pos.x, pos.y, sprite);
         }
     }
 

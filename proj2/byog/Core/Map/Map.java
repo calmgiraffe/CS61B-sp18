@@ -1,9 +1,8 @@
-package byog.Core.Level.Map;
+package byog.Core.Map;
 
-import byog.Core.Level.Tile;
-import byog.Core.Visitable;
-import byog.Core.Renderer;
-import byog.Core.Visitor;
+import byog.Core.Graphics.Sprite;
+import byog.Core.Position;
+import byog.Core.Tile;
 import byog.RandomTools.RandomInclusive;
 
 import java.io.Serializable;
@@ -13,68 +12,51 @@ import java.util.List;
 /**
  * Map object to represent the underlying data type (TETIle[][]) representing the world.
  */
-public class Map implements Serializable, Visitable {
+public class Map implements Serializable {
     /* Instance variables */
     protected final int width;
     protected final int height;
     protected final RandomInclusive rand;
     private final ArrayList<Room> rooms = new ArrayList<>();
-    private final Tile[][] tilemap;
-    private int angle = 0;
-    private List<Visitable> visitables = new ArrayList<>();
+    private final Tile[][] tileGrid;
 
     public Map(int width, int height, RandomInclusive rand) {
         this.width = width;
         this.height = height;
-        this.tilemap = new Tile[width][height];
+        this.tileGrid = new Tile[width][height];
         Partition partition = new Partition(new Position(0, 0), width, height, this);
         this.rand = rand;
 
-        /* Fill Tile[][] data structure with blank tiles */
-        for (int x = 0; x < tilemap.length; x++) {
-            for (int y = 0; y < tilemap[0].length; y++) {
-                place(x, y, Tile.NOTHING);
+        /* Fill Sprite[][] data structure with blank tiles */
+        for (int x = 0; x < tileGrid.length; x++) {
+            for (int y = 0; y < tileGrid[0].length; y++) {
+                place(new Tile(x, y, Sprite.NOTHING));
             }
         }
         /* Generate dungeon and draw grass */
         partition.generateTree(rooms);
         partition.connectPartitions();
-
-        /* Add renderable objects */
-        for (int x = 0; x < tilemap.length; x++) {
-            for (int y = 0; y < tilemap[0].length; y++) {
-                visitables.add(peek(x, y));
-            }
-        }
     }
 
-    /* Update the state of the level, this includes changing color of tiles */
-    public void nextFrame() {
-        angle = (angle + 5) % 360;
-        // Todo: complete rest of method
-        // Update how different tiles look
-    }
-
-    /** Returns the tile at specified x and y coordinates on the level, but does not remove the tile.
+    /** Returns the sprite at specified x and y coordinates on the level, but does not remove the sprite.
      * If out of bounds, returns null. */
     public Tile peek(int x, int y) {
         if (isValid(x, y)) {
-            return tilemap[x][y];
+            return tileGrid[x][y];
         }
         return null;
     }
 
-    /** Draws the specified tile at the specified x & y.
+    /** Draws the specified sprite at the specified x & y.
      * Use this method so you don't get IndexErrors. */
-    public void place(int x, int y, Tile tile) {
-        // Todo: keep a set of different tile types
-        // See Flyweight design pattern
-        if (isValid(x, y)) {
-            tilemap[x][y] = tile;
+    public void place(Tile tile) {
+        int ix = (int) tile.x(), iy = (int) tile.y();
+        if (isValid(ix, iy)) {
+            tileGrid[ix][iy] = tile;
         }
     }
 
-    /** Returns true if x and y are within the dimensions of the Tile[][] matrix. */
+    /** Returns true if x and y are within the dimensions of the Sprite[][] matrix. */
     public boolean isValid(int x, int y) {
         return (0 <= x && x < width) && (0 <= y && y < height);
     }
@@ -105,8 +87,8 @@ public class Map implements Serializable, Visitable {
         int[][] arr = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
         for (int[] pair : arr) {
-            if (isValid(p.x + pair[0], p.y + pair[1])) {
-                adj.add(new Position(p.x + pair[0], p.y + pair[1]));
+            if (isValid(p.floorX() + pair[0], p.floorY() + pair[1])) {
+                adj.add(new Position(p.floorX() + pair[0], p.floorY() + pair[1]));
             }
         }
         return adj;
@@ -119,22 +101,14 @@ public class Map implements Serializable, Visitable {
 
         ArrayList<Integer> adjacent = new ArrayList<>();
         for (int[] pair : arr) {
-            if (isValid(pos.x + pair[0], pos.y + pair[1])) {
-                adjacent.add(to1D(pos.x + pair[0], pos.y + pair[1]));
+            if (isValid(pos.floorX() + pair[0], pos.floorY() + pair[1])) {
+                adjacent.add(to1D(pos.floorX() + pair[0], pos.floorY() + pair[1]));
             }
         }
         return adjacent;
     }
 
-    public Tile[][] getTilemap() {
-        return tilemap;
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-        for (Visitable obj : visitables) {
-            obj.accept(visitor);
-        }
+    public Tile[][] getTileGrid() {
+        return tileGrid;
     }
 }

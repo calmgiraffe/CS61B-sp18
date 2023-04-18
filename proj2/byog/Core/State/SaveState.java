@@ -1,14 +1,11 @@
 package byog.Core.State;
 
 import byog.Core.Game;
-import byog.Core.Visitable;
-import byog.Core.Visitor;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.List;
 
 import static java.lang.System.exit;
 
@@ -41,10 +38,5 @@ public class SaveState implements State, Serializable {
     @Override
     public void setContext(Game game) {
         this.game = game;
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
     }
 }

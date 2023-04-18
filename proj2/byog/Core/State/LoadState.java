@@ -1,13 +1,10 @@
 package byog.Core.State;
 
 import byog.Core.Game;
-import byog.Core.Visitable;
-import byog.Core.Visitor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.List;
 
 import static java.lang.System.exit;
 
@@ -44,10 +41,5 @@ public class LoadState implements State {
             c.printStackTrace();
             exit(1);
         }
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
     }
 }

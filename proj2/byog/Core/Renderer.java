@@ -1,11 +1,7 @@
 package byog.Core;
 
 import byog.Core.Graphics.FontSet;
-import byog.Core.Level.Entity;
-import byog.Core.Level.Level;
-import byog.Core.Level.Map.Map;
-import byog.Core.Level.Text;
-import byog.Core.Level.Tile;
+import byog.Core.Graphics.Sprite;
 import byog.Core.State.State;
 import edu.princeton.cs.introcs.StdDraw;
 
@@ -30,8 +26,8 @@ public class Renderer implements Serializable {
      * Same functionality as the other initialization method. The only difference is that the xOff
      * and yOff parameters will change where the renderFrame method starts drawing. For example,
      * if you select w = 60, h = 30, xOff = 3, yOff = 4 and then call renderFrame with a
-     * Tile[50][25] array, the renderer will leave 3 tiles blank on the left, 7 tiles blank
-     * on the right, 4 tiles blank on the bottom, and 1 tile blank on the top.
+     * Sprite[50][25] array, the renderer will leave 3 tiles blank on the left, 7 tiles blank
+     * on the right, 4 tiles blank on the bottom, and 1 sprite blank on the top.
      * @param w width of the window in tiles
      * @param h height of the window in tiles.
      */
@@ -55,11 +51,11 @@ public class Renderer implements Serializable {
 
     /**
      * Initializes StdDraw parameters and launches the StdDraw window. w and h are the
-     * width and height of the world in number of tiles. If the Tile[][] array that you
+     * width and height of the world in number of tiles. If the Sprite[][] array that you
      * pass to renderFrame is smaller than this, then extra blank space will be left
      * on the right and top edges of the frame. For example, if you select w = 60 and
-     * h = 30, this method will create a 60 tile wide by 30 tile tall window. If
-     * you then subsequently call renderFrame with a Tile[50][25] array, it will
+     * h = 30, this method will create a 60 sprite wide by 30 sprite tall window. If
+     * you then subsequently call renderFrame with a Sprite[50][25] array, it will
      * leave 10 tiles blank on the right side and 5 tiles blank on the top side. If
      * you want to leave extra space on the left or bottom instead, use the other
      * initialization method.
@@ -71,7 +67,7 @@ public class Renderer implements Serializable {
     }
 
     /**
-     * Takes in a 2d array of Tile objects and renders the 2d array to the screen, starting from
+     * Takes in a 2d array of Sprite objects and renders the 2d array to the screen, starting from
      * xOffset and yOffset.
      * <p>
      * If the array is an NxM array, then the element displayed at positions would be as follows,
@@ -90,9 +86,9 @@ public class Renderer implements Serializable {
      * This method assumes that the xScale and yScale have been set such that the max x
      * value is the width of the screen in tiles, and the max y value is the height of
      * the screen in tiles.
-     * @param world the 2D Tile[][] array to render
+     * @param world the 2D Sprite[][] array to render
      */
-    public void renderFrame(Tile[][] world) {
+    public void renderFrame(Sprite[][] world) {
         if (world == null) {
             return;
         }
@@ -101,7 +97,7 @@ public class Renderer implements Serializable {
         for (int x = 0; x < numXTiles; x += 1) {
             for (int y = 0; y < numYTiles; y += 1) {
                 if (world[x][y] == null) {
-                    throw new IllegalArgumentException("Tile at position x=" + x + ", y=" + y + " is null.");
+                    throw new IllegalArgumentException("Sprite at position x=" + x + ", y=" + y + " is null.");
                 }
                 draw(world[x][y], x, y);
             }
@@ -109,30 +105,47 @@ public class Renderer implements Serializable {
     }
 
     /**
-     * Draws the tile to the screen at location x, y. If a valid filepath is provided,
+     * Draws the sprite to the screen at location x, y. If a valid filepath is provided,
      * we draw the image located at that filepath to the screen. Otherwise, we fall
-     * back to the character and color representation for the tile.
+     * back to the character and color representation for the sprite.
      * <p>
      * Note that the image provided must be of the right size (16x16). It will not be
      * automatically resized or truncated.
      * @param x x coordinate
      * @param y y coordinate
      */
-    public void draw(Tile tile, double x, double y) {
-        if (tile.filepath() != null) {
+    public void draw(Sprite sprite, double x, double y) {
+        if (sprite.filepath() != null) {
             try {
-                StdDraw.picture(x + 0.5, y + 0.5, tile.filepath());
+                StdDraw.picture(x + 0.5, y + 0.5, sprite.filepath());
                 return;
             } catch (IllegalArgumentException e) {
                 // Exception happens because the file can't be found. In this case, fail silently
-                // and just use the character and background color for the tile.
+                // and just use the character and background color for the sprite.
             }
         }
         StdDraw.setFont(FontSet.TILE);
-        StdDraw.setPenColor(tile.backgroundColor());
+        StdDraw.setPenColor(sprite.backgroundColor());
         StdDraw.filledSquare(x + 0.5, y + 0.5, 0.5);
-        StdDraw.setPenColor(tile.textColor());
-        StdDraw.text(x + 0.5, y + 0.5, Character.toString(tile.character()));
+        StdDraw.setPenColor(sprite.textColor());
+        StdDraw.text(x + 0.5, y + 0.5, Character.toString(sprite.character()));
+    }
+
+    public void drawTile(Sprite sprite, double x, double y) {
+        if (sprite.filepath() != null) {
+            try {
+                StdDraw.picture(x + 0.5, y + 0.5, sprite.filepath());
+                return;
+            } catch (IllegalArgumentException e) {
+                // Exception happens because the file can't be found. In this case, fail silently
+                // and just use the character and background color for the sprite.
+            }
+        }
+        StdDraw.setFont(FontSet.TILE);
+        StdDraw.setPenColor(sprite.backgroundColor());
+        StdDraw.filledSquare(x + 0.5, y + 0.5, 0.5);
+        StdDraw.setPenColor(sprite.textColor());
+        StdDraw.text(x + 0.5, y + 0.5, Character.toString(sprite.character()));
     }
 
     /* Render the given state. State consists of texts and tiles currently.
@@ -140,8 +153,6 @@ public class Renderer implements Serializable {
     */
     public void render(State state) {
         StdDraw.clear(Color.BLACK);
-        RendererVisitor rendererVisitor = new RendererVisitor();
-        rendererVisitor.visit(state);
         StdDraw.show();
     }
 }

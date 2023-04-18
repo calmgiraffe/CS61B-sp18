@@ -1,6 +1,8 @@
-package byog.Core.Level.Map;
+package byog.Core.Map;
 
-import byog.Core.Level.Tile;
+import byog.Core.Graphics.Sprite;
+import byog.Core.Position;
+import byog.Core.Tile;
 
 import java.io.Serializable;
 import java.util.*;
@@ -20,6 +22,7 @@ public class Partition implements Serializable {
             this.distance = distance;
         }
     }
+
     /* All partitions side lengths should be between MIN and MAX.
      MAX should be at least 2*MIN - 1, because a split on 2*MIN gives 2 partitions of MIN */
     private static final int MIN = 7;
@@ -42,7 +45,7 @@ public class Partition implements Serializable {
         this.position = p;
         this.width = width;
         this.height = height;
-        this.centre = new Position(position.x + width / 2, position.y + height / 2);
+        this.centre = new Position(position.x() + width / 2, position.y() + height / 2);
         this.map = map;
     }
 
@@ -91,12 +94,12 @@ public class Partition implements Serializable {
              * Positions representing the bottom left and top right corner, a floor type, etc */
             int lowerLeftX = map.rand.nextInt(width - MIN);
             int lowerLeftY = map.rand.nextInt(height - MIN);
-            Position lowerLeft = new Position(position.x + lowerLeftX, position.y + lowerLeftY);
+            Position lowerLeft = new Position(position.floorX() + lowerLeftX, position.floorY() + lowerLeftY);
 
-            int minX = lowerLeft.x + MIN_ROOM - 1;
-            int maxX = Math.min(lowerLeft.x + MAX_ROOM - 1, position.x + width - 1);
-            int minY = lowerLeft.y + MIN_ROOM - 1;
-            int maxY = Math.min(lowerLeft.y + MAX_ROOM - 1, position.y + height - 1);
+            int minX = lowerLeft.floorX() + MIN_ROOM - 1;
+            int maxX = Math.min(lowerLeft.floorX() + MAX_ROOM - 1, position.floorX() + width - 1);
+            int minY = lowerLeft.floorY() + MIN_ROOM - 1;
+            int maxY = Math.min(lowerLeft.floorY() + MAX_ROOM - 1, position.floorY() + height - 1);
 
             int upperRightX = map.rand.nextInt(minX, maxX);
             int upperRightY = map.rand.nextInt(minY, maxY);
@@ -112,7 +115,7 @@ public class Partition implements Serializable {
      * the middle of the current partition's width so that both partitions are within bounds.
      * */
     private Partition splitHorizontally(int border) {
-        Position newPos = new Position(position.x + border, position.y);
+        Position newPos = new Position(position.floorX() + border, position.floorY());
         return new Partition(newPos, width - border, height, map);
     }
 
@@ -120,7 +123,7 @@ public class Partition implements Serializable {
      * the middle of the current partition's height so that both partitions are within bounds.
      */
     private Partition splitVertically(int border) {
-        Position newPos = new Position(position.x, position.y + border);
+        Position newPos = new Position(position.floorX(), position.floorY() + border);
         return new Partition(newPos, width, height - border, map);
     }
 
@@ -160,7 +163,7 @@ public class Partition implements Serializable {
     /* Draw a completed hallway between A and B, picking a random location in the Room */
     private void astar(Room roomA, Room roomB) {
         Position a = roomA.randomPosition(1), b = roomB.randomPosition(1);
-        int start = map.to1D(a.x, a.y), target = map.to1D(b.x, b.y);
+        int start = map.to1D(a.floorX(), a.floorY()), target = map.to1D(b.floorX(), b.floorY());
 
         PriorityQueue<Node> fringe = new PriorityQueue<>(getDistanceComparator());
         int[] edgeTo = new int[map.width * map.height];
@@ -180,7 +183,7 @@ public class Partition implements Serializable {
                 if (distTo[p] + 1 < distTo[q]) {
                     distTo[q] = distTo[p] + 1;
                     edgeTo[q] = p;
-                    fringe.add(new Node(q, distTo[q] + Position.manhattan(q, target, map)));
+                    fringe.add(new Node(q, (int) (distTo[q] + Position.manhattan(q, target, map))));
                 }
                 if (q == target) {
                     targetFound = true;
@@ -213,11 +216,11 @@ public class Partition implements Serializable {
                 way = 'L';
             }
             Position currentPos = map.toPosition(curr);
-            map.place(currentPos.x, currentPos.y, Tile.FLOOR);
+            map.place(new Tile(currentPos, Sprite.FLOOR));
 
-            /* Draws the three wall tiles and floor tile that must be placed when adding a new floor
-            tile to hallway. Overall method works by adding a room of area 1 on a preexisting room. */
-            int x = currentPos.x, y = currentPos.y;
+            /* Draws the three wall tiles and floor sprite that must be placed when adding a new floor
+            sprite to hallway. Overall method works by adding a room of area 1 on a preexisting room. */
+            int x = currentPos.floorX(), y = currentPos.floorY();
             switch (way) {
                 case 'U' -> {
                     x -= 1;
@@ -234,14 +237,14 @@ public class Partition implements Serializable {
             }
             if (way == 'U' || way == 'D') {
                 for (int i = 0; i < 3; i += 1) {
-                    if (map.peek(x + i, y) != Tile.FLOOR) {
-                        map.place(x + i, y, Tile.colorVariant(Tile.WALL, 30, 30, 30, map.rand));
+                    if (map.peek(x + i, y).getSprite() != Sprite.FLOOR) {
+                        map.place(new Tile(x + i, y, Sprite.colorVariant(Sprite.WALL, 30, 30, 30, map.rand)));
                     }
                 }
             } else if (way == 'L' || way == 'R') {
                 for (int i = 0; i < 3; i += 1) {
-                    if (map.peek(x, y + i) != Tile.FLOOR) {
-                        map.place(x, y + i, Tile.colorVariant(Tile.WALL, 30, 30, 30, map.rand));
+                    if (map.peek(x, y + i).getSprite() != Sprite.FLOOR) {
+                        map.place(new Tile(x, y + i, Sprite.colorVariant(Sprite.WALL, 30, 30, 30, map.rand)));
                     }
                 }
             }

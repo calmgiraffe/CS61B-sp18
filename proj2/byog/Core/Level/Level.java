@@ -1,8 +1,7 @@
 package byog.Core.Level;
 
-import byog.Core.Level.Map.Map;
+import byog.Core.Map.Map;
 import byog.Core.Visitable;
-import byog.Core.Renderer;
 import byog.Core.Visitor;
 import byog.RandomTools.RandomInclusive;
 

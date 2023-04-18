@@ -2,20 +2,14 @@ package byog.Core.State;
 
 import byog.Core.Graphics.FontSet;
 import byog.Core.Game;
+import byog.Core.Graphics.Sprite;
 import byog.Core.Level.Level;
-import byog.Core.Level.Map.Map;
-import byog.Core.Visitable;
-import byog.Core.Renderer;
-import byog.Core.Visitor;
+import byog.Core.Map.Map;
 import byog.RandomTools.RandomInclusive;
 import byog.Core.Level.Text;
-import byog.Core.Level.Tile;
 
 import java.awt.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class PlayState implements State, Serializable {
     // Static variables
@@ -26,7 +20,6 @@ public class PlayState implements State, Serializable {
     private final Level[] levels;
     private int currLevel = 1;
     private final RandomInclusive rand;
-    private final ArrayList<Visitable> visitables;
 
     // Flags
     private boolean reachedEndOfLevel = false;
@@ -42,7 +35,6 @@ public class PlayState implements State, Serializable {
         this.rand = new RandomInclusive(seed);
         this.levels = new Level[NUM_LEVELS + 1];
         levels[currLevel] = new Level(width, height, rand); // generate first level
-        this.visitables = new ArrayList<>(Arrays.asList(tileStr, centreStr, levelStr, levels[currLevel]));
     }
 
     private void nextLevel() {
@@ -82,8 +74,8 @@ public class PlayState implements State, Serializable {
         String tileDesc;
         Map currMap = levels[currLevel].getMap();
         if (currMap.isValid(newX, newY)) {
-            Tile currTile = currMap.peek(newX, newY);
-            tileDesc = currTile.description();
+            Sprite currSprite = currMap.peek(newX, newY);
+            tileDesc = currSprite.description();
         } else {
             tileDesc = "";
         }
@@ -91,13 +83,5 @@ public class PlayState implements State, Serializable {
 
         /* Set centreStr based off flag */
         centreStr.setText(colonPressed ? "Press q to quit" : "");
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-        for (Visitable obj : visitables) {
-            obj.accept(visitor);
-        }
     }
 }
