@@ -1,12 +1,9 @@
-package byog.Core.Level;
-
-import byog.Core.Visitable;
-import byog.Core.Visitor;
+package byog.Core;
 
 import java.awt.*;
 import java.io.Serializable;
 
-public class Text implements Serializable, Visitable {
+public class Text implements Serializable {
 
     public enum Alignment {
         LEFT,
@@ -27,11 +24,6 @@ public class Text implements Serializable, Visitable {
         this.x = x;
         this.y = y;
         this.alignment = alignment;
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
     }
 
     public void setText(String text) {

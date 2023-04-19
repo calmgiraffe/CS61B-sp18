@@ -1,5 +1,6 @@
 package byog.Core;
 
+import byog.Core.Component.RendererComponent;
 import byog.Core.State.MainMenuState;
 
 import byog.Core.State.State;

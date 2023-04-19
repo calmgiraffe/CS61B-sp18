@@ -1,4 +1,4 @@
-package byog.Core.Map;
+package byog.Core.Level.Map;
 
 import byog.Core.Position;
 import byog.RandomTools.RandomInclusive;
@@ -14,9 +14,9 @@ public class UnitTests {
         Position p1 = new Position(7, 7);
         Position p2 = new Position(5, 3);
         Position p3 = new Position(3, 3);
-        assertEquals(map.to1D(p1.floorX(), p1.floorY()), 63);
-        assertEquals(map.to1D(p2.floorX(), p2.floorY()), 29);
-        assertEquals(map.to1D(p3.floorX(), p3.floorY()), 27);
+        assertEquals(map.to1D(p1.ix(), p1.iy()), 63);
+        assertEquals(map.to1D(p2.ix(), p2.iy()), 29);
+        assertEquals(map.to1D(p3.ix(), p3.iy()), 27);
     }
 
     @Test
@@ -24,9 +24,9 @@ public class UnitTests {
         Map map = new Map(10, 8, rand);
         int p1 = 32;
         int p2 = 67;
-        assertEquals(map.toPosition(p1).floorX(), 2);
-        assertEquals(map.toPosition(p1).floorY(), 3);
-        assertEquals(map.toPosition(p2).floorX(), 7);
-        assertEquals(map.toPosition(p2).floorY(), 6);
+        assertEquals(map.toPosition(p1).ix(), 2);
+        assertEquals(map.toPosition(p1).iy(), 3);
+        assertEquals(map.toPosition(p2).ix(), 7);
+        assertEquals(map.toPosition(p2).iy(), 6);
     }
 }

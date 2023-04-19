@@ -1,9 +1,7 @@
 package byog.Core.State;
 
 import byog.Core.Game;
-import byog.Core.Graphics.Sprite;
 import byog.Core.Level.Level;
-import byog.Core.Map.Map;
 import byog.RandomTools.RandomInclusive;
 
 import java.io.Serializable;
@@ -11,17 +9,22 @@ import java.io.Serializable;
 public class PlayState implements State, Serializable {
     public static final int NUM_LEVELS = 25;
 
+    private int width;
+    private int height;
     private Game game;
     private final Level[] levels;
     private int currLevel = 1;
+    private final HUD hud;
     private final RandomInclusive rand;
-    private boolean colonPressed = false;
 
     public PlayState(Game game, Long seed, int width, int height) {
+        this.width = width;
+        this.height = height;
         this.game = game;
         this.rand = new RandomInclusive(seed);
         this.levels = new Level[NUM_LEVELS + 1];
         levels[currLevel] = new Level(width, height, rand); // generate first level
+        this.hud = new HUD(this); // back reference to this state
     }
 
     @Override
@@ -31,55 +34,32 @@ public class PlayState implements State, Serializable {
 
     @Override
     public void update() {
-        // level[currlevel].update()
-        // hud.update()
-
-        // Hud needs to know:
-        // mouse x and y position
-        // the tiles underneath x and y
-        // the current level
-
+        // Get user inputs
+        int floorX = (int) Game.controller.getMouseX();
+        int floorY = (int) Game.controller.getMouseY();
         char cmd = Game.controller.getNextCommand();
 
-
-        /* Set the next frame of window */
-        levels[currLevel].nextFrame();
-
-        /* Change the object's state based off user input. Either a change in HUD or Level */
-        if (cmd == ':') {
-            colonPressed = true;
-        }
-        else if (cmd == 'q' && colonPressed) {
-            colonPressed = false;
-            game.setContext(new SaveState(game, this));
-        }
-        else if ("wasd".indexOf(cmd) != -1) { // moving player
-            colonPressed = false;
-            levels[currLevel].updateEntities(cmd); // entities move only when player moves
-        }
-        // Todo: handling case when player reaches end of level
-
-        /* Set tileStr based off current mouse position */
-        int newX = Math.round((float) Math.floor(mouseX));
-        int newY = Math.round((float) Math.floor(mouseY));
-        String tileDesc;
-        Map currMap = levels[currLevel].getMap();
-        if (currMap.isValid(newX, newY)) {
-            Sprite currSprite = currMap.peek(newX, newY).getSprite();
-            tileDesc = currSprite.description();
-        } else {
-            tileDesc = "";
-        }
-        tileStr.setText(tileDesc);
-
-        /* Set centreStr based off flag */
-        centreStr.setText(colonPressed ? "Press q to quit" : "");
+        // Update elements
+        getCurrLevel().update(cmd);
+        hud.update(cmd, floorX, floorY);
+    }
+    public void save() {
+        game.setContext(new SaveState(game, this));
     }
 
-    private void nextLevel() {
+    public Level getCurrLevel() {
+        return levels[currLevel];
+    }
+    public void nextLevel() {
         currLevel += 1;
+        if (levels[currLevel] == null) {
+            levels[currLevel] = new Level(width, height, rand);
+        }
     }
-    private void prevLevel() {
+    public void prevLevel() {
         currLevel -= 1;
+        if (levels[currLevel] == null) {
+            levels[currLevel] = new Level(width, height, rand);
+        }
     }
 }

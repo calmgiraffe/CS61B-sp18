@@ -35,6 +35,7 @@ public class Sprite implements Serializable {
     public static final Sprite FLOWER = new Sprite('❀', Color.magenta, Color.pink, "flower");
     public static final Sprite LOCKED_DOOR = new Sprite('█', Color.orange, Color.black, "locked door");
     public static final Sprite UNLOCKED_DOOR = new Sprite('▢', Color.orange, Color.black, "unlocked door");
+    public static final Sprite LADDER = new Sprite('☰', Color.orange, Color.black, "ladder");
     public static final Sprite SAND = new Sprite('▒', Color.yellow, Color.black, "sand");
     public static final Sprite MOUNTAIN = new Sprite('▲', Color.gray, Color.black, "mountain");
     public static final Sprite TREE = new Sprite('♠', Color.green, Color.black, "tree");

@@ -1,8 +1,7 @@
-package byog.Core.Map;
+package byog.Core.Level.Map;
 
 import byog.Core.Graphics.Sprite;
 import byog.Core.Position;
-import byog.Core.Tile;
 import byog.RandomTools.RandomInclusive;
 
 import java.io.Serializable;
@@ -13,12 +12,24 @@ import java.util.List;
  * Map object to represent the underlying data type (TETIle[][]) representing the world.
  */
 public class Map implements Serializable {
+    /* Private class to represent a room-distance pair in the pQueue. */
+    private static class Node {
+        Room room;
+        int distance;
+
+        Node(Room room, int distance) {
+            this.room = room;
+            this.distance = distance;
+        }
+    }
+
     /* Instance variables */
     protected final int width;
     protected final int height;
     protected final RandomInclusive rand;
     private final ArrayList<Room> rooms = new ArrayList<>();
     private final Tile[][] tileGrid;
+    private Position start, exit;
 
     public Map(int width, int height, RandomInclusive rand) {
         this.width = width;
@@ -36,6 +47,8 @@ public class Map implements Serializable {
         /* Generate dungeon and draw grass */
         partition.generateTree(rooms);
         partition.connectPartitions();
+
+        setPortals();
     }
 
     /** Returns the sprite at specified x and y coordinates on the level, but does not remove the sprite.
@@ -50,7 +63,7 @@ public class Map implements Serializable {
     /** Draws the specified sprite at the specified x & y.
      * Use this method so you don't get IndexErrors. */
     public void place(Tile tile) {
-        int ix = (int) tile.x(), iy = (int) tile.y();
+        int ix = tile.getX(), iy = tile.getY();
         if (isValid(ix, iy)) {
             tileGrid[ix][iy] = tile;
         }
@@ -87,8 +100,8 @@ public class Map implements Serializable {
         int[][] arr = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
         for (int[] pair : arr) {
-            if (isValid(p.floorX() + pair[0], p.floorY() + pair[1])) {
-                adj.add(new Position(p.floorX() + pair[0], p.floorY() + pair[1]));
+            if (isValid(p.ix() + pair[0], p.iy() + pair[1])) {
+                adj.add(new Position(p.ix() + pair[0], p.iy() + pair[1]));
             }
         }
         return adj;
@@ -101,14 +114,37 @@ public class Map implements Serializable {
 
         ArrayList<Integer> adjacent = new ArrayList<>();
         for (int[] pair : arr) {
-            if (isValid(pos.floorX() + pair[0], pos.floorY() + pair[1])) {
-                adjacent.add(to1D(pos.floorX() + pair[0], pos.floorY() + pair[1]));
+            if (isValid(pos.ix() + pair[0], pos.iy() + pair[1])) {
+                adjacent.add(to1D(pos.ix() + pair[0], pos.iy() + pair[1]));
             }
         }
         return adjacent;
     }
 
-    public Tile[][] getTileGrid() {
-        return tileGrid;
+    private void setPortals() {
+        PriorityQueue<Node> pQueue = new PriorityQueue<>(getDistanceComparator());
+        Position start = rooms.get(0).getCenter();
+        this.start = start;
+        place(new Tile(start.ix(), start.iy(), Sprite.LADDER));
+
+        int len = rooms.size();
+        for (int i = 1; i < len; i++) {
+            int distance = (int) Position.euclidean(start, rooms.get(i).getCenter());
+            pQueue.add(new Node(rooms.get(i), distance));
+        }
+        Node farthest = pQueue.remove();
+        Position exit = farthest.room.getCenter();
+        this.exit = exit;
+        place(new Tile(exit.ix(), exit.iy(), Sprite.UNLOCKED_DOOR));
+    }
+
+    private static class DistanceComparator implements Comparator<Node> {
+        public int compare(Node a, Node b) {
+            return b.distance - a.distance;
+        }
+    }
+
+    private static Comparator<Node> getDistanceComparator() {
+        return new DistanceComparator();
     }
 }

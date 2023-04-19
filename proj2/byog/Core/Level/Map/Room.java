@@ -1,13 +1,13 @@
-package byog.Core.Map;
+package byog.Core.Level.Map;
 
 import byog.Core.Graphics.Sprite;
 import byog.Core.Position;
-import byog.Core.Tile;
 
 import java.io.Serializable;
 
 public class Room implements Serializable {
-    public static final int GRASS_ODDS = 70;
+    private static final int GRASS_ODDS = 70;
+    private static final int FLOWER_ODDS = 10;
 
     private final Position lowerLeft;
     private final Position upperRight;
@@ -20,13 +20,13 @@ public class Room implements Serializable {
         this.map = map;
     }
 
-    /** Recursively draw grass in the room */
-    public void drawGrass(int count, int x, int y) {
+    /* Recursively draw grass in the room */
+    private void drawGrass(int count, int x, int y) {
         if (!map.isValid(x, y)) {
             return;
         }
         if (map.peek(x, y).getSprite() == floorType && count > 0) {
-            if (map.rand.nextInt(100) <= 10) {
+            if (map.rand.nextInt(100) <= FLOWER_ODDS) {
                 map.place(new Tile(x, y, Sprite.randomFlower(map.rand)));
             } else {
                 map.place(new Tile(x, y, Sprite.colorVariant(Sprite.GRASS, 50, 50, 50, map.rand)));
@@ -43,12 +43,12 @@ public class Room implements Serializable {
         }
     }
 
-    /* Draws the rectangular room that is associated with this particular Partition onto level. */
-    public void drawRoom() {
-        int startX = lowerLeft.floorX();
-        int startY = lowerLeft.floorY();
-        int endX = upperRight.floorX();
-        int endY = upperRight.floorY();
+    /** Draws the rectangular room that is associated with this particular Partition onto level. */
+    protected void drawRoom() {
+        int startX = lowerLeft.ix();
+        int startY = lowerLeft.iy();
+        int endX = upperRight.ix();
+        int endY = upperRight.iy();
 
         // Draw top and bottom walls
         for (int x = startX; x <= endX; x++) {
@@ -78,19 +78,25 @@ public class Room implements Serializable {
         if (map.rand.nextInt(100) < GRASS_ODDS) {
             int size = map.rand.nextInt(5, 7);
             Position randPos = this.randomPosition(1);
-            this.drawGrass(size, randPos.floorX(), randPos.floorY());
+            this.drawGrass(size, randPos.ix(), randPos.iy());
         }
     }
 
     /** Pick random location within the room, int buffer indicating the margin from the room edge. */
-    public Position randomPosition(int buffer) {
-        int xLower = lowerLeft.floorX() + buffer;
-        int xUpper = upperRight.floorX() - buffer;
-        int yLower = lowerLeft.floorY() + buffer;
-        int yUpper = upperRight.floorY() - buffer;
+    protected Position randomPosition(int buffer) {
+        int xLower = lowerLeft.ix() + buffer;
+        int xUpper = upperRight.ix() - buffer;
+        int yLower = lowerLeft.iy() + buffer;
+        int yUpper = upperRight.iy() - buffer;
 
         return new Position(
                 map.rand.nextInt(xLower, xUpper),
                 map.rand.nextInt(yLower, yUpper));
+    }
+
+    protected Position getCenter() {
+        return new Position(
+                (lowerLeft.ix() + upperRight.ix()) / 2,
+                (lowerLeft.iy() + upperRight.iy()) / 2);
     }
 }

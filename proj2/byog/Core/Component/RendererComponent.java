@@ -1,4 +1,4 @@
-package byog.Core;
+package byog.Core.Component;
 
 import byog.Core.Graphics.FontSet;
 import byog.Core.Graphics.Sprite;
