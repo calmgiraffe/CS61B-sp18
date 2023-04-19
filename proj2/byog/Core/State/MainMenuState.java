@@ -27,9 +27,11 @@ public class MainMenuState implements State {
     }
 
     @Override
-    public void update(char cmd, double x, double y) {
+    public void update() {
         angle = (angle + 5) % 360;
         titleStr.setColor(rainbowColor(angle));
+
+        char cmd = Game.controller.getNextCommand();
 
         if (cmd == 'n') {
             game.setContext(new SetupState(game));

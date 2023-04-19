@@ -11,7 +11,7 @@ public class HUD {
     private final Text centreStr = new Text("Press q to quit", Color.WHITE, FontSet.HUD, 0.5, 0.96, Text.Alignment.CENTRE);
     private final Text levelStr = new Text("Level 1", Color.WHITE, FontSet.HUD, 0.97, 0.96, Text.Alignment.RIGHT);
 
-    public HUD() {
-        this.
+    public void update() {
+        Game.out
     }
 }

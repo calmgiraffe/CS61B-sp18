@@ -1,21 +1,16 @@
 package byog.Core.State;
 
-import byog.Core.Graphics.FontSet;
 import byog.Core.Game;
 import byog.Core.Graphics.Sprite;
 import byog.Core.Level.Level;
 import byog.Core.Map.Map;
 import byog.RandomTools.RandomInclusive;
-import byog.Core.Level.Text;
 
-import java.awt.*;
 import java.io.Serializable;
 
 public class PlayState implements State, Serializable {
-    // Static variables
     public static final int NUM_LEVELS = 25;
 
-    // Instance variables
     private Game game;
     private final Level[] levels;
     private int currLevel = 1;
@@ -35,7 +30,7 @@ public class PlayState implements State, Serializable {
     }
 
     @Override
-    public void update(char cmd, double mouseX, double mouseY) {
+    public void update() {
         // level[currlevel].update()
         // hud.update()
 
@@ -44,6 +39,7 @@ public class PlayState implements State, Serializable {
         // the tiles underneath x and y
         // the current level
 
+        char cmd = Game.controller.getNextCommand();
 
 
         /* Set the next frame of window */

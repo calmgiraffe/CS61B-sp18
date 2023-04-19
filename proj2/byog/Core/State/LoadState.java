@@ -23,7 +23,7 @@ public class LoadState implements State {
     }
 
     @Override
-    public void update(char cmd, double x, double y) {
+    public void update() {
         try {
             // Load the serialized save file, convert to valid PlayState object
             FileInputStream fileIn = new FileInputStream("savefile.txt");

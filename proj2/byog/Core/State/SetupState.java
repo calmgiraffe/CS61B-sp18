@@ -5,8 +5,6 @@ import byog.Core.Graphics.FontSet;
 import byog.Core.Level.Text;
 
 import java.awt.*;
-import java.util.Arrays;
-
 
 import static byog.Core.Graphics.Colors.rainbowColor;
 
@@ -32,9 +30,11 @@ public class SetupState implements State {
     }
 
     @Override
-    public void update(char cmd, double x, double y) {
+    public void update() {
         angle = (angle + 5) % 360;
         titleStr.setColor(rainbowColor(angle));
+
+        char cmd = Game.controller.getNextCommand();
 
         if ((int) cmd == BACKSPACE && seed.length() > 0) { // delete from seed
             seed.deleteCharAt(seed.length() - 1);

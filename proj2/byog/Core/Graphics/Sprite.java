@@ -9,7 +9,7 @@ import byog.RandomTools.RandomUtils;
 
 /**
  * The Sprite object is used to represent a single sprite in your game. A 2D array of tiles make up a
- * board, and can be drawn to the screen using the Renderer class.
+ * board, and can be drawn to the screen using the RendererComponent class.
  * <p>
  * All Sprite objects must have a character, textcolor, and background color to be used to represent
  * the sprite when drawn to the screen. You can also optionally provide a path to an image file of an

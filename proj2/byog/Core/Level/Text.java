@@ -1,12 +1,10 @@
 package byog.Core.Level;
 
 import byog.Core.Visitable;
-import byog.Core.Renderer;
 import byog.Core.Visitor;
 
 import java.awt.*;
 import java.io.Serializable;
-import java.util.List;
 
 public class Text implements Serializable, Visitable {
 
