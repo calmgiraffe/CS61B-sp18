@@ -34,7 +34,7 @@ public class Entity extends GameObject {
             case 'a' -> xVelocity = -0.05;
         }
     }
-
+    /*
     public void move(int dx, int dy) {
         // Check map for collisions
         // Check map to see if at door
@@ -48,4 +48,5 @@ public class Entity extends GameObject {
             y = newY;
         }
     }
+    */
 }

@@ -39,9 +39,11 @@ public class PlayState implements State, Serializable {
         int floorY = (int) Game.controller.getMouseY();
         char cmd = Game.controller.getNextCommand();
 
-        // Update elements
+        // Update current level
         getCurrLevel().update(cmd);
-        hud.update(cmd, floorX, floorY);
+
+        // Update HUD
+        hud.update();
     }
     public void save() {
         game.setContext(new SaveState(game, this));

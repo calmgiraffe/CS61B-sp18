@@ -1,6 +1,5 @@
 package byog.Core;
 
-import byog.Core.Component.RendererComponent;
 import byog.Core.State.MainMenuState;
 
 import byog.Core.State.State;
@@ -17,13 +16,11 @@ public class Game implements Serializable {
     public static Controller controller;
 
     /* Instance variables */
-    public RendererComponent rendererComponent;
     private boolean quitGame = false;
     private State state;
 
     /* Constructor */
     public Game(String cmdString) {
-        rendererComponent.initialize(WIDTH, HEIGHT);
         controller = new Controller(cmdString);
         this.state = new MainMenuState(this); // set initial state
     }
@@ -32,7 +29,6 @@ public class Game implements Serializable {
         while (!quitGame) {
             // Get keyboard and mouse inputs
             state.update();
-            rendererComponent.render(state);
             Thread.sleep(MS_PER_UPDATE);
         }
         exit(0);

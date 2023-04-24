@@ -50,6 +50,8 @@ public class Map implements Serializable {
 
         setPortals();
     }
+    public Position getStart() { return start; }
+    public Position getExit() { return exit; }
 
     /** Returns the sprite at specified x and y coordinates on the level, but does not remove the sprite.
      * If out of bounds, returns null. */

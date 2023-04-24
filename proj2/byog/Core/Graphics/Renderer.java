@@ -1,4 +1,4 @@
-package byog.Core.Component;
+package byog.Core.Graphics;
 
 import byog.Core.Graphics.FontSet;
 import byog.Core.Graphics.Sprite;
@@ -12,10 +12,10 @@ import java.io.Serializable;
 /**
  * Utility class for rendering tiles. You do not need to modify this file. You're welcome
  * to, but be careful. We strongly recommend getting everything else working before
- * messing with this rendererComponent, unless you're trying to do something fancy like
+ * messing with this renderer, unless you're trying to do something fancy like
  * allowing scrolling of the screen or tracking the player or something similar.
  */
-public class RendererComponent implements Serializable {
+public class Renderer implements Serializable {
     private static final int TILE_SIZE = 18;
     private int width;
     private int height;
@@ -26,7 +26,7 @@ public class RendererComponent implements Serializable {
      * Same functionality as the other initialization method. The only difference is that the xOff
      * and yOff parameters will change where the renderFrame method starts drawing. For example,
      * if you select w = 60, h = 30, xOff = 3, yOff = 4 and then call renderFrame with a
-     * Sprite[50][25] array, the rendererComponent will leave 3 tiles blank on the left, 7 tiles blank
+     * Sprite[50][25] array, the renderer will leave 3 tiles blank on the left, 7 tiles blank
      * on the right, 4 tiles blank on the bottom, and 1 sprite blank on the top.
      * @param w width of the window in tiles
      * @param h height of the window in tiles.

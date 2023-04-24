@@ -18,7 +18,6 @@ public class Level implements Serializable {
         this.height = height;
         this.rand = rand;
         this.map = new Map(width, height, rand); // generate the underlying map (grid of tiles)
-        map.getEntrance()
         this.player = new Player();
     }
 
