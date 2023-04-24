@@ -123,20 +123,22 @@ public class Map implements Serializable {
         return adjacent;
     }
 
+    /* Helper method to set the start and end locations of the player */
     private void setPortals() {
-        PriorityQueue<Node> pQueue = new PriorityQueue<>(getDistanceComparator());
-        Position start = rooms.get(0).getCenter();
-        this.start = start;
+        // Arbitrarily pick first room and place ladder (portal to prev level)
+        this.start = rooms.get(0).getCenter();
         place(new Tile(start.ix(), start.iy(), Sprite.LADDER));
 
+        // Get a heap of rooms sorted by descending order from ladder
+        PriorityQueue<Node> pQueue = new PriorityQueue<>(getDistanceComparator());
         int len = rooms.size();
         for (int i = 1; i < len; i++) {
             int distance = (int) Position.euclidean(start, rooms.get(i).getCenter());
             pQueue.add(new Node(rooms.get(i), distance));
         }
+        // Place a trapdoor (portal to next level)
         Node farthest = pQueue.remove();
-        Position exit = farthest.room.getCenter();
-        this.exit = exit;
+        this.exit = farthest.room.getCenter();
         place(new Tile(exit.ix(), exit.iy(), Sprite.UNLOCKED_DOOR));
     }
 

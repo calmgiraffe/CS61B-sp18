@@ -1,5 +1,6 @@
 package byog.Core.State;
 
+import byog.Core.Game;
 import byog.Core.Graphics.FontSet;
 import byog.Core.Graphics.Sprite;
 import byog.Core.Text;
@@ -21,7 +22,12 @@ public class HUD {
         this.state = state;
     }
 
-    protected void update(char cmd, int mouseX, int mouseY) {
+    protected void update() {
+        // Get user inputs
+        int mouseX = (int) Game.controller.getMouseX();
+        int mouseY = (int) Game.controller.getMouseY();
+        char cmd = Game.controller.getNextCommand();
+
         /* Change the object's state based off user input. Either a change in HUD or Level */
         if (cmd == ':') { // raise flag
             colonPressed = true;

@@ -2,12 +2,18 @@ package byog.Core.Level;
 
 import byog.Core.GameObject;
 import byog.Core.Graphics.Sprite;
+import byog.Core.Position;
 
 public class Entity extends GameObject {
     protected double xVelocity;
     protected double yVelocity;
     protected int health = 100;
     protected Level level;
+
+    public Entity(Position p, Sprite sprite, Level level) {
+        super(p.ix(), p.iy(), sprite);
+        this.level = level;
+    }
 
     public Entity(double x, double y, Sprite sprite, Level level) {
         super(x, y, sprite);

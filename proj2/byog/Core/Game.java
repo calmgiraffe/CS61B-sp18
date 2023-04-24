@@ -20,14 +20,13 @@ public class Game implements Serializable {
     private State state;
 
     /* Constructor */
-    public Game(String cmdString) {
-        controller = new Controller(cmdString);
+    public Game() {
+        controller = new Controller();
         this.state = new MainMenuState(this); // set initial state
     }
 
     public void start() throws InterruptedException {
         while (!quitGame) {
-            // Get keyboard and mouse inputs
             state.update();
             Thread.sleep(MS_PER_UPDATE);
         }

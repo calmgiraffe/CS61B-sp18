@@ -6,12 +6,7 @@ package byog.Core;
  */
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        if (args.length > 1) {
-            System.out.println("Can only have one argument - the input string");
-            System.exit(0);
-        }
-        String cmdString = (args.length == 1) ? args[0] : null;
-        Game game = new Game(cmdString);
+        Game game = new Game();
         game.start();
     }
 }
