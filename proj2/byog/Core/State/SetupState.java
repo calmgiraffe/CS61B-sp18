@@ -46,7 +46,7 @@ public class SetupState implements State {
         }
         else if (cmd == 's' && seed.length() > 0) { // s = start
             Long seedValue = Long.parseLong(seed.toString());
-            game.setContext(new PlayState(game, seedValue, Game.WIDTH, Game.HEIGHT - Game.HUD_HEIGHT));
+            game.setContext(new PlayState(game, seedValue));
         }
         else if (cmd == 'b') { // b = go back
             game.setContext(new MainMenuState(game));

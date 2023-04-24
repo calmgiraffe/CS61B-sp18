@@ -1,6 +1,7 @@
 package byog.Core.Level;
 
-import byog.Core.Game;
+import byog.Core.Component.PlayerInputComponent;
+import byog.Core.Component.PlayerPhysicsComponent;
 import byog.Core.GameObject.Entity;
 import byog.Core.Graphics.Sprite;
 import byog.Core.Level.Map.Map;
@@ -9,40 +10,34 @@ import byog.RandomTools.RandomInclusive;
 import java.io.Serializable;
 
 public class Level implements Serializable {
-    /* Instance variables */
-    private final int width;
-    private final int height;
-    private final RandomInclusive rand;
+    PlayerInputComponent playerInputComponent;
+    PlayerPhysicsComponent playerPhysicsComponent;
     private final Map map;
     private Entity player;
 
     public Level(int width, int height, RandomInclusive rand) {
-        this.width = width;
-        this.height = height;
-        this.rand = rand;
+        /* Instance variables */
         this.map = new Map(width, height, rand); // generate the underlying map (grid of tiles)
-        this.player = new Entity(map.getStart(), Sprite.PLAYER, this);
+        this.player = new Entity(map.getStart(), Sprite.PLAYER, this); // place player
     }
 
     public void update() {
-
-        // Get user inputs
-        int mouseX = (int) Game.controller.getMouseX();
-        int mouseY = (int) Game.controller.getMouseY();
-        char cmd = Game.controller.getNextCommand();
-
-        if ("wasd".indexOf(cmd) != -1) { // reset flag if player moved
-            player.move(cmd);
-        }
+        // map.update();
+        playerInputComponent.update(player);
+        playerPhysicsComponent.update(player, map);
     }
 
+    public void initializePlayer() {
+        this.player = new Entity(map.getStart(), Sprite.PLAYER, this);
+        this.playerInputComponent = new PlayerInputComponent();
+    }
+    public void setPlayer(Entity player) {
+        this.player = player;
+    }
     public Entity getPlayer() {
         return player;
     }
     public Map getMap() {
         return map;
-    }
-    public void setPlayer(Entity player) {
-        this.player = player;
     }
 }

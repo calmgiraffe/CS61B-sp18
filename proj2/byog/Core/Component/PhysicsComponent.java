@@ -1,8 +1,8 @@
 package byog.Core.Component;
 
 import byog.Core.GameObject.GameObject;
-import byog.Core.Level.Level;
+import byog.Core.Level.Map.Map;
 
 public interface PhysicsComponent {
-    void update(GameObject obj, Level level);
+    void update(GameObject obj, Map map);
 }
