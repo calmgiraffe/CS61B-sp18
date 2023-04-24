@@ -29,7 +29,7 @@ public class Entity extends GameObject {
             case 's' -> dy = -1;
             case 'a' -> dx = -1;
         }
-        move(dx, dy);
+        //move(dx, dy);
     }
 
     public void updateVelocity(char direction) {

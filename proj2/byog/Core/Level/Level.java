@@ -24,6 +24,7 @@ public class Level implements Serializable {
     }
 
     public void update() {
+
         // Get user inputs
         int mouseX = (int) Game.controller.getMouseX();
         int mouseY = (int) Game.controller.getMouseY();
@@ -32,7 +33,6 @@ public class Level implements Serializable {
         if ("wasd".indexOf(cmd) != -1) { // reset flag if player moved
             player.move(cmd);
         }
-        // player.
     }
 
     public Entity getPlayer() {
