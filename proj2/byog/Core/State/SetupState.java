@@ -51,5 +51,10 @@ public class SetupState implements State {
         else if (cmd == 'b') { // b = go back
             game.setContext(new MainMenuState(game));
         }
+
+        Game.renderer.draw(titleStr);
+        Game.renderer.draw(submitStr);
+        Game.renderer.draw(backStr);
+        Game.renderer.draw(seedStr);
     }
 }
