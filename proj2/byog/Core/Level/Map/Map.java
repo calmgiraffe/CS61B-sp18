@@ -1,5 +1,6 @@
 package byog.Core.Level.Map;
 
+import byog.Core.GameObject.Tile;
 import byog.Core.Graphics.Sprite;
 import byog.Core.Position;
 import byog.RandomTools.RandomInclusive;

@@ -1,9 +1,9 @@
 package byog.Core.State;
 
 import byog.Core.Game;
-import byog.Core.Level.Entity;
+import byog.Core.GameObject.Entity;
+import byog.Core.Level.HUD;
 import byog.Core.Level.Level;
-import byog.Core.Position;
 import byog.RandomTools.RandomInclusive;
 
 import java.io.Serializable;

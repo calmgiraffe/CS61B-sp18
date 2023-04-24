@@ -14,6 +14,7 @@ public class Game implements Serializable {
     public static final int HEIGHT = 40;
     public static final int HUD_HEIGHT = 4;
     public static Controller controller;
+    public static Renderer renderer;
 
     /* Instance variables */
     private boolean quitGame = false;
@@ -22,12 +23,15 @@ public class Game implements Serializable {
     /* Constructor */
     public Game() {
         controller = new Controller();
+        renderer = new Renderer(WIDTH, HEIGHT);
         this.state = new MainMenuState(this); // set initial state
     }
 
     public void start() throws InterruptedException {
         while (!quitGame) {
+            renderer.clear();
             state.update();
+            renderer.show();
             Thread.sleep(MS_PER_UPDATE);
         }
         exit(0);

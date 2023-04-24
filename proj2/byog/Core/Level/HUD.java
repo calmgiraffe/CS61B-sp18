@@ -1,11 +1,12 @@
-package byog.Core.State;
+package byog.Core.Level;
 
 import byog.Core.Game;
 import byog.Core.Graphics.FontSet;
 import byog.Core.Graphics.Sprite;
-import byog.Core.Text;
+import byog.Core.GameObject.Text;
 import byog.Core.Level.Level;
 import byog.Core.Level.Map.Map;
+import byog.Core.State.PlayState;
 
 import java.awt.*;
 
@@ -18,11 +19,11 @@ public class HUD {
     private final Text centreStr = new Text("Press q to quit", Color.WHITE, FontSet.HUD, 0.5, 0.96, Text.Alignment.CENTRE);
     private final Text levelStr = new Text("Level 1", Color.WHITE, FontSet.HUD, 0.97, 0.96, Text.Alignment.RIGHT);
 
-    protected HUD(PlayState state) {
+    public HUD(PlayState state) {
         this.state = state;
     }
 
-    protected void update() {
+    public void update() {
         // Get user inputs
         int mouseX = (int) Game.controller.getMouseX();
         int mouseY = (int) Game.controller.getMouseY();

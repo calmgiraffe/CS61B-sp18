@@ -1,6 +1,7 @@
 package byog.Core.Level;
 
 import byog.Core.Game;
+import byog.Core.GameObject.Entity;
 import byog.Core.Graphics.Sprite;
 import byog.Core.Level.Map.Map;
 import byog.RandomTools.RandomInclusive;

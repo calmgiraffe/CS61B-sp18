@@ -11,8 +11,8 @@ import java.io.Serializable;
 public class Position implements Serializable {
 
     /** Position instance variables */
-    private final double x;
-    private final double y;
+    private double x;
+    private double y;
 
     /** Position constructor */
     public Position(double x, double y) {
@@ -57,4 +57,6 @@ public class Position implements Serializable {
     public int iy() { return (int) y;}
     public double dx() { return x; }
     public double dy() { return y; }
+    public void setX(double x) { this.x = x; }
+    public void setY(double y) { this.y = y; }
 }

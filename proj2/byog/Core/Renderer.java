@@ -1,5 +1,7 @@
-package byog.Core.Graphics;
+package byog.Core;
 
+import byog.Core.GameObject.Text;
+import byog.Core.GameObject.Tile;
 import byog.Core.Graphics.FontSet;
 import byog.Core.Graphics.Sprite;
 import byog.Core.State.State;
@@ -21,6 +23,14 @@ public class Renderer implements Serializable {
     private int height;
     private int xOffset;
     private int yOffset;
+
+    Renderer(int width, int height) {
+        this.width = width;
+        this.height = height;
+        xOffset = 0;
+        yOffset = 0;
+        initialize(width, height);
+    }
 
     /**
      * Same functionality as the other initialization method. The only difference is that the xOff
@@ -131,7 +141,10 @@ public class Renderer implements Serializable {
         StdDraw.text(x + 0.5, y + 0.5, Character.toString(sprite.character()));
     }
 
-    public void drawTile(Sprite sprite, double x, double y) {
+    public void draw(Tile tile) {
+        Sprite sprite = tile.getSprite();
+        int x = tile.getX();
+        int y = tile.getY();
         if (sprite.filepath() != null) {
             try {
                 StdDraw.picture(x + 0.5, y + 0.5, sprite.filepath());
@@ -148,11 +161,21 @@ public class Renderer implements Serializable {
         StdDraw.text(x + 0.5, y + 0.5, Character.toString(sprite.character()));
     }
 
-    /* Render the given state. State consists of texts and tiles currently.
-    *  "Rendering" is equivalent to showing one frame.
-    */
-    public void render(State state) {
+    public void draw(Text text) {
+        StdDraw.setPenColor(text.getColor());
+        StdDraw.setFont(text.getFont());
+        switch(text.getAlignment()) {
+            case LEFT -> StdDraw.textLeft(width * text.getDx(), height * text.getDy(), text.getText());
+            case CENTRE -> StdDraw.text(width * text.getDx(), height * text.getDy(), text.getText());
+            case RIGHT -> StdDraw.textRight(width * text.getDx(), height * text.getDy(), text.getText());
+        }
+    }
+
+    public void clear() {
         StdDraw.clear(Color.BLACK);
+    }
+
+    public void show() {
         StdDraw.show();
     }
 }

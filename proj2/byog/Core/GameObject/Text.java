@@ -1,10 +1,9 @@
-package byog.Core;
+package byog.Core.GameObject;
 
 import java.awt.*;
 import java.io.Serializable;
 
-public class Text implements Serializable {
-
+public class Text extends GameObject implements Serializable {
     public enum Alignment {
         LEFT,
         CENTRE,
@@ -13,16 +12,13 @@ public class Text implements Serializable {
     private String text;
     private Color color;
     private Font font;
-    private double x;
-    private double y;
     private Alignment alignment;
 
     public Text(String text, Color color, Font font, double x, double y, Alignment alignment) {
+        super(x, y);
         this.text = text;
         this.color = color;
         this.font = font;
-        this.x = x;
-        this.y = y;
         this.alignment = alignment;
     }
 
@@ -35,12 +31,6 @@ public class Text implements Serializable {
     public void setFont(Font font) {
         this.font = font;
     }
-    public void setX(double x) {
-        this.x = x;
-    }
-    public void setY(double y) {
-        this.y = y;
-    }
     public String getText() {
         return this.text;
     }
@@ -49,12 +39,6 @@ public class Text implements Serializable {
     }
     public Font getFont() {
         return this.font;
-    }
-    public double getX() {
-        return this.x;
-    }
-    public double getY() {
-        return this.y;
     }
     public Alignment getAlignment() {
         return this.alignment;

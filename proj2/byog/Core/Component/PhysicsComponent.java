@@ -1,6 +1,6 @@
 package byog.Core.Component;
 
-import byog.Core.GameObject;
+import byog.Core.GameObject.GameObject;
 import byog.Core.Level.Level;
 
 public interface PhysicsComponent {

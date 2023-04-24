@@ -2,7 +2,7 @@ package byog.Core.State;
 
 import byog.Core.Game;
 import byog.Core.Graphics.FontSet;
-import byog.Core.Text;
+import byog.Core.GameObject.Text;
 
 import java.awt.*;
 

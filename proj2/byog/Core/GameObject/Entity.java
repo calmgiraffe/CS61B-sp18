@@ -1,10 +1,10 @@
-package byog.Core.Level;
+package byog.Core.GameObject;
 
-import byog.Core.GameObject;
 import byog.Core.Graphics.Sprite;
+import byog.Core.Level.Level;
 import byog.Core.Position;
 
-public class Entity extends GameObject {
+public class Entity extends Tile {
     protected double xVelocity;
     protected double yVelocity;
     protected int health = 100;
@@ -20,7 +20,7 @@ public class Entity extends GameObject {
         this.level = level;
     }
 
-    void move(char direction) {
+    public void move(char direction) {
         int dx = 0, dy = 0;
 
         switch (direction) {
